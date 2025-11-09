@@ -12,20 +12,22 @@ class SalahAPIManager {
     
     func salahTimeResponse(
         of date: Date = Date(),
-        location: Location = .coordinate(lat: 23.7115253, lon: 90.4111451),
+        location: Location? = nil,
         method: Method = .UIS_Karachi,
         cautionDelay: CautionDelay = .IslamicFoundation,
         madhab: Madhab = .hanafi,
         hijriDateAdjustment: HijriDateAdjustment = .adjustDays(-1)
     ) async -> Result<DataResponse, ResponseError> {
-        if let response = dateResponse[date.dateString] {
-            print("Returning from cache")
-            return .success(response)
-        }
+        print("[SalahAPIManager] current location is: \(String(describing: location))")
         
+//        if let response = dateResponse[date.dateString] {
+//            print("Returning from cache")
+//            return .success(response)
+//        }
+//        
         guard let url = getURL(
             date: date,
-            location: location,
+            location: location ?? .coordinate(lat: 23.7115253, lon: 90.4111451),
             method: method,
             cautionDelay: cautionDelay,
             madhab: madhab,
@@ -34,7 +36,7 @@ class SalahAPIManager {
             print("Failed getting URL")
             return .failure(.urlConvertionError)
         }
-        print("Fetching data")
+        print("Fetching data with location \(location)")
         
         do {
             let (data, _) = try await URLSession.shared.data(from: url)

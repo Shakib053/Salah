@@ -11,7 +11,9 @@ import Combine
 @Observable
 final class TimingsViewModel {
     private var salahAPIManager: SalahAPIManager
+    private let locationManager: LocationManager
     private var cancellable: Cancellable?
+    private var locationCancellable = Set<AnyCancellable>()
     private(set) var waqtUpdater = PassthroughSubject<Salah.Waqt?, Never>()
     
     var currentWaqt: Salah.Waqt?
@@ -29,9 +31,12 @@ final class TimingsViewModel {
         selectedCard == 1 ? 1.0 : 0.7
     }
     
-    init(salahAPIManager: SalahAPIManager) {
+    init(salahAPIManager: SalahAPIManager, locationManager: LocationManager) {
         self.salahAPIManager = salahAPIManager
+        self.locationManager = locationManager
         observeWaqtChanges()
+        observeLocationChanges()
+
     }
     
     func observeWaqtChanges() {
@@ -42,9 +47,24 @@ final class TimingsViewModel {
             .assign(to: \.currentWaqt, on: self)
     }
     
+    func observeLocationChanges() {
+        locationManager.location
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished:
+                    print("finished")
+                case .failure(let error):
+                    print("error occured \(error)")
+                }
+            }, receiveValue: { _ in })
+            .store(in: &locationCancellable)
+    }
+    
     @MainActor
     func loadData() async {
-        let result = await salahAPIManager.salahTimeResponse(of: selectedDate)
+        let result = await salahAPIManager.salahTimeResponse(of: selectedDate, location: locationManager.location)
         
         switch result {
         case .success(let response):
