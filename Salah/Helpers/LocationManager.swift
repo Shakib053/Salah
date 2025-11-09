@@ -18,7 +18,7 @@ import CoreLocation
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-        manager.requestWhenInUseAuthorization() // Ask for permission
+        manager.requestWhenInUseAuthorization()
         manager.requestLocation() 
     }
 
@@ -28,14 +28,13 @@ import CoreLocation
         switch authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
             print("✅ Permission granted — requesting location now")
-            manager.requestLocation() // this will trigger didUpdateLocations()
+            manager.requestLocation()
         case .denied, .restricted:
             print("❌ Permission denied or restricted")
-            // optionally fallback to a default coordinate
         case .notDetermined:
             print("🕓 Permission not yet determined")
         case .none:
-            print("⚠️ Unknown authorization status")
+            print("⚠️ None type of authorization found")
         @unknown default:
             print("⚠️ Unknown authorization status")
         }

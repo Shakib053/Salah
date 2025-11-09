@@ -20,11 +20,11 @@ class SalahAPIManager {
     ) async -> Result<DataResponse, ResponseError> {
         print("[SalahAPIManager] current location is: \(String(describing: location))")
         
-//        if let response = dateResponse[date.dateString] {
-//            print("Returning from cache")
-//            return .success(response)
-//        }
-//        
+        if let response = dateResponse[date.dateString] {
+            print("Returning from cache")
+            return .success(response)
+        }
+        
         guard let url = getURL(
             date: date,
             location: location ?? .coordinate(lat: 23.7115253, lon: 90.4111451),
@@ -36,8 +36,9 @@ class SalahAPIManager {
             print("Failed getting URL")
             return .failure(.urlConvertionError)
         }
+
         print("Fetching data with location \(location)")
-        
+
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let salahAPIResponse = try JSONDecoder().decode(APIResponse.self, from: data)
