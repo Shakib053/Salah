@@ -10,10 +10,11 @@ import SwiftUI
 @main
 struct SalahApp: App {
     private let salahAPIManager = SalahAPIManager()
+    private let locationManager = LocationManager()
     
     var body: some Scene {
         WindowGroup {
-            TabBarView(salahAPIManager: salahAPIManager)
+            TabBarView(salahAPIManager: salahAPIManager, locatioManager: locationManager)
                 .fontDesign(.rounded)
         }
     }

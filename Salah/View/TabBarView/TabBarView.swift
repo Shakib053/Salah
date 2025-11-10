@@ -11,16 +11,18 @@ struct TabBarView: View {
     typealias Tab = TabBarModel.Item
     @State var selectedTab: Tab = .timings
     private let salahAPIManager: SalahAPIManager
+    private let locationManager: LocationManager
     
-    init(salahAPIManager: SalahAPIManager) {
+    init(salahAPIManager: SalahAPIManager, locatioManager: LocationManager) {
         self.salahAPIManager = salahAPIManager
+        self.locationManager = locatioManager
     }
     
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
                 TimingsView(
-                    viewModel: .init(salahAPIManager: salahAPIManager)
+                    viewModel: .init(salahAPIManager: salahAPIManager, locationManager: locationManager)
                 )
             }
             .tabItem {
