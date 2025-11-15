@@ -16,6 +16,9 @@ struct SalahApp: App {
         WindowGroup {
             TabBarView(salahAPIManager: salahAPIManager, locatioManager: locationManager)
                 .fontDesign(.rounded)
+                .task {
+                    await salahAPIManager.fetchMonthlySalahTime(of: Date.now, location: locationManager.location)
+                }
         }
     }
 }
