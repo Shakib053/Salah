@@ -19,12 +19,16 @@ enum LoadingState<Data> {
 enum ResponseError: Error {
     case urlConvertionError
     case error(String)
+    case dataNotFound
 }
 
 // MARK: For Salah API Response
-
-struct APIResponse: Codable {
+struct DailyAPIResponse: Codable {
     let data: DataResponse
+}
+
+struct MonthlyAPIResponse: Codable {
+    let data: [DataResponse]
 }
 
 struct DataResponse: Codable {
@@ -51,6 +55,23 @@ struct TimingResponse: Codable {
         case sunset = "Sunset"
         case maghrib = "Maghrib"
         case isha = "Isha"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        func trim(_ value: String) -> String {
+            value.count > 6 ? String(value.dropLast(6)) : value
+        }
+        
+        imsak   = trim(try container.decode(String.self, forKey: .imsak))
+        fajr    = trim(try container.decode(String.self, forKey: .fajr))
+        sunrise = trim(try container.decode(String.self, forKey: .sunrise))
+        dhuhr   = trim(try container.decode(String.self, forKey: .dhuhr))
+        asr     = trim(try container.decode(String.self, forKey: .asr))
+        sunset  = trim(try container.decode(String.self, forKey: .sunset))
+        maghrib = trim(try container.decode(String.self, forKey: .maghrib))
+        isha    = trim(try container.decode(String.self, forKey: .isha))
     }
 }
 
@@ -99,3 +120,18 @@ struct BDDistrict: Codable, Identifiable {
         case lon
     }
 }
+
+#if DEBUG
+extension TimingResponse {
+    init(imsak: String, fajr: String, sunrise: String, dhuhr: String, asr: String, sunset: String, maghrib: String, isha: String) {
+        self.imsak = imsak
+        self.fajr = fajr
+        self.sunrise = sunrise
+        self.dhuhr = dhuhr
+        self.asr = asr
+        self.sunset = sunset
+        self.maghrib = maghrib
+        self.isha = isha
+    }
+}
+#endif

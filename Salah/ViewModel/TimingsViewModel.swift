@@ -64,7 +64,7 @@ final class TimingsViewModel {
     
     @MainActor
     func loadData() async {
-        let result = await salahAPIManager.salahTimeResponse(of: selectedDate, location: locationManager.location)
+        let result = await salahAPIManager.dailySalahTimeResponse(of: selectedDate, location: locationManager.location)
         
         switch result {
         case .success(let response):
