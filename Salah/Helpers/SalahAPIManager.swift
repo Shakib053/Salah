@@ -34,7 +34,7 @@ class SalahAPIManager {
             hijriDateAdjustment: hijriDateAdjustment
         ) else {
             print("Failed getting daily URL")
-            return /.failure(.urlConvertionError)
+            return .failure(.urlConvertionError)
         }
         
         print("Fetching data with location \(location)")
