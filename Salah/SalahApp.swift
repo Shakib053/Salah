@@ -17,7 +17,14 @@ struct SalahApp: App {
             TabBarView(salahAPIManager: salahAPIManager, locatioManager: locationManager)
                 .fontDesign(.rounded)
                 .task {
-                    await salahAPIManager.fetchMonthlySalahTime(of: Date.now, location: locationManager.location)
+                    let result = await salahAPIManager.fetchMonthlySalahTime(of: Date.now, location: locationManager.location)
+                    switch result {
+                    case .success:
+                        print("Monthly date fetched")
+                    case .failure(let error):
+                        print("Failed fetcing monthly data with error: \(error)")
+                        // TODO: Show some error in the UI end
+                    }
                 }
         }
     }

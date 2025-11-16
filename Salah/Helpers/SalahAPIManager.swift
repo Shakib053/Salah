@@ -36,9 +36,9 @@ class SalahAPIManager {
             print("Failed getting daily URL")
             return .failure(.urlConvertionError)
         }
-        
-        print("Fetching data with location \(location)")
-        
+
+        print("Fetching data with location \(String(describing: location))")
+
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let salahAPIResponse = try JSONDecoder().decode(DailyAPIResponse.self, from: data)
@@ -145,16 +145,18 @@ class SalahAPIManager {
         
         urlString += "/calendar/\(year)/\(month)?latitude=\(location.lattitude)&longitude=\(location.longitude)"
         
+        // For other methods the method will be selected by nearest location
         if method == .UIS_Karachi {
             urlString += "&method=1"
         }
-        // For other methods the method will be selected by nearest location
         
+        
+        // TODO: Update URL based on different madhabs
+        // For other madhabs default will be set in the API
         if madhab == .hanafi {
             urlString += "&school=1"
         }
-        // For other madhabs default will be set in the API
-        
+
         urlString += "&adjustment=\(hijriDateAdjustment.days)"
         urlString += "&tune=\(cautionDelay.delay)"
         
