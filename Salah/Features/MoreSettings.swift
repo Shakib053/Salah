@@ -1,0 +1,560 @@
+import SwiftUI
+import UIKit
+
+private enum ExternalLinks {
+    static let support = URL(string: "https://www.linkedin.com/in/mahi-al-jawad/")
+    static let repository = URL(string: "https://github.com/Shakib053/Salah")
+    static let license = URL(string: "https://github.com/Shakib053/Salah/blob/main/LICENSE")
+    static let alAdhanAPI = URL(string: "https://aladhan.com/prayer-times-api")
+    static let alAdhanTerms = URL(string: "https://aladhan.com/credits-and-terms")
+}
+
+@MainActor
+enum ReminderCoordinator {
+    static func reconcile(container: AppContainer) async {
+        guard await container.notificationScheduler.authorizationStatus() == .authorized else { return }
+        let location = container.settings.location
+        let settings = container.settings.calculation
+        let today = LocalDay(.now, timeZone: location.timeZone)
+        var days: [PrayerDay] = []
+        if let current = try? await container.prayerTimesRepository.month(
+            containing: today,
+            location: location,
+            settings: settings,
+            policy: .cacheFirst
+        ) {
+            days.append(contentsOf: current.map(\.value))
+        }
+        let nextMonthDate = Calendar(identifier: .gregorian).date(byAdding: .month, value: 1, to: today.date(in: location.timeZone) ?? .now) ?? .now
+        let nextMonth = LocalDay(nextMonthDate, timeZone: location.timeZone)
+        if let next = try? await container.prayerTimesRepository.month(
+            containing: nextMonth,
+            location: location,
+            settings: settings,
+            policy: .cacheFirst
+        ) {
+            days.append(contentsOf: next.map(\.value))
+        }
+        await container.notificationScheduler.reconcile(days: days, preferences: container.settings.reminders)
+    }
+}
+
+struct MoreView: View {
+    @Bindable var container: AppContainer
+
+    var body: some View {
+        List {
+            Section {
+                NavigationLink { RemindersView(container: container) } label: {
+                    settingsLabel("Prayer Reminders", subtitle: "Optional local notifications", symbol: "bell.fill", tint: .orange)
+                }
+                NavigationLink { LocationCalculationView(container: container) } label: {
+                    settingsLabel("Location & Calculation", subtitle: container.settings.location.name, symbol: "location.fill", tint: .blue)
+                }
+                NavigationLink { AppearanceView(container: container) } label: {
+                    settingsLabel("Appearance & Accessibility", subtitle: "System-aware display", symbol: "circle.lefthalf.filled", tint: .indigo)
+                }
+            }
+
+            Section {
+                NavigationLink { PrivacyView(container: container) } label: {
+                    settingsLabel("Privacy & Data", subtitle: "Local-first and transparent", symbol: "hand.raised.fill", tint: SalahPalette.accent)
+                }
+                NavigationLink { AboutView() } label: {
+                    settingsLabel("About Salah", subtitle: "Charitable and open source", symbol: "info.circle.fill", tint: .purple)
+                }
+                NavigationLink { OpenSourceView() } label: {
+                    settingsLabel("Open-Source Information", subtitle: "License and attribution", symbol: "chevron.left.forwardslash.chevron.right", tint: .gray)
+                }
+                if let supportURL = ExternalLinks.support {
+                    Link(destination: supportURL) {
+                        settingsLabel("Support & Contact", subtitle: "Contact the project maintainer", symbol: "person.crop.circle.fill", tint: .teal)
+                    }
+                }
+            }
+
+            Section {
+                if let repositoryURL = ExternalLinks.repository {
+                    ShareLink(item: repositoryURL) {
+                        Label("Share Salah", systemImage: "square.and.arrow.up")
+                    }
+                }
+                LabeledContent("Version", value: versionText)
+            } footer: {
+                Text("Salah is free, has no advertising, and does not require an account.")
+            }
+        }
+        .navigationTitle("More")
+    }
+
+    private func settingsLabel(_ title: String, subtitle: String, symbol: String, tint: Color) -> some View {
+        Label {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).foregroundStyle(.primary)
+                Text(subtitle).font(.caption).foregroundStyle(.secondary)
+            }
+        } icon: {
+            Image(systemName: symbol)
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .background(tint, in: RoundedRectangle(cornerRadius: 8))
+        }
+        .frame(minHeight: 44)
+    }
+
+    private var versionText: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
+        return "\(version) (\(build))"
+    }
+}
+
+struct ReminderEducationSheet: View {
+    let event: PrayerEvent
+    @Bindable var container: AppContainer
+    @Environment(\.dismiss) private var dismiss
+    @State private var isWorking = false
+    @State private var denied = false
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Image(systemName: "bell.badge.fill")
+                    .font(.system(size: 66))
+                    .foregroundStyle(.orange)
+                    .accessibilityHidden(true)
+                Text("Enable \(event.title) Reminder?")
+                    .font(.title.bold()).multilineTextAlignment(.center)
+                Text("Notifications are optional and scheduled locally. Prayer times and tracking continue to work if you decline.")
+                    .foregroundStyle(.secondary).multilineTextAlignment(.center)
+                if denied {
+                    Text("Notifications are currently denied. You can enable them in iOS Settings.")
+                        .font(.footnote).foregroundStyle(.red).multilineTextAlignment(.center)
+                    Button("Open Settings") { openAppSettings() }
+                        .buttonStyle(.bordered)
+                }
+                Spacer()
+                Button {
+                    enable()
+                } label: {
+                    if isWorking { ProgressView().frame(maxWidth: .infinity) }
+                    else { Text("Enable Reminder").frame(maxWidth: .infinity) }
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(isWorking || denied)
+                Button("Not Now") { dismiss() }.frame(minHeight: 44)
+            }
+            .padding()
+            .navigationTitle("Reminder Permission")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private func enable() {
+        isWorking = true
+        Task {
+            var status = await container.notificationScheduler.authorizationStatus()
+            if status == .notDetermined {
+                status = await container.notificationScheduler.requestAuthorization()
+            }
+            if status == .authorized {
+                var preference = container.settings.reminder(for: event)
+                preference.enabled = true
+                container.settings.setReminder(preference, for: event)
+                await ReminderCoordinator.reconcile(container: container)
+                dismiss()
+            } else {
+                denied = true
+            }
+            isWorking = false
+        }
+    }
+
+    private func openAppSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
+}
+
+struct RemindersView: View {
+    @Bindable var container: AppContainer
+    @State private var status: NotificationAuthorization = .notDetermined
+    @State private var educationEvent: PrayerEvent = .fajr
+    @State private var showingEducation = false
+
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Permission", value: permissionText)
+                if status == .denied {
+                    Button("Open Notification Settings") { openAppSettings() }
+                }
+            } footer: {
+                Text("Permission is requested only after you enable your first reminder.")
+            }
+
+            Section("Daily Prayers") {
+                ForEach(PrayerEvent.allCases.filter { ![.sahri, .iftar].contains($0) }) { event in
+                    reminderControls(event)
+                }
+            }
+
+            Section("Fasting") {
+                reminderControls(.sahri)
+                reminderControls(.iftar)
+            }
+        }
+        .navigationTitle("Reminders")
+        .task { status = await container.notificationScheduler.authorizationStatus() }
+        .sheet(isPresented: $showingEducation) {
+            ReminderEducationSheet(event: educationEvent, container: container)
+                .presentationDetents([.medium])
+                .onDisappear { Task { status = await container.notificationScheduler.authorizationStatus() } }
+        }
+    }
+
+    @ViewBuilder
+    private func reminderControls(_ event: PrayerEvent) -> some View {
+        let preference = container.settings.reminder(for: event)
+        VStack(alignment: .leading, spacing: 8) {
+            if !preference.enabled, status != .authorized {
+                Button {
+                    educationEvent = event
+                    showingEducation = true
+                } label: {
+                    HStack {
+                        Label(event.title, systemImage: event.symbol)
+                        Spacer()
+                        Image(systemName: "circle").foregroundStyle(.secondary)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .frame(minHeight: 44)
+                .accessibilityLabel("\(event.title) reminder, off")
+                .accessibilityHint("Opens notification education and permission options")
+            } else {
+                Toggle(isOn: Binding(
+                    get: { container.settings.reminder(for: event).enabled },
+                    set: { newValue in updateEnabled(newValue, event: event) }
+                )) {
+                    Label(event.title, systemImage: event.symbol)
+                }
+                .frame(minHeight: 44)
+                .accessibilityHint(preference.enabled ? "Turns off and cancels scheduled reminders" : "Turns on this reminder")
+            }
+
+            if preference.enabled {
+                Picker("Notification time", selection: Binding(
+                    get: { container.settings.reminder(for: event).offsetMinutes },
+                    set: { updateOffset($0, event: event) }
+                )) {
+                    Text("At event time").tag(0)
+                    Text("5 minutes before").tag(5)
+                    Text("10 minutes before").tag(10)
+                    Text("15 minutes before").tag(15)
+                    Text("30 minutes before").tag(30)
+                }
+                .pickerStyle(.menu)
+            }
+        }
+    }
+
+    private func updateEnabled(_ enabled: Bool, event: PrayerEvent) {
+        if enabled {
+            if status == .authorized {
+                var preference = container.settings.reminder(for: event)
+                preference.enabled = true
+                container.settings.setReminder(preference, for: event)
+                Task { await ReminderCoordinator.reconcile(container: container) }
+            }
+        } else {
+            var preference = container.settings.reminder(for: event)
+            preference.enabled = false
+            container.settings.setReminder(preference, for: event)
+            Task { await container.notificationScheduler.cancel(event: event) }
+        }
+    }
+
+    private func updateOffset(_ offset: Int, event: PrayerEvent) {
+        var preference = container.settings.reminder(for: event)
+        preference.offsetMinutes = offset
+        container.settings.setReminder(preference, for: event)
+        Task { await ReminderCoordinator.reconcile(container: container) }
+    }
+
+    private var permissionText: String {
+        switch status {
+        case .notDetermined: "Not requested"
+        case .authorized: "Allowed"
+        case .denied: "Denied"
+        }
+    }
+
+    private func openAppSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
+}
+
+struct LocationCalculationView: View {
+    @Bindable var container: AppContainer
+    @State private var showingDistricts = false
+    @State private var showingLocationEducation = false
+
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Current", value: container.settings.location.name)
+                LabeledContent("Source", value: container.settings.location.source.rawValue.capitalized)
+                LabeledContent("Permission", value: container.locationProvider.authorization.rawValue.capitalized)
+                Button("Use Current Location") { showingLocationEducation = true }
+                Button("Choose District Manually") { showingDistricts = true }
+            } header: {
+                Text("Prayer Location")
+            } footer: {
+                Text("Location is used only for prayer-time requests. Approximate When In Use access is sufficient.")
+            }
+
+            Section {
+                Picker("Method", selection: calculationBinding(\.method)) {
+                    ForEach(CalculationMethod.allCases) { method in Text(method.title).tag(method) }
+                }
+                Picker("Asr calculation", selection: calculationBinding(\.madhab)) {
+                    ForEach(Madhab.allCases) { madhab in Text(madhab.title).tag(madhab) }
+                }
+                Stepper("Hijri adjustment: \(signed(container.settings.calculation.hijriAdjustment)) day", value: calculationBinding(\.hijriAdjustment), in: -2...2)
+                Stepper("Safety adjustment: \(container.settings.calculation.cautionMinutes) min", value: calculationBinding(\.cautionMinutes), in: 0...10)
+                Picker("Time format", selection: calculationBinding(\.timeFormat)) {
+                    ForEach(TimeFormatPreference.allCases) { format in Text(format.title).tag(format) }
+                }
+            } header: {
+                Text("Calculation")
+            } footer: {
+                Text("Safety adjustment ends Sahri earlier and begins Maghrib and Iftar later. Published times may differ; confirm with an appropriate local authority when necessary.")
+            }
+        }
+        .navigationTitle("Location & Calculation")
+        .sheet(isPresented: $showingDistricts) {
+            NavigationStack {
+                DistrictPickerView(districts: container.districts) { district in
+                    showingDistricts = false
+                    updateLocation(district.prayerLocation)
+                }
+            }
+        }
+        .sheet(isPresented: $showingLocationEducation) {
+            CurrentLocationSettingsSheet(container: container) { location in
+                showingLocationEducation = false
+                updateLocation(location)
+            }
+            .presentationDetents([.medium, .large])
+        }
+    }
+
+    private func calculationBinding<Value>(_ keyPath: WritableKeyPath<CalculationSettings, Value>) -> Binding<Value> {
+        Binding(
+            get: { container.settings.calculation[keyPath: keyPath] },
+            set: { value in
+                let oldSignature = PrayerTimesQuery(
+                    day: container.router.selectedDay,
+                    location: container.settings.location,
+                    settings: container.settings.calculation
+                ).signature
+                var calculation = container.settings.calculation
+                calculation[keyPath: keyPath] = value
+                container.settings.calculation = calculation
+                Task {
+                    await container.prayerTimesRepository.invalidate(signature: oldSignature)
+                    await ReminderCoordinator.reconcile(container: container)
+                }
+            }
+        )
+    }
+
+    private func updateLocation(_ location: PrayerLocation) {
+        let oldSignature = PrayerTimesQuery(
+            day: container.router.selectedDay,
+            location: container.settings.location,
+            settings: container.settings.calculation
+        ).signature
+        container.settings.location = location
+        container.router.selectedDay = LocalDay(.now, timeZone: location.timeZone)
+        Task {
+            await container.prayerTimesRepository.invalidate(signature: oldSignature)
+            await ReminderCoordinator.reconcile(container: container)
+        }
+    }
+
+    private func signed(_ value: Int) -> String { value > 0 ? "+\(value)" : "\(value)" }
+}
+
+struct CurrentLocationSettingsSheet: View {
+    @Bindable var container: AppContainer
+    let onLocation: (PrayerLocation) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var isWorking = false
+    @State private var error: String?
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Image(systemName: "location.circle.fill").font(.system(size: 64)).foregroundStyle(SalahPalette.accent)
+                Text("Use Current Location").font(.title.bold())
+                Text("Salah requests When In Use access and retrieves one approximate coordinate. Background tracking is not used.")
+                    .foregroundStyle(.secondary).multilineTextAlignment(.center)
+                if let error { Text(error).font(.footnote).foregroundStyle(.red).multilineTextAlignment(.center) }
+                Spacer()
+                Button {
+                    isWorking = true
+                    Task {
+                        do { onLocation(try await container.locationProvider.requestCurrentLocation()) }
+                        catch { self.error = error.localizedDescription }
+                        isWorking = false
+                    }
+                } label: {
+                    if isWorking { ProgressView().frame(maxWidth: .infinity) }
+                    else { Text("Continue").frame(maxWidth: .infinity) }
+                }
+                .buttonStyle(.borderedProminent).controlSize(.large).disabled(isWorking)
+                Button("Cancel") { dismiss() }.frame(minHeight: 44)
+            }
+            .padding()
+            .navigationTitle("Location")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+struct AppearanceView: View {
+    @Bindable var container: AppContainer
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityDifferentiateWithoutColor) private var differentiateWithoutColor
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    var body: some View {
+        Form {
+            Section("Appearance") {
+                Picker("Appearance", selection: Binding(
+                    get: { container.settings.appearance },
+                    set: { container.settings.appearance = $0 }
+                )) {
+                    ForEach(AppearancePreference.allCases) { appearance in Text(appearance.title).tag(appearance) }
+                }
+                .pickerStyle(.inline)
+            }
+            Section {
+                LabeledContent("Reduce Motion", value: reduceMotion ? "On" : "Off")
+                LabeledContent("Increase Contrast", value: contrast == .increased ? "On" : "Off")
+                LabeledContent("Differentiate Without Color", value: differentiateWithoutColor ? "On" : "Off")
+            } header: {
+                Text("System Accessibility")
+            } footer: {
+                Text("These accessibility choices are controlled in iOS Settings. Salah follows them automatically.")
+            }
+            Section("Dynamic Type Preview") {
+                Text("Prayer times should remain calm, readable, and complete at every system text size.")
+                Label("Fajr · 4:12 AM", systemImage: "moon.stars.fill").font(.title3.bold())
+            }
+        }
+        .navigationTitle("Appearance")
+    }
+}
+
+struct PrivacyView: View {
+    @Bindable var container: AppContainer
+    @State private var showingClearConfirmation = false
+    @State private var cleared = false
+
+    var body: some View {
+        List {
+            Section {
+                Label("Privacy by design", systemImage: "hand.raised.fill").font(.title3.bold())
+                Text("Salah collects the minimum information required for prayer timings and remains useful when optional permissions are declined.")
+            }
+            Section("How Data Is Used") {
+                privacyRow("Location", detail: "A coordinate is sent to AlAdhan only when prayer times are requested. Continuous and background tracking are not used.", symbol: "location.fill")
+                privacyRow("Prayer tracking", detail: "Completion records and notes stay in local SwiftData on this device.", symbol: "checkmark.circle.fill")
+                privacyRow("Notifications", detail: "Optional reminders are scheduled locally. No marketing notification service is used.", symbol: "bell.fill")
+                privacyRow("Advertising and analytics", detail: "The app contains no advertising identifier, tracking SDK, or unnecessary analytics.", symbol: "eye.slash.fill")
+                privacyRow("Data sale", detail: "The project does not sell personal data.", symbol: "dollarsign.circle.fill")
+            }
+            Section {
+                Button("Clear Local Tracker Data", role: .destructive) { showingClearConfirmation = true }
+                if cleared { Label("Tracker data cleared", systemImage: "checkmark.circle.fill").foregroundStyle(SalahPalette.accent) }
+            } header: {
+                Text("Your Data")
+            } footer: {
+                Text("Prayer-time cache and lightweight preferences can be replaced automatically; tracker deletion cannot be undone.")
+            }
+        }
+        .navigationTitle("Privacy & Data")
+        .confirmationDialog("Clear all tracker data?", isPresented: $showingClearConfirmation, titleVisibility: .visible) {
+            Button("Clear Tracker Data", role: .destructive) {
+                try? container.trackingRepository.clearAll()
+                cleared = true
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This permanently removes prayer completion history stored on this device.")
+        }
+    }
+
+    private func privacyRow(_ title: String, detail: String, symbol: String) -> some View {
+        Label {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(.headline)
+                Text(detail).font(.subheadline).foregroundStyle(.secondary)
+            }
+        } icon: {
+            Image(systemName: symbol).foregroundStyle(SalahPalette.accent)
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+struct AboutView: View {
+    var body: some View {
+        List {
+            Section {
+                VStack(spacing: 14) {
+                    Image(systemName: "moon.stars.fill").font(.system(size: 58)).foregroundStyle(SalahPalette.accent)
+                    Text("Salah").font(.largeTitle.bold())
+                    Text("A free, charitable, and non-profit prayer timing and tracking project.")
+                        .multilineTextAlignment(.center).foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity).padding(.vertical)
+            }
+            Section("Prayer-Time Notice") {
+                Text("Prayer timings can vary by calculation method, madhab, adjustments, local conditions, and local authority. Salah is not an official religious authority. Confirm timings with an appropriate local authority when necessary.")
+            }
+            Section("Project") {
+                if let url = ExternalLinks.repository { Link("View Source on GitHub", destination: url) }
+                if let url = ExternalLinks.alAdhanAPI { Link("AlAdhan Prayer Times API", destination: url) }
+            }
+        }
+        .navigationTitle("About Salah")
+    }
+}
+
+struct OpenSourceView: View {
+    var body: some View {
+        List {
+            Section("Salah") {
+                Text("Copyright © 2024 Mahi Al Jawad")
+                Text("Released under the MIT License.")
+                if let url = ExternalLinks.license { Link("Read the repository license", destination: url) }
+            }
+            Section("Prayer-Time Data") {
+                Text("Prayer-time and Hijri calendar data are provided by the AlAdhan API operated by Islamic Network. No third-party advertising or analytics SDK is included.")
+                if let url = ExternalLinks.alAdhanTerms { Link("AlAdhan terms and credits", destination: url) }
+            }
+            Section("Apple Frameworks") {
+                Text("SwiftUI, SwiftData, Charts, Core Location, Network, and UserNotifications are used under the platform terms supplied with iOS.")
+            }
+        }
+        .navigationTitle("Open Source")
+    }
+}

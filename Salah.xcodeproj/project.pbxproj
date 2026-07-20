@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D20000000000000000000001 /* AppFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* AppFoundation.swift */; };
+		D20000000000000000000002 /* PlatformServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000002 /* PlatformServices.swift */; };
+		D20000000000000000000003 /* PrayerDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000003 /* PrayerDomain.swift */; };
+		D20000000000000000000004 /* PrayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* PrayerData.swift */; };
+		D20000000000000000000005 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000005 /* Persistence.swift */; };
+		D20000000000000000000006 /* SharedViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000006 /* SharedViews.swift */; };
+		D20000000000000000000007 /* AppShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000007 /* AppShell.swift */; };
+		D20000000000000000000008 /* TodayCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000008 /* TodayCalendar.swift */; };
+		D20000000000000000000009 /* TrackerHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000009 /* TrackerHistory.swift */; };
+		D2000000000000000000000A /* MoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* MoreSettings.swift */; };
+		D2000000000000000000000B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
+		D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000C /* PrivacyInfo.xcprivacy */; };
+		D2000000000000000000000D /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* UITestSupport.swift */; };
+		D50000000000000000000001 /* SalahDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000001 /* SalahDomainTests.swift */; };
+		D50000000000000000000002 /* SalahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000002 /* SalahUITests.swift */; };
 		0C5A673F2EC0D884009240BE /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5A673E2EC0D87B009240BE /* LocationManager.swift */; };
 		5A76B9252B8B7634003CF702 /* WaqtDetailCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A76B9242B8B7634003CF702 /* WaqtDetailCard.swift */; };
 		5A76B9272B8B81F6003CF702 /* Double+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A76B9262B8B81F6003CF702 /* Double+Extension.swift */; };
@@ -36,7 +51,41 @@
 		5AA6AB6A2B81FC0F00E2A7DB /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA6AB692B81FC0F00E2A7DB /* String+Extension.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D60000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5AA6AB4B2B81E90900E2A7DB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5AA6AB522B81E90900E2A7DB;
+			remoteInfo = Salah;
+		};
+		D60000000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5AA6AB4B2B81E90900E2A7DB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5AA6AB522B81E90900E2A7DB;
+			remoteInfo = Salah;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		D10000000000000000000001 /* AppFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFoundation.swift; sourceTree = "<group>"; };
+		D10000000000000000000002 /* PlatformServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformServices.swift; sourceTree = "<group>"; };
+		D10000000000000000000003 /* PrayerDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerDomain.swift; sourceTree = "<group>"; };
+		D10000000000000000000004 /* PrayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerData.swift; sourceTree = "<group>"; };
+		D10000000000000000000005 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		D10000000000000000000006 /* SharedViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedViews.swift; sourceTree = "<group>"; };
+		D10000000000000000000007 /* AppShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShell.swift; sourceTree = "<group>"; };
+		D10000000000000000000008 /* TodayCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayCalendar.swift; sourceTree = "<group>"; };
+		D10000000000000000000009 /* TrackerHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerHistory.swift; sourceTree = "<group>"; };
+		D1000000000000000000000A /* MoreSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreSettings.swift; sourceTree = "<group>"; };
+		D1000000000000000000000B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		D1000000000000000000000C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		D1000000000000000000000D /* UITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
+		D40000000000000000000001 /* SalahDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahDomainTests.swift; sourceTree = "<group>"; };
+		D40000000000000000000002 /* SalahUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahUITests.swift; sourceTree = "<group>"; };
+		D40000000000000000000003 /* SalahTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalahTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D40000000000000000000004 /* SalahUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalahUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C5A673E2EC0D87B009240BE /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		5A76B9242B8B7634003CF702 /* WaqtDetailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaqtDetailCard.swift; sourceTree = "<group>"; };
 		5A76B9262B8B81F6003CF702 /* Double+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Double+Extension.swift"; sourceTree = "<group>"; };
@@ -56,7 +105,7 @@
 		5A8CDC552B89DE0800AD0A95 /* SalahView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahView.swift; sourceTree = "<group>"; };
 		5A8CDC582B8A06F300AD0A95 /* TimingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimingsViewModel.swift; sourceTree = "<group>"; };
 		5A8F54862B87638700ED1BFC /* SalahAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahAPIManager.swift; sourceTree = "<group>"; };
-		5A8F54882B87696500ED1BFC /* districts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = districts.json; sourceTree = "<group>"; };
+		5A8F54882B87696500ED1BFC /* districts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Location/districts.json; sourceTree = "<group>"; };
 		5A8F548A2B877F5400ED1BFC /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		5A8F548C2B878D3000ED1BFC /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		5AA6AB532B81E90900E2A7DB /* Salah.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Salah.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,6 +117,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		D70000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D70000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5AA6AB502B81E90900E2A7DB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -78,6 +141,78 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D80000000000000000000001 /* SalahTests */ = {
+			isa = PBXGroup;
+			children = (
+				D40000000000000000000001 /* SalahDomainTests.swift */,
+			);
+			path = SalahTests;
+			sourceTree = "<group>";
+		};
+		D80000000000000000000002 /* SalahUITests */ = {
+			isa = PBXGroup;
+			children = (
+				D40000000000000000000002 /* SalahUITests.swift */,
+			);
+			path = SalahUITests;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000001 /* AppFoundation.swift */,
+				D1000000000000000000000D /* UITestSupport.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000002 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000002 /* PlatformServices.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000003 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000003 /* PrayerDomain.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000004 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000004 /* PrayerData.swift */,
+				D10000000000000000000005 /* Persistence.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000005 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000006 /* SharedViews.swift */,
+				D10000000000000000000007 /* AppShell.swift */,
+				D10000000000000000000008 /* TodayCalendar.swift */,
+				D10000000000000000000009 /* TrackerHistory.swift */,
+				D1000000000000000000000A /* MoreSettings.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000006 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D1000000000000000000000B /* Localizable.xcstrings */,
+				D1000000000000000000000C /* PrivacyInfo.xcprivacy */,
+				5A8F54882B87696500ED1BFC /* districts.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		5A843FAB2B88A96E000660EC /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -129,6 +264,8 @@
 			isa = PBXGroup;
 			children = (
 				5AA6AB552B81E90900E2A7DB /* Salah */,
+				D80000000000000000000001 /* SalahTests */,
+				D80000000000000000000002 /* SalahUITests */,
 				5AA6AB542B81E90900E2A7DB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -137,6 +274,8 @@
 			isa = PBXGroup;
 			children = (
 				5AA6AB532B81E90900E2A7DB /* Salah.app */,
+				D40000000000000000000003 /* SalahTests.xctest */,
+				D40000000000000000000004 /* SalahUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -145,12 +284,13 @@
 			isa = PBXGroup;
 			children = (
 				5AA6AB562B81E90900E2A7DB /* SalahApp.swift */,
-				5AA6AB642B81EA2A00E2A7DB /* Model */,
-				5A843FAB2B88A96E000660EC /* View */,
-				5A843FAC2B88A976000660EC /* ViewModel */,
-				5AA6AB672B81FBEB00E2A7DB /* Helpers */,
+				D30000000000000000000001 /* App */,
+				D30000000000000000000002 /* Core */,
+				D30000000000000000000003 /* Domain */,
+				D30000000000000000000004 /* Data */,
+				D30000000000000000000005 /* Features */,
+				D30000000000000000000006 /* Resources */,
 				5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */,
-				5AA6AB5C2B81E90A00E2A7DB /* Preview Content */,
 			);
 			path = Salah;
 			sourceTree = "<group>";
@@ -173,7 +313,6 @@
 				5A843FAF2B88AA8B000660EC /* TabBarModel.swift */,
 				5A8322192B9DA2090083917C /* TimerModel.swift */,
 				5A78F9BF2B8645B8009FE4DA /* APIResponseModel.swift */,
-				5A8F54882B87696500ED1BFC /* districts.json */,
 				5A78F9C12B8654B2009FE4DA /* Test.json */,
 			);
 			path = Model;
@@ -203,6 +342,42 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		D90000000000000000000001 /* SalahTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA0000000000000000000001 /* Build configuration list for PBXNativeTarget "SalahTests" */;
+			buildPhases = (
+				DB0000000000000000000001 /* Sources */,
+				D70000000000000000000001 /* Frameworks */,
+				DC0000000000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DD0000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = SalahTests;
+			productName = SalahTests;
+			productReference = D40000000000000000000003 /* SalahTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D90000000000000000000002 /* SalahUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA0000000000000000000002 /* Build configuration list for PBXNativeTarget "SalahUITests" */;
+			buildPhases = (
+				DB0000000000000000000002 /* Sources */,
+				D70000000000000000000002 /* Frameworks */,
+				DC0000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DD0000000000000000000002 /* PBXTargetDependency */,
+			);
+			name = SalahUITests;
+			productName = SalahUITests;
+			productReference = D40000000000000000000004 /* SalahUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		5AA6AB522B81E90900E2A7DB /* Salah */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5AA6AB612B81E90A00E2A7DB /* Build configuration list for PBXNativeTarget "Salah" */;
@@ -230,6 +405,14 @@
 				LastSwiftUpdateCheck = 1520;
 				LastUpgradeCheck = 1520;
 				TargetAttributes = {
+					D90000000000000000000001 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 5AA6AB522B81E90900E2A7DB;
+					};
+					D90000000000000000000002 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 5AA6AB522B81E90900E2A7DB;
+					};
 					5AA6AB522B81E90900E2A7DB = {
 						CreatedOnToolsVersion = 15.2;
 					};
@@ -249,17 +432,33 @@
 			projectRoot = "";
 			targets = (
 				5AA6AB522B81E90900E2A7DB /* Salah */,
+				D90000000000000000000001 /* SalahTests */,
+				D90000000000000000000002 /* SalahUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		DC0000000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC0000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5AA6AB512B81E90900E2A7DB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5A78F9C22B8654B2009FE4DA /* Test.json in Resources */,
-				5AA6AB5E2B81E90A00E2A7DB /* Preview Assets.xcassets in Resources */,
+				D2000000000000000000000B /* Localizable.xcstrings in Resources */,
+				D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */,
 				5AA6AB5B2B81E90A00E2A7DB /* Assets.xcassets in Resources */,
 				5A8F54892B87696500ED1BFC /* districts.json in Resources */,
 			);
@@ -268,39 +467,115 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		DB0000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D50000000000000000000001 /* SalahDomainTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DB0000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D50000000000000000000002 /* SalahUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5AA6AB4F2B81E90900E2A7DB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5A83221A2B9DA2090083917C /* TimerModel.swift in Sources */,
-				5A8C76472B94984900A472A7 /* TimerView.swift in Sources */,
-				5A76B9292B8B86CC003CF702 /* Int+Extension.swift in Sources */,
-				5A832D362B8E483B00C13AC7 /* WaqtDetailModel.swift in Sources */,
-				5A868ECA2B9CB87300DFC2FA /* FastingCard.swift in Sources */,
-				5A843FB02B88AA8B000660EC /* TabBarModel.swift in Sources */,
-				5AA6AB6A2B81FC0F00E2A7DB /* String+Extension.swift in Sources */,
-				0C5A673F2EC0D884009240BE /* LocationManager.swift in Sources */,
-				5A76B9272B8B81F6003CF702 /* Double+Extension.swift in Sources */,
-				5A76B9252B8B7634003CF702 /* WaqtDetailCard.swift in Sources */,
-				5A83221C2B9DA6850083917C /* FastingModel.swift in Sources */,
-				5AA6AB662B81EA4700E2A7DB /* Salah.swift in Sources */,
-				5A843FAE2B88A9F0000660EC /* TabBarView.swift in Sources */,
-				5A8CDC592B8A06F300AD0A95 /* TimingsViewModel.swift in Sources */,
-				5A8AE2732B9DECAF007A8040 /* FastingCardViewModel.swift in Sources */,
-				5A8F54872B87638700ED1BFC /* SalahAPIManager.swift in Sources */,
-				5A8CDC562B89DE0800AD0A95 /* SalahView.swift in Sources */,
-				5A8F548B2B877F5400ED1BFC /* Settings.swift in Sources */,
-				5A8F548D2B878D3000ED1BFC /* Date+Extension.swift in Sources */,
-				5A8C76452B9497F300A472A7 /* WaqtDetailCardViewModel.swift in Sources */,
-				5A78F9C02B8645B8009FE4DA /* APIResponseModel.swift in Sources */,
-				5A843FB22B88B701000660EC /* TimingsView.swift in Sources */,
 				5AA6AB572B81E90900E2A7DB /* SalahApp.swift in Sources */,
+				D20000000000000000000001 /* AppFoundation.swift in Sources */,
+				D2000000000000000000000D /* UITestSupport.swift in Sources */,
+				D20000000000000000000002 /* PlatformServices.swift in Sources */,
+				D20000000000000000000003 /* PrayerDomain.swift in Sources */,
+				D20000000000000000000004 /* PrayerData.swift in Sources */,
+				D20000000000000000000005 /* Persistence.swift in Sources */,
+				D20000000000000000000006 /* SharedViews.swift in Sources */,
+				D20000000000000000000007 /* AppShell.swift in Sources */,
+				D20000000000000000000008 /* TodayCalendar.swift in Sources */,
+				D20000000000000000000009 /* TrackerHistory.swift in Sources */,
+				D2000000000000000000000A /* MoreSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		DD0000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5AA6AB522B81E90900E2A7DB /* Salah */;
+			targetProxy = D60000000000000000000001 /* PBXContainerItemProxy */;
+		};
+		DD0000000000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5AA6AB522B81E90900E2A7DB /* Salah */;
+			targetProxy = D60000000000000000000002 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		DE0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salah.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salah";
+			};
+			name = Debug;
+		};
+		DE0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salah.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salah";
+			};
+			name = Release;
+		};
+		DE0000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Salah;
+			};
+			name = Debug;
+		};
+		DE0000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Salah;
+			};
+			name = Release;
+		};
 		5AA6AB5F2B81E90A00E2A7DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -427,17 +702,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Salah/Preview Content\"";
 				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "\"we need your location for better accuracy\"";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "\"We need your location for better accuracy\"";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Salah uses your approximate location while the app is open to calculate local prayer times.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -447,7 +720,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -458,17 +731,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Salah/Preview Content\"";
 				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "\"we need your location for better accuracy\"";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "\"We need your location for better accuracy\"";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Salah uses your approximate location while the app is open to calculate local prayer times.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -478,13 +749,31 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		DA0000000000000000000001 /* Build configuration list for PBXNativeTarget "SalahTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE0000000000000000000001 /* Debug */,
+				DE0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA0000000000000000000002 /* Build configuration list for PBXNativeTarget "SalahUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE0000000000000000000003 /* Debug */,
+				DE0000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5AA6AB4E2B81E90900E2A7DB /* Build configuration list for PBXProject "Salah" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
