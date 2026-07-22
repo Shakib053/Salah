@@ -123,6 +123,7 @@ struct TodayView: View {
                 )
                 .datePickerStyle(.graphical)
                 .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .navigationTitle("Choose Date")
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
@@ -130,7 +131,7 @@ struct TodayView: View {
                     }
                 }
             }
-            .presentationDetents([.medium])
+            .presentationDetents([.fraction(0.70)])
         }
         .task(id: queryIdentity) {
             await viewModel.load(day: container.router.selectedDay)
