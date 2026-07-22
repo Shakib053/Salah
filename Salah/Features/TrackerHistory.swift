@@ -147,10 +147,11 @@ struct TrackerView: View {
                 )
                 .datePickerStyle(.graphical)
                 .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .navigationTitle("Choose Date")
                 .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showingDatePicker = false } } }
             }
-            .presentationDetents([.medium])
+            .presentationDetents([.fraction(0.70)])
         }
         .safeAreaInset(edge: .bottom) {
             if viewModel.lastChanged != nil {
