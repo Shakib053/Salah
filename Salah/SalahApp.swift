@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct SalahApp : App {
+struct SalahApp: App {
     @State private var container = AppContainer()
 
     var body: some Scene {
