@@ -1,0 +1,5 @@
+# .swiftlint.yml
+
+included:
+  - Salah
+  - SalahTests

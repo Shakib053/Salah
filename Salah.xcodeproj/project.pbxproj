@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A8F54892B87696500ED1BFC /* Location/districts.json in Resources */ = {isa = PBXBuildFile; fileRef = 5A8F54882B87696500ED1BFC /* Location/districts.json */; };
+		5AA6AB572B81E90900E2A7DB /* SalahApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA6AB562B81E90900E2A7DB /* SalahApp.swift */; };
+		5AA6AB5B2B81E90A00E2A7DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */; };
 		D20000000000000000000001 /* AppFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* AppFoundation.swift */; };
 		D20000000000000000000002 /* PlatformServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000002 /* PlatformServices.swift */; };
 		D20000000000000000000003 /* PrayerDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000003 /* PrayerDomain.swift */; };
@@ -22,33 +25,6 @@
 		D2000000000000000000000D /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* UITestSupport.swift */; };
 		D50000000000000000000001 /* SalahDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000001 /* SalahDomainTests.swift */; };
 		D50000000000000000000002 /* SalahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000002 /* SalahUITests.swift */; };
-		0C5A673F2EC0D884009240BE /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5A673E2EC0D87B009240BE /* LocationManager.swift */; };
-		5A76B9252B8B7634003CF702 /* WaqtDetailCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A76B9242B8B7634003CF702 /* WaqtDetailCard.swift */; };
-		5A76B9272B8B81F6003CF702 /* Double+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A76B9262B8B81F6003CF702 /* Double+Extension.swift */; };
-		5A76B9292B8B86CC003CF702 /* Int+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A76B9282B8B86CC003CF702 /* Int+Extension.swift */; };
-		5A78F9C02B8645B8009FE4DA /* APIResponseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A78F9BF2B8645B8009FE4DA /* APIResponseModel.swift */; };
-		5A78F9C22B8654B2009FE4DA /* Test.json in Resources */ = {isa = PBXBuildFile; fileRef = 5A78F9C12B8654B2009FE4DA /* Test.json */; };
-		5A83221A2B9DA2090083917C /* TimerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8322192B9DA2090083917C /* TimerModel.swift */; };
-		5A83221C2B9DA6850083917C /* FastingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A83221B2B9DA6850083917C /* FastingModel.swift */; };
-		5A832D362B8E483B00C13AC7 /* WaqtDetailModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A832D352B8E483B00C13AC7 /* WaqtDetailModel.swift */; };
-		5A843FAE2B88A9F0000660EC /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A843FAD2B88A9F0000660EC /* TabBarView.swift */; };
-		5A843FB02B88AA8B000660EC /* TabBarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A843FAF2B88AA8B000660EC /* TabBarModel.swift */; };
-		5A843FB22B88B701000660EC /* TimingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A843FB12B88B701000660EC /* TimingsView.swift */; };
-		5A868ECA2B9CB87300DFC2FA /* FastingCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A868EC92B9CB87300DFC2FA /* FastingCard.swift */; };
-		5A8AE2732B9DECAF007A8040 /* FastingCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8AE2722B9DECAF007A8040 /* FastingCardViewModel.swift */; };
-		5A8C76452B9497F300A472A7 /* WaqtDetailCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8C76442B9497F300A472A7 /* WaqtDetailCardViewModel.swift */; };
-		5A8C76472B94984900A472A7 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8C76462B94984900A472A7 /* TimerView.swift */; };
-		5A8CDC562B89DE0800AD0A95 /* SalahView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CDC552B89DE0800AD0A95 /* SalahView.swift */; };
-		5A8CDC592B8A06F300AD0A95 /* TimingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8CDC582B8A06F300AD0A95 /* TimingsViewModel.swift */; };
-		5A8F54872B87638700ED1BFC /* SalahAPIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8F54862B87638700ED1BFC /* SalahAPIManager.swift */; };
-		5A8F54892B87696500ED1BFC /* districts.json in Resources */ = {isa = PBXBuildFile; fileRef = 5A8F54882B87696500ED1BFC /* districts.json */; };
-		5A8F548B2B877F5400ED1BFC /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8F548A2B877F5400ED1BFC /* Settings.swift */; };
-		5A8F548D2B878D3000ED1BFC /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A8F548C2B878D3000ED1BFC /* Date+Extension.swift */; };
-		5AA6AB572B81E90900E2A7DB /* SalahApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA6AB562B81E90900E2A7DB /* SalahApp.swift */; };
-		5AA6AB5B2B81E90A00E2A7DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */; };
-		5AA6AB5E2B81E90A00E2A7DB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5AA6AB5D2B81E90A00E2A7DB /* Preview Assets.xcassets */; };
-		5AA6AB662B81EA4700E2A7DB /* Salah.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA6AB652B81EA4700E2A7DB /* Salah.swift */; };
-		5AA6AB6A2B81FC0F00E2A7DB /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA6AB692B81FC0F00E2A7DB /* String+Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +45,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0C6F31013013EF7F0065F050 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
+		5A8F54882B87696500ED1BFC /* Location/districts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Location/districts.json; sourceTree = "<group>"; };
+		5AA6AB532B81E90900E2A7DB /* Salah.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Salah.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5AA6AB562B81E90900E2A7DB /* SalahApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahApp.swift; sourceTree = "<group>"; };
+		5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D10000000000000000000001 /* AppFoundation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFoundation.swift; sourceTree = "<group>"; };
 		D10000000000000000000002 /* PlatformServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformServices.swift; sourceTree = "<group>"; };
 		D10000000000000000000003 /* PrayerDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerDomain.swift; sourceTree = "<group>"; };
@@ -86,37 +67,16 @@
 		D40000000000000000000002 /* SalahUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahUITests.swift; sourceTree = "<group>"; };
 		D40000000000000000000003 /* SalahTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalahTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D40000000000000000000004 /* SalahUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalahUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C5A673E2EC0D87B009240BE /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
-		5A76B9242B8B7634003CF702 /* WaqtDetailCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaqtDetailCard.swift; sourceTree = "<group>"; };
-		5A76B9262B8B81F6003CF702 /* Double+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Double+Extension.swift"; sourceTree = "<group>"; };
-		5A76B9282B8B86CC003CF702 /* Int+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+Extension.swift"; sourceTree = "<group>"; };
-		5A78F9BF2B8645B8009FE4DA /* APIResponseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIResponseModel.swift; sourceTree = "<group>"; };
-		5A78F9C12B8654B2009FE4DA /* Test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Test.json; sourceTree = "<group>"; };
-		5A8322192B9DA2090083917C /* TimerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerModel.swift; sourceTree = "<group>"; };
-		5A83221B2B9DA6850083917C /* FastingModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastingModel.swift; sourceTree = "<group>"; };
-		5A832D352B8E483B00C13AC7 /* WaqtDetailModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaqtDetailModel.swift; sourceTree = "<group>"; };
-		5A843FAD2B88A9F0000660EC /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
-		5A843FAF2B88AA8B000660EC /* TabBarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarModel.swift; sourceTree = "<group>"; };
-		5A843FB12B88B701000660EC /* TimingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimingsView.swift; sourceTree = "<group>"; };
-		5A868EC92B9CB87300DFC2FA /* FastingCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastingCard.swift; sourceTree = "<group>"; };
-		5A8AE2722B9DECAF007A8040 /* FastingCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastingCardViewModel.swift; sourceTree = "<group>"; };
-		5A8C76442B9497F300A472A7 /* WaqtDetailCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaqtDetailCardViewModel.swift; sourceTree = "<group>"; };
-		5A8C76462B94984900A472A7 /* TimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
-		5A8CDC552B89DE0800AD0A95 /* SalahView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahView.swift; sourceTree = "<group>"; };
-		5A8CDC582B8A06F300AD0A95 /* TimingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimingsViewModel.swift; sourceTree = "<group>"; };
-		5A8F54862B87638700ED1BFC /* SalahAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahAPIManager.swift; sourceTree = "<group>"; };
-		5A8F54882B87696500ED1BFC /* districts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Location/districts.json; sourceTree = "<group>"; };
-		5A8F548A2B877F5400ED1BFC /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
-		5A8F548C2B878D3000ED1BFC /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
-		5AA6AB532B81E90900E2A7DB /* Salah.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Salah.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		5AA6AB562B81E90900E2A7DB /* SalahApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahApp.swift; sourceTree = "<group>"; };
-		5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		5AA6AB5D2B81E90A00E2A7DB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		5AA6AB652B81EA4700E2A7DB /* Salah.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Salah.swift; sourceTree = "<group>"; };
-		5AA6AB692B81FC0F00E2A7DB /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5AA6AB502B81E90900E2A7DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D70000000000000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -131,30 +91,43 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5AA6AB502B81E90900E2A7DB /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D80000000000000000000001 /* SalahTests */ = {
+		5AA6AB4A2B81E90900E2A7DB = {
 			isa = PBXGroup;
 			children = (
-				D40000000000000000000001 /* SalahDomainTests.swift */,
+				0C6F31013013EF7F0065F050 /* .swiftlint.yml */,
+				5AA6AB552B81E90900E2A7DB /* Salah */,
+				D80000000000000000000001 /* SalahTests */,
+				D80000000000000000000002 /* SalahUITests */,
+				5AA6AB542B81E90900E2A7DB /* Products */,
 			);
-			path = SalahTests;
 			sourceTree = "<group>";
 		};
-		D80000000000000000000002 /* SalahUITests */ = {
+		5AA6AB542B81E90900E2A7DB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D40000000000000000000002 /* SalahUITests.swift */,
+				5AA6AB532B81E90900E2A7DB /* Salah.app */,
+				D40000000000000000000003 /* SalahTests.xctest */,
+				D40000000000000000000004 /* SalahUITests.xctest */,
 			);
-			path = SalahUITests;
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5AA6AB552B81E90900E2A7DB /* Salah */ = {
+			isa = PBXGroup;
+			children = (
+				5AA6AB562B81E90900E2A7DB /* SalahApp.swift */,
+				D30000000000000000000001 /* App */,
+				D30000000000000000000002 /* Core */,
+				D30000000000000000000003 /* Domain */,
+				D30000000000000000000004 /* Data */,
+				D30000000000000000000005 /* Features */,
+				D30000000000000000000006 /* Resources */,
+				5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */,
+			);
+			path = Salah;
 			sourceTree = "<group>";
 		};
 		D30000000000000000000001 /* App */ = {
@@ -208,140 +181,48 @@
 			children = (
 				D1000000000000000000000B /* Localizable.xcstrings */,
 				D1000000000000000000000C /* PrivacyInfo.xcprivacy */,
-				5A8F54882B87696500ED1BFC /* districts.json */,
+				5A8F54882B87696500ED1BFC /* Location/districts.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		5A843FAB2B88A96E000660EC /* View */ = {
+		D80000000000000000000001 /* SalahTests */ = {
 			isa = PBXGroup;
 			children = (
-				5A8CDC572B8A06A900AD0A95 /* TabBarView */,
-				5A8CDC542B89DDE500AD0A95 /* TimingView */,
+				D40000000000000000000001 /* SalahDomainTests.swift */,
 			);
-			path = View;
+			path = SalahTests;
 			sourceTree = "<group>";
 		};
-		5A843FAC2B88A976000660EC /* ViewModel */ = {
+		D80000000000000000000002 /* SalahUITests */ = {
 			isa = PBXGroup;
 			children = (
-				5A8CDC582B8A06F300AD0A95 /* TimingsViewModel.swift */,
-				5A8C76442B9497F300A472A7 /* WaqtDetailCardViewModel.swift */,
-				5A8AE2722B9DECAF007A8040 /* FastingCardViewModel.swift */,
+				D40000000000000000000002 /* SalahUITests.swift */,
 			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		5A8CDC542B89DDE500AD0A95 /* TimingView */ = {
-			isa = PBXGroup;
-			children = (
-				5A843FB12B88B701000660EC /* TimingsView.swift */,
-				5A8CDC552B89DE0800AD0A95 /* SalahView.swift */,
-				5A76B9242B8B7634003CF702 /* WaqtDetailCard.swift */,
-				5A8C76462B94984900A472A7 /* TimerView.swift */,
-				5A868EC92B9CB87300DFC2FA /* FastingCard.swift */,
-			);
-			path = TimingView;
-			sourceTree = "<group>";
-		};
-		5A8CDC572B8A06A900AD0A95 /* TabBarView */ = {
-			isa = PBXGroup;
-			children = (
-				5A843FAD2B88A9F0000660EC /* TabBarView.swift */,
-			);
-			path = TabBarView;
-			sourceTree = "<group>";
-		};
-		5A8F54852B87637000ED1BFC /* Networking */ = {
-			isa = PBXGroup;
-			children = (
-				5A8F54862B87638700ED1BFC /* SalahAPIManager.swift */,
-			);
-			name = Networking;
-			sourceTree = "<group>";
-		};
-		5AA6AB4A2B81E90900E2A7DB = {
-			isa = PBXGroup;
-			children = (
-				5AA6AB552B81E90900E2A7DB /* Salah */,
-				D80000000000000000000001 /* SalahTests */,
-				D80000000000000000000002 /* SalahUITests */,
-				5AA6AB542B81E90900E2A7DB /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		5AA6AB542B81E90900E2A7DB /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				5AA6AB532B81E90900E2A7DB /* Salah.app */,
-				D40000000000000000000003 /* SalahTests.xctest */,
-				D40000000000000000000004 /* SalahUITests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		5AA6AB552B81E90900E2A7DB /* Salah */ = {
-			isa = PBXGroup;
-			children = (
-				5AA6AB562B81E90900E2A7DB /* SalahApp.swift */,
-				D30000000000000000000001 /* App */,
-				D30000000000000000000002 /* Core */,
-				D30000000000000000000003 /* Domain */,
-				D30000000000000000000004 /* Data */,
-				D30000000000000000000005 /* Features */,
-				D30000000000000000000006 /* Resources */,
-				5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */,
-			);
-			path = Salah;
-			sourceTree = "<group>";
-		};
-		5AA6AB5C2B81E90A00E2A7DB /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				5AA6AB5D2B81E90A00E2A7DB /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		5AA6AB642B81EA2A00E2A7DB /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				5A8F548A2B877F5400ED1BFC /* Settings.swift */,
-				5AA6AB652B81EA4700E2A7DB /* Salah.swift */,
-				5A832D352B8E483B00C13AC7 /* WaqtDetailModel.swift */,
-				5A83221B2B9DA6850083917C /* FastingModel.swift */,
-				5A843FAF2B88AA8B000660EC /* TabBarModel.swift */,
-				5A8322192B9DA2090083917C /* TimerModel.swift */,
-				5A78F9BF2B8645B8009FE4DA /* APIResponseModel.swift */,
-				5A78F9C12B8654B2009FE4DA /* Test.json */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		5AA6AB672B81FBEB00E2A7DB /* Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				0C5A673E2EC0D87B009240BE /* LocationManager.swift */,
-				5A8F54852B87637000ED1BFC /* Networking */,
-				5AA6AB682B81FBF300E2A7DB /* Extensions */,
-			);
-			path = Helpers;
-			sourceTree = "<group>";
-		};
-		5AA6AB682B81FBF300E2A7DB /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				5AA6AB692B81FC0F00E2A7DB /* String+Extension.swift */,
-				5A8F548C2B878D3000ED1BFC /* Date+Extension.swift */,
-				5A76B9262B8B81F6003CF702 /* Double+Extension.swift */,
-				5A76B9282B8B86CC003CF702 /* Int+Extension.swift */,
-			);
-			name = Extensions;
+			path = SalahUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		5AA6AB522B81E90900E2A7DB /* Salah */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5AA6AB612B81E90A00E2A7DB /* Build configuration list for PBXNativeTarget "Salah" */;
+			buildPhases = (
+				0C6F31023013EFA50065F050 /* Run Swiftlint */,
+				5AA6AB4F2B81E90900E2A7DB /* Sources */,
+				5AA6AB502B81E90900E2A7DB /* Frameworks */,
+				5AA6AB512B81E90900E2A7DB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Salah;
+			productName = Salah;
+			productReference = 5AA6AB532B81E90900E2A7DB /* Salah.app */;
+			productType = "com.apple.product-type.application";
+		};
 		D90000000000000000000001 /* SalahTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DA0000000000000000000001 /* Build configuration list for PBXNativeTarget "SalahTests" */;
@@ -378,23 +259,6 @@
 			productReference = D40000000000000000000004 /* SalahUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		5AA6AB522B81E90900E2A7DB /* Salah */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 5AA6AB612B81E90A00E2A7DB /* Build configuration list for PBXNativeTarget "Salah" */;
-			buildPhases = (
-				5AA6AB4F2B81E90900E2A7DB /* Sources */,
-				5AA6AB502B81E90900E2A7DB /* Frameworks */,
-				5AA6AB512B81E90900E2A7DB /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Salah;
-			productName = Salah;
-			productReference = 5AA6AB532B81E90900E2A7DB /* Salah.app */;
-			productType = "com.apple.product-type.application";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -405,6 +269,9 @@
 				LastSwiftUpdateCheck = 1520;
 				LastUpgradeCheck = 1520;
 				TargetAttributes = {
+					5AA6AB522B81E90900E2A7DB = {
+						CreatedOnToolsVersion = 15.2;
+					};
 					D90000000000000000000001 = {
 						CreatedOnToolsVersion = 26.0;
 						TestTargetID = 5AA6AB522B81E90900E2A7DB;
@@ -412,9 +279,6 @@
 					D90000000000000000000002 = {
 						CreatedOnToolsVersion = 26.0;
 						TestTargetID = 5AA6AB522B81E90900E2A7DB;
-					};
-					5AA6AB522B81E90900E2A7DB = {
-						CreatedOnToolsVersion = 15.2;
 					};
 				};
 			};
@@ -439,6 +303,17 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		5AA6AB512B81E90900E2A7DB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2000000000000000000000B /* Localizable.xcstrings in Resources */,
+				D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */,
+				5AA6AB5B2B81E90A00E2A7DB /* Assets.xcassets in Resources */,
+				5A8F54892B87696500ED1BFC /* Location/districts.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DC0000000000000000000001 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -453,36 +328,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5AA6AB512B81E90900E2A7DB /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D2000000000000000000000B /* Localizable.xcstrings in Resources */,
-				D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */,
-				5AA6AB5B2B81E90A00E2A7DB /* Assets.xcassets in Resources */,
-				5A8F54892B87696500ED1BFC /* districts.json in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		0C6F31023013EFA50065F050 /* Run Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\n\nif command -v swiftlint >/dev/null 2>&1;\nthen\n    cd \"$SRCROOT\" || exit 1\n    swiftlint lint --lenient\nelse\n    echo \"warning: SwiftLint is not installed. Run: brew install swiftlint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
-		DB0000000000000000000001 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D50000000000000000000001 /* SalahDomainTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DB0000000000000000000002 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D50000000000000000000002 /* SalahUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		5AA6AB4F2B81E90900E2A7DB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -502,6 +371,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DB0000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D50000000000000000000001 /* SalahDomainTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DB0000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D50000000000000000000002 /* SalahUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -518,64 +403,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		DE0000000000000000000001 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salah.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salah";
-			};
-			name = Debug;
-		};
-		DE0000000000000000000002 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salah.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salah";
-			};
-			name = Release;
-		};
-		DE0000000000000000000003 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = Salah;
-			};
-			name = Debug;
-		};
-		DE0000000000000000000004 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = Salah;
-			};
-			name = Release;
-		};
 		5AA6AB5F2B81E90A00E2A7DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -704,6 +531,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Salah uses your approximate location while the app is open to calculate local prayer times.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -733,6 +561,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Salah uses your approximate location while the app is open to calculate local prayer times.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -753,27 +582,67 @@
 			};
 			name = Release;
 		};
+		DE0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salah.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salah";
+			};
+			name = Debug;
+		};
+		DE0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salah.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salah";
+			};
+			name = Release;
+		};
+		DE0000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Salah;
+			};
+			name = Debug;
+		};
+		DE0000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Salah;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DA0000000000000000000001 /* Build configuration list for PBXNativeTarget "SalahTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DE0000000000000000000001 /* Debug */,
-				DE0000000000000000000002 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DA0000000000000000000002 /* Build configuration list for PBXNativeTarget "SalahUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DE0000000000000000000003 /* Debug */,
-				DE0000000000000000000004 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		5AA6AB4E2B81E90900E2A7DB /* Build configuration list for PBXProject "Salah" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -788,6 +657,24 @@
 			buildConfigurations = (
 				5AA6AB622B81E90A00E2A7DB /* Debug */,
 				5AA6AB632B81E90A00E2A7DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA0000000000000000000001 /* Build configuration list for PBXNativeTarget "SalahTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE0000000000000000000001 /* Debug */,
+				DE0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA0000000000000000000002 /* Build configuration list for PBXNativeTarget "SalahUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE0000000000000000000003 /* Debug */,
+				DE0000000000000000000004 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
