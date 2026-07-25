@@ -1,9 +1,10 @@
+import CoreLocation
 import Foundation
 import Observation
 import SwiftData
 
 enum AppTab: Hashable {
-    case today, calendar, tracker, more
+    case today, calendar, deeds, qibla, more
 }
 
 @MainActor
@@ -61,12 +62,22 @@ final class AppSettings {
         } else {
             stored = StoredSettings()
         }
+        var initialLocation = stored.location
+        if initialLocation.source == .automatic,
+           initialLocation.name.localizedCaseInsensitiveContains("current location"),
+           let nearestDistrict = DistrictLoader.nearest(
+               to: CLLocationCoordinate2D(latitude: initialLocation.latitude, longitude: initialLocation.longitude)
+           ) {
+            initialLocation.name = "\(nearestDistrict.name), Bangladesh"
+        }
+
         onboardingComplete = arguments.contains("-ui-testing") && arguments.contains("-onboarding-complete") ? true : stored.onboardingComplete
         locationEducationSeen = stored.locationEducationSeen
-        location = stored.location
+        location = initialLocation
         calculation = stored.calculation
         appearance = stored.appearance
         storedReminders = stored.reminders
+        if initialLocation != stored.location { save() }
     }
 
     var reminders: [PrayerEvent: ReminderPreference] {

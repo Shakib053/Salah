@@ -2,28 +2,45 @@ import SwiftUI
 
 enum SalahPalette {
     static let accent = Color.accentColor
-    static let accentSecondary = Color(red: 0.18, green: 0.55, blue: 0.72)
-    static let warm = Color(red: 0.88, green: 0.55, blue: 0.20)
+    static let accentSoft = Color("AccentSoft")
+    static let accentForeground = Color("AccentForeground")
+    static let heroStart = Color("BrandNavy")
+    static let heroEnd = Color("BrandNavyDeep")
+    static let warm = Color.accentColor
+    static let screenBackground = Color(uiColor: .systemGroupedBackground)
+    static let groupedSurface = Color(uiColor: .systemBackground)
 }
 
 struct SalahCard<Content: View>: View {
     var isTransparent = false
     @ViewBuilder var content: Content
 
-    var body: some View {
+    private var cardContent: some View {
         VStack(alignment: .leading, spacing: 8) {
             content
         }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                isTransparent ? Color.clear : Color(uiColor: .secondarySystemBackground),
-                in: RoundedRectangle(cornerRadius: 20, style: .continuous)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(isTransparent ? Color.clear : .separator.opacity(0.35), lineWidth: 0.5)
-            }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    var body: some View {
+        if isTransparent {
+            cardContent
+        } else if #available(iOS 26.0, *) {
+            cardContent
+                .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        } else {
+            cardContent
+                .background(
+                    Color(uiColor: .secondarySystemBackground),
+                    in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+                )
+                .overlay {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(.separator.opacity(0.35), lineWidth: 0.5)
+                }
+        }
     }
 }
 
@@ -38,7 +55,7 @@ struct StatusBadge: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .foregroundStyle(tint)
-            .background(tint.opacity(0.12), in: Capsule())
+            .background(SalahPalette.accentSoft, in: Capsule())
             .accessibilityElement(children: .combine)
     }
 }
@@ -85,9 +102,9 @@ struct PrayerIcon: View {
     var body: some View {
         Image(systemName: prayer.symbol)
             .font(.headline)
-            .foregroundStyle(active ? .white : SalahPalette.accent)
+            .foregroundStyle(active ? .white : SalahPalette.accentForeground)
             .frame(width: 40, height: 40)
-            .background(active ? SalahPalette.accent : SalahPalette.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+            .background(active ? SalahPalette.accent : SalahPalette.accentSoft, in: RoundedRectangle(cornerRadius: 10))
             .accessibilityHidden(true)
     }
 }

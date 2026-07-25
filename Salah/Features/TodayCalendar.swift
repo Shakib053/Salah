@@ -10,7 +10,6 @@ final class TodayViewModel {
 
     var state: FeatureLoadState<PrayerDay> = .idle
     var previousDay: PrayerDay?
-    var selectedPrayer: PrayerType?
     var completed: Set<PrayerType> = []
     private var requestID = UUID()
 
@@ -67,7 +66,8 @@ final class TodayViewModel {
 struct TodayView: View {
     @Bindable var container: AppContainer
     @State private var viewModel: TodayViewModel
-    @State private var showingDatePicker = false
+    @State private var showingDistricts = false
+    @State private var showingCurrentLocation = false
 
     init(container: AppContainer) {
         self.container = container
@@ -102,36 +102,56 @@ struct TodayView: View {
                 LocationEducationView(container: container)
             }
         }
-        .navigationTitle("Today")
+        .background(SalahPalette.screenBackground.ignoresSafeArea())
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button { showingDatePicker = true } label: {
-                    Label("Choose date", systemImage: "calendar")
+            ToolbarItem(placement: .topBarLeading) {
+                Menu {
+                    Button("Use Current Location", systemImage: "location.fill") {
+                        showingCurrentLocation = true
+                    }
+                    Button("Choose District Manually", systemImage: "map.fill") {
+                        showingDistricts = true
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "location.fill")
+                        Text(container.settings.location.name)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .frame(maxWidth: 155, alignment: .leading)
+                        Image(systemName: "chevron.down")
+                            .font(.caption2.weight(.semibold))
+                    }
+                    .font(.subheadline.weight(.semibold))
                 }
-                .accessibilityHint("Shows a date picker")
+                .accessibilityLabel("Prayer location, \(container.settings.location.name)")
+                .accessibilityHint("Shows options to change the prayer location")
+                .accessibilityIdentifier("today.location.menu")
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    RemindersView(container: container)
+                } label: {
+                    Label("Prayer reminders", systemImage: "bell")
+                }
             }
         }
-        .sheet(isPresented: $showingDatePicker) {
+        .sheet(isPresented: $showingDistricts) {
             NavigationStack {
-                DatePicker(
-                    "Prayer date",
-                    selection: Binding(
-                        get: { container.router.selectedDay.date(in: container.settings.location.timeZone) ?? .now },
-                        set: { container.router.selectedDay = LocalDay($0, timeZone: container.settings.location.timeZone) }
-                    ),
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.graphical)
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .navigationTitle("Choose Date")
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { showingDatePicker = false }
-                    }
+                DistrictPickerView(districts: container.districts) { district in
+                    showingDistricts = false
+                    updateLocation(district.prayerLocation)
                 }
             }
-            .presentationDetents([.fraction(0.70)])
+        }
+        .sheet(isPresented: $showingCurrentLocation) {
+            CurrentLocationSettingsSheet(container: container) { location in
+                showingCurrentLocation = false
+                updateLocation(location)
+            }
+            .presentationDetents([.medium, .large])
         }
         .task(id: queryIdentity) {
             await viewModel.load(day: container.router.selectedDay)
@@ -141,7 +161,7 @@ struct TodayView: View {
     @ViewBuilder
     private func dashboard(day: PrayerDay, offlineDate: Date?) -> some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: 14) {
                 if let offlineDate { OfflineBanner(lastUpdated: offlineDate) }
 
                 HStack(alignment: .top) {
@@ -155,18 +175,6 @@ struct TodayView: View {
                             .buttonStyle(.bordered)
                     }
                 }
-
-                HStack(spacing: 6) {
-                    Image(systemName: "location.fill").accessibilityHidden(true)
-                    Text(container.settings.location.name)
-                    if container.settings.location.isFallback {
-                        Text("Default").font(.caption2.bold()).padding(.horizontal, 6).padding(.vertical, 3)
-                            .background(.orange.opacity(0.15), in: Capsule())
-                    }
-                }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
 
                 if day.localDay == LocalDay(.now, timeZone: day.timeZone) {
                     TimelineView(.periodic(from: .now, by: 1)) { context in
@@ -182,37 +190,48 @@ struct TodayView: View {
                     }
                 }
 
-                HStack(spacing: 12) {
-                    eventCard(title: "Sunrise", date: day.sunrise, symbol: "sunrise.fill", day: day)
-                    eventCard(title: "Sunset", date: day.sunset, symbol: "sunset.fill", day: day)
+                HStack(alignment: .firstTextBaseline) {
+                    Text("PRAYER SCHEDULE")
+                        .font(.footnote.bold())
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Prayer Schedule")
+                    Spacer()
+                    Text("\(viewModel.completed.count) of 5 prayed")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-
-                Text("Prayer Schedule")
-                    .font(.title3.bold())
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
 
                 VStack(spacing: 0) {
                     ForEach(day.windows) { window in
                         Button {
-                            viewModel.selectedPrayer = window.prayer
+                            viewModel.toggle(window.prayer, on: day.localDay, timeZone: day.timeZone)
                         } label: {
                             PrayerScheduleRow(
                                 window: window,
                                 day: day,
                                 preference: container.settings.calculation.timeFormat,
                                 isActive: isActive(window, day: day),
-                                isCompleted: viewModel.completed.contains(window.prayer)
+                                isCompleted: viewModel.completed.contains(window.prayer),
+                                showsDisclosure: false
                             )
                         }
                         .buttonStyle(.plain)
                         if window.prayer != .isha { Divider().padding(.leading, 62) }
                     }
                 }
-                .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20))
+                .background(SalahPalette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
 
-                Text("Fasting")
-                    .font(.title3.bold())
+                HStack(spacing: 12) {
+                    eventCard(title: "Sunrise", date: day.sunrise, symbol: "sunrise.fill", day: day)
+                    eventCard(title: "Sunset", date: day.sunset, symbol: "sunset.fill", day: day)
+                }
+
+                Text("FASTING")
+                    .font(.footnote.bold())
+                    .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 4)
                 HStack(spacing: 12) {
                     eventCard(title: "Sahri ends", date: day.sahri, symbol: "moon.stars.fill", day: day)
                     eventCard(title: "Iftar begins", date: day.iftar, symbol: "sun.horizon.fill", day: day)
@@ -223,24 +242,12 @@ struct TodayView: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
+        .background(SalahPalette.screenBackground)
         .refreshable {
             await viewModel.load(day: container.router.selectedDay, policy: .reload)
-        }
-        .sheet(item: $viewModel.selectedPrayer) { prayer in
-            if let window = day.window(for: prayer) {
-                PrayerDetailSheet(
-                    window: window,
-                    day: day,
-                    container: container,
-                    isCompleted: viewModel.completed.contains(prayer)
-                ) {
-                    viewModel.toggle(prayer, on: day.localDay, timeZone: day.timeZone, source: "detail")
-                }
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-            }
         }
     }
 
@@ -251,30 +258,34 @@ struct TodayView: View {
     @ViewBuilder
     private func currentPrayerCard(day: PrayerDay, now: Date) -> some View {
         let moment = PrayerTimeline.moment(now: now, today: day, previous: viewModel.previousDay)
+        let displayed = moment.next ?? moment.current
+        let countdown = moment.next.map { max(0, $0.start.timeIntervalSince(now)) } ?? moment.remaining
         SalahCard(isTransparent: true) {
             HStack(alignment: .top, spacing: 16) {
                 ZStack {
-                    Circle().stroke(.white.opacity(0.25), lineWidth: 8)
+                    Circle().stroke(.white.opacity(0.22), lineWidth: 7)
                     Circle()
                         .trim(from: 0, to: moment.progress)
-                        .stroke(.white, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .stroke(.white, style: StrokeStyle(lineWidth: 7, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                     Image(systemName: moment.current?.prayer.symbol ?? "clock.fill")
                         .font(.title2)
                 }
-                .frame(width: 78, height: 78)
+                .frame(width: 92, height: 92)
                 .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(moment.current == nil ? "Next prayer" : "Current prayer")
-                        .font(.subheadline)
+                    Text(moment.next.map { "Next prayer · \($0.prayer.title)" } ?? "Current prayer")
+                        .font(.caption.weight(.semibold))
+                        .textCase(.uppercase)
+                        .tracking(0.7)
                         .foregroundStyle(.white.opacity(0.8))
-                    Text((moment.current ?? moment.next)?.prayer.title ?? "Schedule complete")
+                    Text(displayed?.prayer.title ?? "Schedule complete")
                         .font(.title.bold())
-                    if let remaining = moment.remaining {
+                    if let remaining = countdown {
                         Text(PrayerDateFormatting.countdown(remaining))
-                            .font(.title3.bold().monospacedDigit())
-                        Text(moment.current == nil ? "until it begins" : "remaining in this window")
+                            .font(.title2.bold().monospacedDigit())
+                        Text(moment.next.map { "until \($0.prayer.title) begins" } ?? "remaining in this window")
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.8))
                     }
@@ -284,9 +295,10 @@ struct TodayView: View {
             .foregroundStyle(.white)
         }
         .background(
-            LinearGradient(colors: [SalahPalette.accent, SalahPalette.accentSecondary], startPoint: .topLeading, endPoint: .bottomTrailing),
-            in: RoundedRectangle(cornerRadius: 20)
+            LinearGradient(colors: [SalahPalette.heroStart, SalahPalette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 22, style: .continuous)
         )
+        .shadow(color: SalahPalette.heroEnd.opacity(0.28), radius: 12, y: 6)
         .accessibilityElement(children: .combine)
     }
 
@@ -301,6 +313,20 @@ struct TodayView: View {
         }
         .accessibilityElement(children: .combine)
     }
+
+    private func updateLocation(_ location: PrayerLocation) {
+        let oldSignature = PrayerTimesQuery(
+            day: container.router.selectedDay,
+            location: container.settings.location,
+            settings: container.settings.calculation
+        ).signature
+        container.settings.location = location
+        container.router.selectedDay = LocalDay(.now, timeZone: location.timeZone)
+        Task {
+            await container.prayerTimesRepository.invalidate(signature: oldSignature)
+            await ReminderCoordinator.reconcile(container: container)
+        }
+    }
 }
 
 struct PrayerScheduleRow: View {
@@ -309,6 +335,7 @@ struct PrayerScheduleRow: View {
     let preference: TimeFormatPreference
     let isActive: Bool
     let isCompleted: Bool
+    var showsDisclosure = true
 
     var body: some View {
         HStack(spacing: 12) {
@@ -317,7 +344,6 @@ struct PrayerScheduleRow: View {
                 HStack {
                     Text(window.prayer.title).font(.headline)
                     if isActive { StatusBadge(text: "Current", symbol: "clock.fill") }
-                    if isCompleted { Image(systemName: "checkmark.circle.fill").foregroundStyle(SalahPalette.accent).accessibilityLabel("Completed") }
                 }
                 Text("Ends \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))")
                     .font(.caption).foregroundStyle(.secondary)
@@ -325,15 +351,28 @@ struct PrayerScheduleRow: View {
             Spacer()
             Text(PrayerDateFormatting.time(window.start, preference: preference, timeZone: day.timeZone))
                 .font(.headline.monospacedDigit())
-            Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+            if isCompleted {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(SalahPalette.accent)
+                    .accessibilityLabel("Completed")
+            } else if !showsDisclosure {
+                Image(systemName: "circle")
+                    .font(.title3)
+                    .foregroundStyle(.tertiary)
+                    .accessibilityLabel("Not completed")
+            }
+            if showsDisclosure {
+                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+            }
         }
         .padding(.horizontal)
         .frame(minHeight: 64)
-        .background(isActive ? SalahPalette.accent.opacity(0.08) : .clear)
+        .background(isActive ? SalahPalette.accentSoft : .clear)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(window.prayer.title), starts \(PrayerDateFormatting.time(window.start, preference: preference, timeZone: day.timeZone)), ends \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))\(isActive ? ", current prayer" : "")\(isCompleted ? ", completed" : "")")
-        .accessibilityHint("Opens prayer details")
+        .accessibilityHint(showsDisclosure ? "Opens prayer details" : (isCompleted ? "Marks this prayer as not completed" : "Marks this prayer as completed"))
     }
 }
 
@@ -538,7 +577,7 @@ struct PrayerCalendarView: View {
                             if window.prayer != .isha { Divider().padding(.leading, 62) }
                         }
                     }
-                    .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20))
+                    .background(SalahPalette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .sheet(item: $viewModel.selectedPrayer) { prayer in
                         if let window = selected.window(for: prayer) {
                             PrayerDetailSheet(
@@ -557,6 +596,7 @@ struct PrayerCalendarView: View {
             .padding()
         }
         .refreshable { await viewModel.load(policy: .reload) }
+        .background(SalahPalette.screenBackground)
     }
 
     private func calendarCell(_ day: PrayerDay) -> some View {

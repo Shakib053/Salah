@@ -65,10 +65,16 @@ struct RootTabView: View {
             .tag(AppTab.calendar)
 
             NavigationStack {
-                TrackerView(container: container)
+                DeedsView(container: container)
             }
-            .tabItem { Label("Tracker", systemImage: "checkmark.circle.fill") }
-            .tag(AppTab.tracker)
+            .tabItem { Label("Deeds", systemImage: "checklist") }
+            .tag(AppTab.deeds)
+
+            NavigationStack {
+                QiblaView(container: container)
+            }
+            .tabItem { Label("Qibla", systemImage: "location.north.circle.fill") }
+            .tag(AppTab.qibla)
 
             NavigationStack {
                 MoreView(container: container)
@@ -118,7 +124,7 @@ struct OnboardingFlow: View {
                                 .font(.system(size: 72, weight: .medium))
                                 .foregroundStyle(SalahPalette.accent)
                                 .frame(width: 150, height: 150)
-                                .background(SalahPalette.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 42))
+                                .background(SalahPalette.accentSoft, in: RoundedRectangle(cornerRadius: 42))
                                 .accessibilityHidden(true)
                             Text(page.title)
                                 .font(.largeTitle.bold())

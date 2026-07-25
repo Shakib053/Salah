@@ -13,8 +13,13 @@ final class SalahUITests: XCTestCase {
         if skip.waitForExistence(timeout: 3) { skip.tap() }
         XCTAssertTrue(app.tabBars.buttons["Today"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.tabBars.buttons["Calendar"].exists)
-        XCTAssertTrue(app.tabBars.buttons["Tracker"].exists)
+        XCTAssertTrue(app.tabBars.buttons["Deeds"].exists)
+        XCTAssertTrue(app.tabBars.buttons["Qibla"].exists)
         XCTAssertTrue(app.tabBars.buttons["More"].exists)
+        let locationMenu = app.buttons["today.location.menu"]
+        XCTAssertTrue(locationMenu.exists)
+        locationMenu.tap()
+        XCTAssertTrue(app.buttons["Choose District Manually"].waitForExistence(timeout: 2))
     }
 
     func testManualDistrictSelectionAndLocationDeniedRecovery() {
@@ -52,14 +57,13 @@ final class SalahUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.staticTexts["Prayer Schedule"].waitForExistence(timeout: 4))
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Fajr, starts'")).firstMatch.tap()
-        app.buttons["Mark as Completed"].tap()
-        app.tabBars.buttons["Tracker"].tap()
+        app.tabBars.buttons["Deeds"].tap()
         XCTAssertTrue(app.buttons["Fajr, completed"].waitForExistence(timeout: 3))
 
         app.terminate()
         app.launchArguments = ["-ui-testing", "-onboarding-complete"]
         app.launch()
-        app.tabBars.buttons["Tracker"].tap()
+        app.tabBars.buttons["Deeds"].tap()
         XCTAssertTrue(app.buttons["Fajr, completed"].waitForExistence(timeout: 3))
     }
 
@@ -67,8 +71,8 @@ final class SalahUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing", "-onboarding-complete"]
         app.launch()
-        app.tabBars.buttons["Tracker"].tap()
-        XCTAssertTrue(app.staticTexts["Today’s progress"].waitForExistence(timeout: 3))
+        app.tabBars.buttons["Deeds"].tap()
+        XCTAssertTrue(app.staticTexts["Today’s Ṣalāh"].waitForExistence(timeout: 3))
         let fajr = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Fajr'")).firstMatch
         XCTAssertTrue(fajr.exists)
         fajr.tap()

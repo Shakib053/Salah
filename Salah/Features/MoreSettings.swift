@@ -54,6 +54,9 @@ struct MoreView: View {
                 NavigationLink { AppearanceView(container: container) } label: {
                     settingsLabel("Appearance & Accessibility", subtitle: "System-aware display", symbol: "circle.lefthalf.filled", tint: .indigo)
                 }
+                NavigationLink { CharityView() } label: {
+                    settingsLabel("Ṣadaqah", subtitle: "A private giving intention", symbol: "heart.fill", tint: .pink)
+                }
             }
 
             Section {
@@ -106,6 +109,56 @@ struct MoreView: View {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
         return "\(version) (\(build))"
+    }
+}
+
+struct CharityView: View {
+    @AppStorage("salah.deeds.charity-total") private var charityTotal = 0
+    @AppStorage("salah.deeds.charity-goal") private var charityGoal = 100
+    @AppStorage("salah.deeds.charity-month") private var charityMonth = ""
+
+    private var currencyCode: String {
+        Locale.current.currency?.identifier ?? "USD"
+    }
+
+    var body: some View {
+        Form {
+            Section("This Month") {
+                LabeledContent("Recorded", value: charityTotal.formatted(.currency(code: currencyCode)))
+                ProgressView(value: Double(charityTotal), total: Double(max(1, charityGoal)))
+                    .accessibilityLabel("Monthly charity intention")
+                    .accessibilityValue("\(charityTotal) of \(charityGoal)")
+                Stepper(
+                    "Monthly intention: \(charityGoal.formatted(.currency(code: currencyCode)))",
+                    value: $charityGoal,
+                    in: 10...10_000,
+                    step: 10
+                )
+                Button("Record 5", systemImage: "heart.fill") { charityTotal += 5 }
+                    .buttonStyle(.borderedProminent)
+            }
+
+            Section("About Giving") {
+                Label("Give quietly and consistently", systemImage: "heart.text.square.fill")
+                Text("Salah does not collect or process donations. This optional total stays on your device and helps you reflect on charity given through organizations you trust.")
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Button("Reset Monthly Total", role: .destructive) { charityTotal = 0 }
+            }
+        }
+        .navigationTitle("Ṣadaqah")
+        .task { prepareCurrentMonth() }
+    }
+
+    private func prepareCurrentMonth() {
+        let components = Calendar.current.dateComponents([.year, .month], from: .now)
+        let month = String(format: "%04d-%02d", components.year ?? 1970, components.month ?? 1)
+        if charityMonth != month {
+            charityMonth = month
+            charityTotal = 0
+        }
     }
 }
 

@@ -64,7 +64,7 @@ final class UITestLocationProvider: LocationProviding {
 
     func requestCurrentLocation() async throws -> PrayerLocation {
         if authorization == .denied { throw LocationServiceError.denied }
-        return PrayerLocation(name: "Test Location", latitude: 23.71, longitude: 90.41, timeZoneIdentifier: "Asia/Dhaka", source: .automatic)
+        return PrayerLocation(name: "Dhaka, Bangladesh", latitude: 23.71, longitude: 90.41, timeZoneIdentifier: "Asia/Dhaka", source: .automatic)
     }
 }
 

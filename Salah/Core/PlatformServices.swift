@@ -85,13 +85,37 @@ final class CoreLocationProvider: NSObject, LocationProviding, @preconcurrency C
         Task {
             let placemark = try? await CLGeocoder().reverseGeocodeLocation(value).first
             continuation?.resume(returning: PrayerLocation(
-                name: placemark?.locality.map { "\($0), Current Location" } ?? "Current Location",
+                name: Self.displayName(for: value, placemark: placemark),
                 latitude: value.coordinate.latitude,
                 longitude: value.coordinate.longitude,
                 timeZoneIdentifier: placemark?.timeZone?.identifier ?? TimeZone.current.identifier,
                 source: .automatic
             ))
         }
+    }
+
+    private static func displayName(for location: CLLocation, placemark: CLPlacemark?) -> String {
+        let cityOrDistrict = [placemark?.locality, placemark?.subAdministrativeArea]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { !$0.isEmpty }
+
+        if let cityOrDistrict {
+            let country = placemark?.country?.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let country, !country.isEmpty, cityOrDistrict.localizedCaseInsensitiveCompare(country) != .orderedSame {
+                return "\(cityOrDistrict), \(country)"
+            }
+            return cityOrDistrict
+        }
+
+        if let nearestDistrict = DistrictLoader.nearest(to: location.coordinate) {
+            return "\(nearestDistrict.name), Bangladesh"
+        }
+
+        if let administrativeArea = placemark?.administrativeArea, !administrativeArea.isEmpty {
+            return administrativeArea
+        }
+
+        return "Nearby Location"
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -172,6 +196,16 @@ enum DistrictLoader {
             if $0.name == "Dhaka" { return true }
             if $1.name == "Dhaka" { return false }
             return $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
+    }
+
+    static func nearest(to coordinate: CLLocationCoordinate2D, districts: [District]? = nil) -> District? {
+        let candidates = districts ?? load()
+        let origin = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        return candidates.min { lhs, rhs in
+            let lhsDistance = origin.distance(from: CLLocation(latitude: lhs.latitude, longitude: lhs.longitude))
+            let rhsDistance = origin.distance(from: CLLocation(latitude: rhs.latitude, longitude: rhs.longitude))
+            return lhsDistance < rhsDistance
         }
     }
 }

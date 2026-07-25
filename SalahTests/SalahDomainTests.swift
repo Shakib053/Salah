@@ -131,6 +131,26 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertEqual(plan.first?.triggerDate, first.sahri.addingTimeInterval(-600))
     }
 
+    func testQiblaGeometryFromDhaka() {
+        let bearing = QiblaGeometry.bearing(from: .dhaka)
+        let distance = QiblaGeometry.distance(from: .dhaka).value
+        XCTAssertTrue(275...280 ~= bearing)
+        XCTAssertTrue(5_000...5_500 ~= distance)
+        XCTAssertEqual(QiblaGeometry.shortestAngle(350), -10, accuracy: 0.001)
+    }
+
+    func testNearestDistrictUsesCoordinateDistance() throws {
+        let districts = [
+            District(id: "dhaka", name: "Dhaka", banglaName: "ঢাকা", latitude: 23.7115, longitude: 90.4111),
+            District(id: "chattogram", name: "Chattogram", banglaName: "চট্টগ্রাম", latitude: 22.3569, longitude: 91.7832)
+        ]
+        let nearest = DistrictLoader.nearest(
+            to: .init(latitude: 22.34, longitude: 91.82),
+            districts: districts
+        )
+        XCTAssertEqual(try XCTUnwrap(nearest).name, "Chattogram")
+    }
+
     private func fixture(day: LocalDay) throws -> PrayerDay {
         try PrayerDayMapper.map(makeDTO(day: day), fallbackLocation: .dhaka, settings: .init())
     }
