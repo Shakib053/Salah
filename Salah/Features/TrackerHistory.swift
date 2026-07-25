@@ -398,8 +398,11 @@ struct DeedsView: View {
         Binding(
             get: { goodDeedsMask & (1 << id) != 0 },
             set: { enabled in
-                if enabled { goodDeedsMask |= (1 << id) }
-                else { goodDeedsMask &= ~(1 << id) }
+                if enabled {
+                    goodDeedsMask |= (1 << id)
+                } else {
+                    goodDeedsMask &= ~(1 << id)
+                }
             }
         )
     }
@@ -507,9 +510,9 @@ enum QiblaGeometry {
         let destinationLatitude = kaaba.latitude * .pi / 180
         let destinationLongitude = kaaba.longitude * .pi / 180
         let delta = destinationLongitude - longitude
-        let y = sin(delta) * cos(destinationLatitude)
-        let x = cos(latitude) * sin(destinationLatitude) - sin(latitude) * cos(destinationLatitude) * cos(delta)
-        return normalized(atan2(y, x) * 180 / .pi)
+        let bearingYComponent = sin(delta) * cos(destinationLatitude)
+        let bearingXComponent = cos(latitude) * sin(destinationLatitude) - sin(latitude) * cos(destinationLatitude) * cos(delta)
+        return normalized(atan2(bearingYComponent, bearingXComponent) * 180 / .pi)
     }
 
     static func distance(from location: PrayerLocation) -> Measurement<UnitLength> {

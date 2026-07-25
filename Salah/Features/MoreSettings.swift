@@ -190,8 +190,13 @@ struct ReminderEducationSheet: View {
                 Button {
                     enable()
                 } label: {
-                    if isWorking { ProgressView().frame(maxWidth: .infinity) }
-                    else { Text("Enable Reminder").frame(maxWidth: .infinity) }
+                    if isWorking {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("Enable Reminder")
+                            .frame(maxWidth: .infinity)
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
@@ -462,13 +467,21 @@ struct CurrentLocationSettingsSheet: View {
                 Button {
                     isWorking = true
                     Task {
-                        do { onLocation(try await container.locationProvider.requestCurrentLocation()) }
-                        catch { self.error = error.localizedDescription }
+                        do {
+                            onLocation(try await container.locationProvider.requestCurrentLocation())
+                        } catch {
+                            self.error = error.localizedDescription
+                        }
                         isWorking = false
                     }
                 } label: {
-                    if isWorking { ProgressView().frame(maxWidth: .infinity) }
-                    else { Text("Continue").frame(maxWidth: .infinity) }
+                    if isWorking {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("Continue")
+                            .frame(maxWidth: .infinity)
+                    }
                 }
                 .buttonStyle(.borderedProminent).controlSize(.large).disabled(isWorking)
                 Button("Cancel") { dismiss() }.frame(minHeight: 44)

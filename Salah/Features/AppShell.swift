@@ -194,8 +194,13 @@ struct LocationEducationView: View {
             Button {
                 requestLocation()
             } label: {
-                if isRequesting { ProgressView().frame(maxWidth: .infinity) }
-                else { Text("Use Current Location").frame(maxWidth: .infinity) }
+                if isRequesting {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Text("Use Current Location")
+                        .frame(maxWidth: .infinity)
+                }
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
