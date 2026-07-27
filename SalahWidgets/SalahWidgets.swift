@@ -59,6 +59,8 @@ struct SalahWidgetsEntryView : View {
             switch family {
             case .systemMedium:
                 MediumWidgetView(snapshot: entry.snapshot)
+            case .systemLarge:
+                LargeWidgetView(snapshot: entry.snapshot)
             default:
                 SmallWidgetView(snapshot: entry.snapshot)
             }
@@ -156,29 +158,32 @@ private struct MediumWidgetView: View {
     let snapshot: WidgetSnapshot?
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 10) {
             if let snapshot, let next = snapshot.nextPrayer {
                 VStack(alignment: .leading, spacing: 0) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 5) {
                         Image(systemName: "calendar")
+                            .font(.caption)
                             .foregroundStyle(WidgetTheme.accent)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(snapshot.gregorianSummary)
-                                .font(.caption.weight(.semibold))
+                                .font(.caption2.weight(.semibold))
+                                .lineLimit(1)
                             Text(snapshot.hijriSummary)
                                 .font(.caption2)
                                 .foregroundStyle(WidgetTheme.secondary)
+                                .lineLimit(1)
                         }
                     }
 
-                    Spacer(minLength: 12)
+                    Spacer(minLength: 5)
 
                     Text("NEXT PRAYER")
                         .font(.caption2.weight(.semibold))
                         .tracking(1.1)
                         .foregroundStyle(WidgetTheme.accent)
                     Text(next.name)
-                        .font(.system(size: 36, weight: .medium, design: .serif))
+                        .font(.system(size: 31, weight: .medium, design: .serif))
                         .foregroundStyle(WidgetTheme.primary)
                         .lineLimit(1)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -186,14 +191,14 @@ private struct MediumWidgetView: View {
                         Text(next.time, style: .timer)
                             .monospacedDigit()
                     }
-                    .font(.headline.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(WidgetTheme.accent)
 
-                    Spacer(minLength: 8)
+                    Spacer(minLength: 4)
 
                     HStack(spacing: 8) {
                         Image(systemName: "moon.stars.fill")
-                            .font(.title2)
+                            .font(.title3)
                         Image(systemName: "building.columns.fill")
                             .font(.title3)
                             .opacity(0.35)
@@ -209,29 +214,35 @@ private struct MediumWidgetView: View {
                 VStack(spacing: 0) {
                     HStack(spacing: 5) {
                         Spacer()
-                        Text("Updated (WidgetTimeFormatter.time(snapshot.updatedAt, timezoneIdentifier: snapshot.timeZoneIdentifier))")
+                        Text("Updated \(WidgetTimeFormatter.time(snapshot.updatedAt, timezoneIdentifier: snapshot.timeZoneIdentifier))")
                         Image(systemName: "arrow.clockwise")
                     }
-                    .font(.caption2)
+                    .font(.system(size: 9))
                     .foregroundStyle(WidgetTheme.secondary)
-                    .padding(.bottom, 5)
+                    .frame(height: 12)
+                    .padding(.bottom, 1)
 
                     ForEach(snapshot.prayers) { prayer in
-                        HStack(spacing: 7) {
+                        HStack(spacing: 5) {
                             Image(systemName: prayer.symbolName)
-                                .frame(width: 17)
+                                .font(.system(size: 11))
+                                .frame(width: 15)
                                 .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.secondary)
                             Text(prayer.name)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                                 .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.secondary)
                             Spacer(minLength: 4)
                             Text(WidgetTimeFormatter.time(prayer.time, timezoneIdentifier: snapshot.timeZoneIdentifier))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
                                 .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.secondary)
                                 .monospacedDigit()
                         }
-                        .font(.caption)
+                        .font(.caption2)
                         .fontWeight(prayer.isNext ? .semibold : .regular)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 4)
+                        .frame(height: 19)
 
                         if prayer.id != snapshot.prayers.last?.id {
                             Rectangle()
@@ -248,7 +259,85 @@ private struct MediumWidgetView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .padding(16)
+        .padding(12)
+    }
+}
+
+private struct LargeWidgetView: View {
+    let snapshot: WidgetSnapshot?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if let snapshot, let next = snapshot.nextPrayer {
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar")
+                        .font(.caption)
+                        .foregroundStyle(WidgetTheme.accent)
+                        .padding(7)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(WidgetTheme.accent.opacity(0.7), lineWidth: 1)
+                        )
+                    Text(snapshot.hijriSummary)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(WidgetTheme.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 14)
+
+                Text("NEXT PRAYER")
+                    .font(.caption2.weight(.semibold))
+                    .tracking(1.1)
+                    .foregroundStyle(WidgetTheme.accent)
+                Text(next.name)
+                    .font(.system(size: 36, weight: .medium, design: .serif))
+                    .foregroundStyle(WidgetTheme.primary)
+                    .lineLimit(1)
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("in")
+                    Text(next.time, style: .timer)
+                        .monospacedDigit()
+                }
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(WidgetTheme.accent)
+
+                Spacer(minLength: 14)
+
+                Rectangle()
+                    .fill(WidgetTheme.divider)
+                    .frame(height: 1)
+                    .padding(.bottom, 8)
+
+                VStack(spacing: 0) {
+                    ForEach(snapshot.prayers) { prayer in
+                        HStack(spacing: 9) {
+                            Image(systemName: prayer.symbolName)
+                                .font(.caption)
+                                .frame(width: 17)
+                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.secondary)
+                            Text(prayer.name)
+                                .fontWeight(prayer.isNext ? .semibold : .regular)
+                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.primary)
+                                .lineLimit(1)
+                            Spacer(minLength: 8)
+                            Text(WidgetTimeFormatter.time(prayer.time, timezoneIdentifier: snapshot.timeZoneIdentifier))
+                                .font(.subheadline.monospacedDigit())
+                                .fontWeight(prayer.isNext ? .semibold : .regular)
+                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.primary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 30)
+                    }
+                }
+            } else {
+                Text("Open Salah to load prayer times")
+                    .font(.subheadline)
+                    .foregroundStyle(WidgetTheme.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            }
+        }
+        .padding(20)
     }
 }
 
@@ -259,7 +348,7 @@ struct SalahWidgets: Widget {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             SalahWidgetsEntryView(entry: entry)
         }
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
@@ -285,6 +374,12 @@ extension ConfigurationAppIntent {
 }
 
 #Preview(as: .systemMedium) {
+    SalahWidgets()
+} timeline: {
+    SimpleEntry(date: .now, configuration: .smiley, snapshot: nil)
+}
+
+#Preview(as: .systemLarge) {
     SalahWidgets()
 } timeline: {
     SimpleEntry(date: .now, configuration: .smiley, snapshot: nil)
