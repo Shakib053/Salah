@@ -3,10 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C7044AE3017C6B800277BD4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C7044AD3017C6B800277BD4 /* WidgetKit.framework */; };
+		0C7044B03017C6B800277BD4 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C7044AF3017C6B800277BD4 /* SwiftUI.framework */; };
+		0C7044C23017C6BA00277BD4 /* SalahWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0C7044AB3017C6B800277BD4 /* SalahWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5A8F54892B87696500ED1BFC /* Location/districts.json in Resources */ = {isa = PBXBuildFile; fileRef = 5A8F54882B87696500ED1BFC /* Location/districts.json */; };
 		5AA6AB572B81E90900E2A7DB /* SalahApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA6AB562B81E90900E2A7DB /* SalahApp.swift */; };
 		5AA6AB5B2B81E90A00E2A7DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */; };
@@ -28,6 +31,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0C7044BF3017C6BA00277BD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5AA6AB4B2B81E90900E2A7DB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0C7044AA3017C6B800277BD4;
+			remoteInfo = SalahWidgetsExtension;
+		};
 		D60000000000000000000001 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5AA6AB4B2B81E90900E2A7DB /* Project object */;
@@ -44,8 +54,25 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		0C7044C13017C6BA00277BD4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0C7044C23017C6BA00277BD4 /* SalahWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0C6F31013013EF7F0065F050 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
+		0C7044AB3017C6B800277BD4 /* SalahWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SalahWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C7044AD3017C6B800277BD4 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		0C7044AF3017C6B800277BD4 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		5A8F54882B87696500ED1BFC /* Location/districts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Location/districts.json; sourceTree = "<group>"; };
 		5AA6AB532B81E90900E2A7DB /* Salah.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Salah.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5AA6AB562B81E90900E2A7DB /* SalahApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahApp.swift; sourceTree = "<group>"; };
@@ -69,7 +96,30 @@
 		D40000000000000000000004 /* SalahUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalahUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0C7044C53017C6BA00277BD4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0C7044AA3017C6B800277BD4 /* SalahWidgetsExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		0C7044B13017C6B800277BD4 /* SalahWidgets */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (0C7044C53017C6BA00277BD4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SalahWidgets; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		0C7044A83017C6B800277BD4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0C7044B03017C6B800277BD4 /* SwiftUI.framework in Frameworks */,
+				0C7044AE3017C6B800277BD4 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5AA6AB502B81E90900E2A7DB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -94,6 +144,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C7044AC3017C6B800277BD4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0C7044AD3017C6B800277BD4 /* WidgetKit.framework */,
+				0C7044AF3017C6B800277BD4 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		5AA6AB4A2B81E90900E2A7DB = {
 			isa = PBXGroup;
 			children = (
@@ -101,6 +160,8 @@
 				5AA6AB552B81E90900E2A7DB /* Salah */,
 				D80000000000000000000001 /* SalahTests */,
 				D80000000000000000000002 /* SalahUITests */,
+				0C7044B13017C6B800277BD4 /* SalahWidgets */,
+				0C7044AC3017C6B800277BD4 /* Frameworks */,
 				5AA6AB542B81E90900E2A7DB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -111,6 +172,7 @@
 				5AA6AB532B81E90900E2A7DB /* Salah.app */,
 				D40000000000000000000003 /* SalahTests.xctest */,
 				D40000000000000000000004 /* SalahUITests.xctest */,
+				0C7044AB3017C6B800277BD4 /* SalahWidgetsExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -205,6 +267,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0C7044AA3017C6B800277BD4 /* SalahWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C7044C63017C6BA00277BD4 /* Build configuration list for PBXNativeTarget "SalahWidgetsExtension" */;
+			buildPhases = (
+				0C7044A73017C6B800277BD4 /* Sources */,
+				0C7044A83017C6B800277BD4 /* Frameworks */,
+				0C7044A93017C6B800277BD4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				0C7044B13017C6B800277BD4 /* SalahWidgets */,
+			);
+			name = SalahWidgetsExtension;
+			packageProductDependencies = (
+			);
+			productName = SalahWidgetsExtension;
+			productReference = 0C7044AB3017C6B800277BD4 /* SalahWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		5AA6AB522B81E90900E2A7DB /* Salah */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5AA6AB612B81E90A00E2A7DB /* Build configuration list for PBXNativeTarget "Salah" */;
@@ -213,10 +297,12 @@
 				5AA6AB4F2B81E90900E2A7DB /* Sources */,
 				5AA6AB502B81E90900E2A7DB /* Frameworks */,
 				5AA6AB512B81E90900E2A7DB /* Resources */,
+				0C7044C13017C6BA00277BD4 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0C7044C03017C6BA00277BD4 /* PBXTargetDependency */,
 			);
 			name = Salah;
 			productName = Salah;
@@ -266,9 +352,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1520;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1520;
 				TargetAttributes = {
+					0C7044AA3017C6B800277BD4 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 					5AA6AB522B81E90900E2A7DB = {
 						CreatedOnToolsVersion = 15.2;
 					};
@@ -298,11 +387,19 @@
 				5AA6AB522B81E90900E2A7DB /* Salah */,
 				D90000000000000000000001 /* SalahTests */,
 				D90000000000000000000002 /* SalahUITests */,
+				0C7044AA3017C6B800277BD4 /* SalahWidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0C7044A93017C6B800277BD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5AA6AB512B81E90900E2A7DB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -352,6 +449,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0C7044A73017C6B800277BD4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5AA6AB4F2B81E90900E2A7DB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -390,6 +494,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0C7044C03017C6BA00277BD4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0C7044AA3017C6B800277BD4 /* SalahWidgetsExtension */;
+			targetProxy = 0C7044BF3017C6BA00277BD4 /* PBXContainerItemProxy */;
+		};
 		DD0000000000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5AA6AB522B81E90900E2A7DB /* Salah */;
@@ -403,6 +512,68 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0C7044C33017C6BA00277BD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SalahWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahiOS.SalahWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0C7044C43017C6BA00277BD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SalahWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahiOS.SalahWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		5AA6AB5F2B81E90A00E2A7DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -643,6 +814,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0C7044C63017C6BA00277BD4 /* Build configuration list for PBXNativeTarget "SalahWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C7044C33017C6BA00277BD4 /* Debug */,
+				0C7044C43017C6BA00277BD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5AA6AB4E2B81E90900E2A7DB /* Build configuration list for PBXProject "Salah" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
