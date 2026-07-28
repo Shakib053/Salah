@@ -39,6 +39,11 @@ final class TrackerViewModel {
         do {
             try repository.setCompleted(value, prayer: prayer, day: selectedDay, timeZone: settings.location.timeZone, source: "tracker")
             if value { completed.insert(prayer) } else { completed.remove(prayer) }
+            WidgetDataPublisher.updateCompletion(
+                prayer: prayer,
+                day: selectedDay,
+                completed: value
+            )
             lastChanged = prayer
             errorMessage = nil
         } catch {

@@ -32,16 +32,28 @@ final class TodayViewModel {
                 policy: policy
             )
             let priorLocalDay = day.adding(days: -1, in: location.timeZone)
+            let tomorrowLocalDay = day.adding(days: 1, in: location.timeZone)
             async let prior = try? repository.day(
                 for: PrayerTimesQuery(day: priorLocalDay, location: location, settings: calculation),
                 location: location,
                 policy: .cacheFirst
             )
+            async let tomorrow = try? repository.day(
+                for: PrayerTimesQuery(day: tomorrowLocalDay, location: location, settings: calculation),
+                location: location,
+                policy: .cacheFirst
+            )
             let loaded = try await main
             let priorLoaded = await prior
+            let tomorrowLoaded = await tomorrow
             guard requestID == token else { return }
             previousDay = priorLoaded?.value
             completed = (try? trackingRepository.completedPrayerTypes(on: day)) ?? []
+            WidgetDataPublisher.save(
+                prayerDay: loaded.value,
+                completed: completed,
+                tomorrowFajr: tomorrowLoaded?.value.window(for: .fajr)?.start
+            )
             state = loaded.isStale
                 ? .offline(loaded.value, lastUpdated: loaded.value.fetchedAt)
                 : .loaded(loaded.value, source: loaded.source)
@@ -59,6 +71,7 @@ final class TodayViewModel {
         do {
             try trackingRepository.setCompleted(newValue, prayer: prayer, day: day, timeZone: timeZone, source: source)
             if newValue { completed.insert(prayer) } else { completed.remove(prayer) }
+            WidgetDataPublisher.updateCompletion(prayer: prayer, day: day, completed: newValue)
         } catch { }
     }
 }
@@ -588,6 +601,7 @@ struct PrayerCalendarView: View {
                             ) {
                                 let current = (try? container.trackingRepository.completedPrayerTypes(on: selected.localDay).contains(prayer)) ?? false
                                 try? container.trackingRepository.setCompleted(!current, prayer: prayer, day: selected.localDay, timeZone: selected.timeZone, source: "calendar")
+                                WidgetDataPublisher.updateCompletion(prayer: prayer, day: selected.localDay, completed: !current)
                             }
                         }
                     }
