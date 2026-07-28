@@ -24,7 +24,7 @@ enum WidgetDataPublisher {
         }
 
         let sunriseItem = WidgetPrayer(
-            name: "Sunrise",
+            name: String(localized: "Sunrise"),
             time: prayerDay.sunrise,
             symbolName: "sunrise.fill",
             completed: false,

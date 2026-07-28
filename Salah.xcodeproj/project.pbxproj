@@ -24,6 +24,7 @@
 		D20000000000000000000009 /* TrackerHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000009 /* TrackerHistory.swift */; };
 		D2000000000000000000000A /* MoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* MoreSettings.swift */; };
 		D2000000000000000000000B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
+		D20000000000000000000010 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
 		D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000C /* PrivacyInfo.xcprivacy */; };
 		D2000000000000000000000D /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* UITestSupport.swift */; };
 		D2000000000000000000000E /* WidgetSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000E /* WidgetSharedData.swift */; };
@@ -392,6 +393,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				bn,
 				Base,
 			);
 			mainGroup = 5AA6AB4A2B81E90900E2A7DB;
@@ -415,6 +417,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D20000000000000000000010 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

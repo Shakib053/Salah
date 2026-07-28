@@ -5,6 +5,15 @@ import UserNotifications
 
 enum LocationAuthorization: String, Sendable {
     case notDetermined, authorized, denied, restricted
+
+    var title: String {
+        switch self {
+        case .notDetermined: String(localized: "Not requested")
+        case .authorized: String(localized: "Allowed")
+        case .denied: String(localized: "Denied")
+        case .restricted: String(localized: "Restricted")
+        }
+    }
 }
 
 enum LocationServiceError: LocalizedError {
@@ -12,10 +21,10 @@ enum LocationServiceError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .denied: "Location access is denied. Choose a district manually or enable access in Settings."
-        case .restricted: "Location access is restricted on this device. Choose a district manually."
-        case .unavailable: "Your current location is unavailable."
-        case .failed: "The location request failed."
+        case .denied: String(localized: "Location access is denied. Choose a district manually or enable access in Settings.")
+        case .restricted: String(localized: "Location access is restricted on this device. Choose a district manually.")
+        case .unavailable: String(localized: "Your current location is unavailable.")
+        case .failed: String(localized: "The location request failed.")
         }
     }
 }
@@ -115,7 +124,7 @@ final class CoreLocationProvider: NSObject, LocationProviding, @preconcurrency C
             return administrativeArea
         }
 
-        return "Nearby Location"
+        return String(localized: "Nearby Location")
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -172,13 +181,17 @@ struct District: Codable, Identifiable, Hashable, Sendable {
 
     var prayerLocation: PrayerLocation {
         PrayerLocation(
-            name: "\(name), Bangladesh",
+            name: "\(localizedName), \(String(localized: "Bangladesh"))",
             latitude: latitude,
             longitude: longitude,
             timeZoneIdentifier: "Asia/Dhaka",
             countryCode: "BD",
             source: .district
         )
+    }
+
+    var localizedName: String {
+        Locale.current.language.languageCode?.identifier == "bn" ? banglaName : name
     }
 }
 
@@ -309,7 +322,14 @@ final class LocalNotificationScheduler: NotificationScheduling {
         for candidate in ReminderPlan.make(days: days, preferences: preferences, now: .now) {
             let content = UNMutableNotificationContent()
             content.title = candidate.event.title
-            content.body = candidate.event == .sahri ? "Sahri time is approaching." : candidate.event == .iftar ? "Iftar time is approaching." : "It is time for \(candidate.event.title)."
+            content.body = candidate.event == .sahri
+                ? String(localized: "Sahri time is approaching.")
+                : candidate.event == .iftar
+                    ? String(localized: "Iftar time is approaching.")
+                    : String(
+                        format: String(localized: "It is time for %@."),
+                        candidate.event.title
+                    )
             content.sound = .default
             var calendar = Calendar(identifier: .gregorian)
             calendar.timeZone = candidate.timeZone

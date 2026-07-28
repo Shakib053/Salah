@@ -97,11 +97,13 @@ struct OnboardingFlow: View {
     @State private var page = 0
     @State private var showingLocationEducation = false
 
-    private let pages = [
-        OnboardingPage(id: 0, symbol: "clock.badge.checkmark", title: "Prayer times at a glance", body: "See today’s prayer windows, the next prayer, and a calm live countdown."),
-        OnboardingPage(id: 1, symbol: "checklist", title: "Track privately", body: "Record daily prayers and view supportive history. Your tracker stays on this device."),
-        OnboardingPage(id: 2, symbol: "moon.stars", title: "Fasting and optional reminders", body: "See Sahri and Iftar times. Enable only the reminders that are useful to you.")
-    ]
+    private var pages: [OnboardingPage] {
+        [
+            OnboardingPage(id: 0, symbol: "clock.badge.checkmark", title: String(localized: "Prayer times at a glance"), body: String(localized: "See today’s prayer windows, the next prayer, and a calm live countdown.")),
+            OnboardingPage(id: 1, symbol: "checklist", title: String(localized: "Track privately"), body: String(localized: "Record daily prayers and view supportive history. Your tracker stays on this device.")),
+            OnboardingPage(id: 2, symbol: "moon.stars", title: String(localized: "Fasting and optional reminders"), body: String(localized: "See Sahri and Iftar times. Enable only the reminders that are useful to you."))
+        ]
+    }
 
     var body: some View {
         if showingLocationEducation {

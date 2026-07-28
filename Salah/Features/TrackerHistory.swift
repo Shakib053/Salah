@@ -65,11 +65,11 @@ private enum DeedsSection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .prayers: "Ṣalāh"
-        case .repentance: "Dhikr"
-        case .deeds: "Deeds"
-        case .charity: "Charity"
-        case .insights: "Insights"
+        case .prayers: String(localized: "Ṣalāh")
+        case .repentance: String(localized: "Dhikr")
+        case .deeds: String(localized: "Deeds")
+        case .charity: String(localized: "Charity")
+        case .insights: String(localized: "Insights")
         }
     }
 }

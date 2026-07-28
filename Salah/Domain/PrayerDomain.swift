@@ -7,11 +7,11 @@ enum PrayerType: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .fajr: "Fajr"
-        case .dhuhr: "Dhuhr"
-        case .asr: "Asr"
-        case .maghrib: "Maghrib"
-        case .isha: "Isha"
+        case .fajr: String(localized: "Fajr")
+        case .dhuhr: String(localized: "Dhuhr")
+        case .asr: String(localized: "Asr")
+        case .maghrib: String(localized: "Maghrib")
+        case .isha: String(localized: "Isha")
         }
     }
 
@@ -33,13 +33,13 @@ enum PrayerEvent: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .fajr: "Fajr"
-        case .dhuhr: "Dhuhr"
-        case .asr: "Asr"
-        case .maghrib: "Maghrib"
-        case .isha: "Isha"
-        case .sahri: "Sahri"
-        case .iftar: "Iftar"
+        case .fajr: String(localized: "Fajr")
+        case .dhuhr: String(localized: "Dhuhr")
+        case .asr: String(localized: "Asr")
+        case .maghrib: String(localized: "Maghrib")
+        case .isha: String(localized: "Isha")
+        case .sahri: String(localized: "Sahri")
+        case .iftar: String(localized: "Iftar")
         }
     }
 
@@ -61,23 +61,23 @@ enum CalculationMethod: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .automatic: "Automatic by location"
-        case .karachi: "UIS Karachi"
-        case .muslimWorldLeague: "Muslim World League"
-        case .ummAlQura: "Umm al-Qura"
-        case .egyptian: "Egyptian Authority"
-        case .isna: "ISNA"
+        case .automatic: String(localized: "Automatic by location")
+        case .karachi: String(localized: "UIS Karachi")
+        case .muslimWorldLeague: String(localized: "Muslim World League")
+        case .ummAlQura: String(localized: "Umm al-Qura")
+        case .egyptian: String(localized: "Egyptian Authority")
+        case .isna: String(localized: "ISNA")
         }
     }
 
     var fullTitle: String {
         switch self {
-        case .automatic: "Automatic by location"
-        case .karachi: "University of Islamic Sciences, Karachi"
-        case .muslimWorldLeague: "Muslim World League"
-        case .ummAlQura: "Umm al-Qura University, Makkah"
-        case .egyptian: "Egyptian General Authority of Survey"
-        case .isna: "Islamic Society of North America (ISNA)"
+        case .automatic: String(localized: "Automatic by location")
+        case .karachi: String(localized: "University of Islamic Sciences, Karachi")
+        case .muslimWorldLeague: String(localized: "Muslim World League")
+        case .ummAlQura: String(localized: "Umm al-Qura University, Makkah")
+        case .egyptian: String(localized: "Egyptian General Authority of Survey")
+        case .isna: String(localized: "Islamic Society of North America (ISNA)")
         }
     }
 }
@@ -86,7 +86,11 @@ enum Madhab: String, CaseIterable, Codable, Identifiable, Sendable {
     case hanafi, standard
 
     var id: String { rawValue }
-    var title: String { self == .hanafi ? "Hanafi" : "Standard (Shafi, Maliki, Hanbali)" }
+    var title: String {
+        self == .hanafi
+            ? String(localized: "Hanafi")
+            : String(localized: "Standard (Shafi, Maliki, Hanbali)")
+    }
 }
 
 enum TimeFormatPreference: String, CaseIterable, Codable, Identifiable, Sendable {
@@ -95,9 +99,9 @@ enum TimeFormatPreference: String, CaseIterable, Codable, Identifiable, Sendable
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .system: "System"
-        case .twelveHour: "12-hour"
-        case .twentyFourHour: "24-hour"
+        case .system: String(localized: "System")
+        case .twelveHour: String(localized: "12-hour")
+        case .twentyFourHour: String(localized: "24-hour")
         }
     }
 }
@@ -106,11 +110,25 @@ enum AppearancePreference: String, CaseIterable, Codable, Identifiable, Sendable
     case system, light, dark
 
     var id: String { rawValue }
-    var title: String { rawValue.capitalized }
+    var title: String {
+        switch self {
+        case .system: String(localized: "System")
+        case .light: String(localized: "Light")
+        case .dark: String(localized: "Dark")
+        }
+    }
 }
 
 enum LocationSource: String, Codable, Sendable {
     case automatic, district, fallback
+
+    var title: String {
+        switch self {
+        case .automatic: String(localized: "Automatic")
+        case .district: String(localized: "District")
+        case .fallback: String(localized: "Default")
+        }
+    }
 }
 
 struct PrayerLocation: Codable, Equatable, Sendable {
@@ -345,12 +363,15 @@ enum PrayerDataError: Error, Equatable, LocalizedError, Sendable {
 
     var errorDescription: String? {
         switch self {
-        case .invalidURL: "The prayer-time calculation could not be created."
-        case .transport: "Prayer times could not be calculated."
-        case .httpStatus(let code): "The prayer-time calculation returned error \(code)."
-        case .decoding, .invalidData: "Prayer times could not be calculated for this date."
-        case .unavailableOffline: "Prayer times are unavailable for this date."
-        case .cancelled: "The request was cancelled."
+        case .invalidURL: String(localized: "The prayer-time calculation could not be created.")
+        case .transport: String(localized: "Prayer times could not be calculated.")
+        case .httpStatus(let code): String(
+            format: String(localized: "The prayer-time calculation returned error %@."),
+            String(code)
+        )
+        case .decoding, .invalidData: String(localized: "Prayer times could not be calculated for this date.")
+        case .unavailableOffline: String(localized: "Prayer times are unavailable for this date.")
+        case .cancelled: String(localized: "The request was cancelled.")
         }
     }
 }

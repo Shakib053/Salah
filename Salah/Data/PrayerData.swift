@@ -97,9 +97,9 @@ struct AdhanPrayerTimesCalculator: PrayerTimesCalculating {
         guard let date = day.date(in: timeZone, hour: 12) else { return day.key }
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.locale = .current
         formatter.timeZone = timeZone
-        formatter.dateFormat = "EEEE, d MMMM"
+        formatter.setLocalizedDateFormatFromTemplate("EEEE d MMMM")
         return formatter.string(from: date)
     }
 
@@ -112,22 +112,13 @@ struct AdhanPrayerTimesCalculator: PrayerTimesCalculating {
         guard let adjustedDate = gregorian.date(byAdding: .day, value: adjustment, to: date) else {
             throw PrayerDataError.invalidData("Invalid Hijri adjustment")
         }
-        var hijri = Calendar(identifier: .islamicUmmAlQura)
-        hijri.timeZone = timeZone
-        let components = hijri.dateComponents([.day, .month, .year], from: adjustedDate)
-        guard let hijriDay = components.day,
-              let month = components.month,
-              let year = components.year,
-              Self.hijriMonths.indices.contains(month - 1) else {
-            throw PrayerDataError.invalidData("Hijri date cannot be calculated")
-        }
-        return "\(hijriDay) \(Self.hijriMonths[month - 1]) \(year)"
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .islamicUmmAlQura)
+        formatter.locale = .current
+        formatter.timeZone = timeZone
+        formatter.setLocalizedDateFormatFromTemplate("d MMMM y")
+        return formatter.string(from: adjustedDate)
     }
-
-    private static let hijriMonths = [
-        "Muharram", "Safar", "Rabi al-Awwal", "Rabi al-Thani", "Jumada al-Awwal", "Jumada al-Thani",
-        "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"
-    ]
 }
 
 private struct PrayerCacheEntry: Codable, Sendable {

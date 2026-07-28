@@ -25,7 +25,7 @@ struct WidgetSnapshot: Codable, Sendable {
 extension WidgetSnapshot {
     func snapshot(at date: Date) -> WidgetSnapshot {
         let next = prayers
-            .filter { $0.name != "Sunrise" && $0.time > date }
+            .filter { $0.name != String(localized: "Sunrise") && $0.time > date }
             .min { $0.time < $1.time } ?? tomorrowFajr
 
         let updatedPrayers = prayers.map { prayer in

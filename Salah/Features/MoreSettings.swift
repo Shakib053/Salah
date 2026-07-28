@@ -344,9 +344,9 @@ struct RemindersView: View {
 
     private var permissionText: String {
         switch status {
-        case .notDetermined: "Not requested"
-        case .authorized: "Allowed"
-        case .denied: "Denied"
+        case .notDetermined: String(localized: "Not requested")
+        case .authorized: String(localized: "Allowed")
+        case .denied: String(localized: "Denied")
         }
     }
 
@@ -365,8 +365,8 @@ struct LocationCalculationView: View {
         Form {
             Section {
                 LabeledContent("Current", value: container.settings.location.name)
-                LabeledContent("Source", value: container.settings.location.source.rawValue.capitalized)
-                LabeledContent("Permission", value: container.locationProvider.authorization.rawValue.capitalized)
+                LabeledContent("Source", value: container.settings.location.source.title)
+                LabeledContent("Permission", value: container.locationProvider.authorization.title)
                 Button("Use Current Location") { showingLocationEducation = true }
                 Button("Choose District Manually") { showingDistricts = true }
             } header: {
