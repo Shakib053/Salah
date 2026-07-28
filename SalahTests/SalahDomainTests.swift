@@ -40,22 +40,54 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertEqual(window.end, try XCTUnwrap(day.adding(days: 1, in: zone).date(in: zone, hour: 4, minute: 57)))
     }
 
-    func testMapperParsesTimezoneSuffixAndAppliesCautionOnce() throws {
-        let dto = makeDTO(day: day, imsak: "05:00 (+06)", maghrib: "18:30 (BDT)")
-        let mapped = try PrayerDayMapper.map(dto, fallbackLocation: .dhaka, settings: CalculationSettings())
-        XCTAssertEqual(mapped.sahri, try XCTUnwrap(day.date(in: zone, hour: 4, minute: 57)))
-        XCTAssertEqual(mapped.iftar, try XCTUnwrap(day.date(in: zone, hour: 18, minute: 33)))
-        XCTAssertEqual(mapped.window(for: .maghrib)?.start, mapped.iftar)
+    func testLocalCalculatorPreservesSahriAndIftarSafetyRules() throws {
+        let calculator = AdhanPrayerTimesCalculator()
+        let query = PrayerTimesQuery(day: day, location: .dhaka, settings: CalculationSettings())
+        let calculated = try calculator.calculateDay(query: query, location: .dhaka)
+        let fajr = try XCTUnwrap(calculated.window(for: .fajr)?.start)
+        XCTAssertEqual(calculated.sahri, fajr.addingTimeInterval(-13 * 60))
+        XCTAssertEqual(calculated.iftar, calculated.sunset.addingTimeInterval(3 * 60))
+        XCTAssertEqual(calculated.window(for: .maghrib)?.start, calculated.iftar)
+        XCTAssertEqual(calculated.methodName, CalculationMethod.karachi.fullTitle)
     }
 
-    func testInvalidAPIDateAndTimeAreRejected() {
-        var dto = makeDTO(day: day)
-        dto = AlAdhanDayDTO(timings: AlAdhanTimingsDTO(
-            imsak: "invalid", fajr: dto.timings.fajr, sunrise: dto.timings.sunrise,
-            dhuhr: dto.timings.dhuhr, asr: dto.timings.asr, sunset: dto.timings.sunset,
-            maghrib: dto.timings.maghrib, isha: dto.timings.isha
-        ), date: dto.date, meta: dto.meta)
-        XCTAssertThrowsError(try PrayerDayMapper.map(dto, fallbackLocation: .dhaka, settings: .init()))
+    func testLocalCalculatorSupportsEveryDisplayedMethod() throws {
+        let calculator = AdhanPrayerTimesCalculator()
+        for method in CalculationMethod.allCases {
+            var settings = CalculationSettings()
+            settings.method = method
+            let query = PrayerTimesQuery(day: day, location: .dhaka, settings: settings)
+            let calculated = try calculator.calculateDay(query: query, location: .dhaka)
+            XCTAssertEqual(calculated.windows.count, 5)
+            XCTAssertLessThan(try XCTUnwrap(calculated.window(for: .fajr)?.start), calculated.sunrise)
+            XCTAssertLessThan(calculated.sunrise, try XCTUnwrap(calculated.window(for: .dhuhr)?.start))
+            XCTAssertGreaterThan(try XCTUnwrap(calculated.window(for: .isha)?.end), try XCTUnwrap(calculated.window(for: .isha)?.start))
+        }
+    }
+
+    func testAutomaticMethodUsesBangladeshKarachiDefault() throws {
+        var settings = CalculationSettings()
+        settings.method = .automatic
+        let query = PrayerTimesQuery(day: day, location: .dhaka, settings: settings)
+        let calculated = try AdhanPrayerTimesCalculator().calculateDay(query: query, location: .dhaka)
+        XCTAssertEqual(calculated.methodName, CalculationMethod.karachi.fullTitle)
+    }
+
+    func testHijriAdjustmentMovesDateLocally() throws {
+        let calculator = AdhanPrayerTimesCalculator()
+        var baseSettings = CalculationSettings()
+        baseSettings.hijriAdjustment = 0
+        var adjustedSettings = baseSettings
+        adjustedSettings.hijriAdjustment = 1
+        let base = try calculator.calculateDay(
+            query: PrayerTimesQuery(day: day, location: .dhaka, settings: baseSettings),
+            location: .dhaka
+        )
+        let adjusted = try calculator.calculateDay(
+            query: PrayerTimesQuery(day: day, location: .dhaka, settings: adjustedSettings),
+            location: .dhaka
+        )
+        XCTAssertNotEqual(base.hijriSummary, adjusted.hijriSummary)
     }
 
     func testCacheKeyIncludesEveryTimingInput() {
@@ -88,6 +120,22 @@ final class SalahDomainTests: XCTestCase {
         await cache.invalidate(signature: query.signature)
         let invalidated = await cache.value(for: query)
         XCTAssertNil(invalidated)
+    }
+
+    func testLocalRepositoryCalculatesACompleteMonthWithoutNetwork() async throws {
+        let file = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        let repository = DefaultPrayerTimesRepository(
+            calculator: AdhanPrayerTimesCalculator(),
+            cache: PrayerTimesCache(fileURL: file)
+        )
+        let values = try await repository.month(
+            containing: day,
+            location: .dhaka,
+            settings: .init(),
+            policy: .reload
+        )
+        XCTAssertEqual(values.count, 31)
+        XCTAssertTrue(values.allSatisfy { $0.source == .calculated && !$0.isStale })
     }
 
     @MainActor
@@ -152,20 +200,32 @@ final class SalahDomainTests: XCTestCase {
     }
 
     private func fixture(day: LocalDay) throws -> PrayerDay {
-        try PrayerDayMapper.map(makeDTO(day: day), fallbackLocation: .dhaka, settings: .init())
-    }
-
-    private func makeDTO(day: LocalDay, imsak: String = "05:00 (+06)", maghrib: String = "18:30 (+06)") -> AlAdhanDayDTO {
-        AlAdhanDayDTO(
-            timings: AlAdhanTimingsDTO(
-                imsak: imsak, fajr: "05:05 (+06)", sunrise: "06:15 (+06)", dhuhr: "12:10 (+06)",
-                asr: "16:00 (+06)", sunset: "18:30 (+06)", maghrib: maghrib, isha: "20:00 (+06)"
-            ),
-            date: AlAdhanDateDTO(
-                hijri: AlAdhanHijriDTO(date: "05-02-1448", day: "5", month: .init(number: 2, en: "Safar"), year: "1448"),
-                gregorian: AlAdhanGregorianDTO(date: day.apiString, day: String(day.day), weekday: .init(en: "Monday"), month: .init(number: day.month, en: "July"), year: String(day.year))
-            ),
-            meta: AlAdhanMetaDTO(timezone: zone.identifier, method: .init(id: 1, name: "University of Islamic Sciences, Karachi"))
+        func date(_ hour: Int, _ minute: Int) throws -> Date {
+            try XCTUnwrap(day.date(in: zone, hour: hour, minute: minute))
+        }
+        let tomorrow = day.adding(days: 1, in: zone)
+        return PrayerDay(
+            localDay: day,
+            gregorianSummary: "Monday, 20 July",
+            hijriSummary: "5 Safar 1448",
+            timeZoneIdentifier: zone.identifier,
+            sunrise: try date(6, 15),
+            sunset: try date(18, 30),
+            sahri: try date(4, 57),
+            iftar: try date(18, 33),
+            windows: [
+                PrayerWindow(prayer: .fajr, start: try date(5, 5), end: try date(6, 15)),
+                PrayerWindow(prayer: .dhuhr, start: try date(12, 10), end: try date(16, 0)),
+                PrayerWindow(prayer: .asr, start: try date(16, 0), end: try date(18, 30)),
+                PrayerWindow(prayer: .maghrib, start: try date(18, 33), end: try date(20, 0)),
+                PrayerWindow(
+                    prayer: .isha,
+                    start: try date(20, 0),
+                    end: try XCTUnwrap(tomorrow.date(in: zone, hour: 4, minute: 57))
+                )
+            ],
+            methodName: CalculationMethod.karachi.fullTitle,
+            fetchedAt: .now
         )
     }
 }

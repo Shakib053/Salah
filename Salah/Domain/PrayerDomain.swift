@@ -70,14 +70,14 @@ enum CalculationMethod: String, CaseIterable, Codable, Identifiable, Sendable {
         }
     }
 
-    var apiID: Int? {
+    var fullTitle: String {
         switch self {
-        case .automatic: nil
-        case .karachi: 1
-        case .isna: 2
-        case .muslimWorldLeague: 3
-        case .ummAlQura: 4
-        case .egyptian: 5
+        case .automatic: "Automatic by location"
+        case .karachi: "University of Islamic Sciences, Karachi"
+        case .muslimWorldLeague: "Muslim World League"
+        case .ummAlQura: "Umm al-Qura University, Makkah"
+        case .egyptian: "Egyptian General Authority of Survey"
+        case .isna: "Islamic Society of North America (ISNA)"
         }
     }
 }
@@ -87,7 +87,6 @@ enum Madhab: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var id: String { rawValue }
     var title: String { self == .hanafi ? "Hanafi" : "Standard (Shafi, Maliki, Hanbali)" }
-    var apiSchool: Int { self == .hanafi ? 1 : 0 }
 }
 
 enum TimeFormatPreference: String, CaseIterable, Codable, Identifiable, Sendable {
@@ -119,6 +118,7 @@ struct PrayerLocation: Codable, Equatable, Sendable {
     var latitude: Double
     var longitude: Double
     var timeZoneIdentifier: String
+    var countryCode: String? = nil
     var source: LocationSource
 
     static let dhaka = PrayerLocation(
@@ -126,6 +126,7 @@ struct PrayerLocation: Codable, Equatable, Sendable {
         latitude: 23.7115253,
         longitude: 90.4111451,
         timeZoneIdentifier: "Asia/Dhaka",
+        countryCode: "BD",
         source: .fallback
     )
 
@@ -148,7 +149,6 @@ struct LocalDay: Hashable, Codable, Comparable, Identifiable, Sendable {
 
     var id: String { key }
     var key: String { String(format: "%04d-%02d-%02d", year, month, day) }
-    var apiString: String { String(format: "%02d-%02d-%04d", day, month, year) }
 
     init(year: Int, month: Int, day: Int) {
         self.year = year
@@ -161,12 +161,6 @@ struct LocalDay: Hashable, Codable, Comparable, Identifiable, Sendable {
         calendar.timeZone = timeZone
         let components = calendar.dateComponents([.year, .month, .day], from: date)
         self.init(year: components.year ?? 1970, month: components.month ?? 1, day: components.day ?? 1)
-    }
-
-    init?(apiString: String) {
-        let parts = apiString.split(separator: "-").compactMap { Int($0) }
-        guard parts.count == 3 else { return nil }
-        self.init(year: parts[2], month: parts[1], day: parts[0])
     }
 
     func date(in timeZone: TimeZone, hour: Int = 12, minute: Int = 0) -> Date? {
@@ -193,7 +187,7 @@ struct LocalDay: Hashable, Codable, Comparable, Identifiable, Sendable {
 }
 
 struct PrayerTimesQuery: Hashable, Codable, Sendable {
-    static let schemaVersion = 2
+    static let schemaVersion = 3
 
     var day: LocalDay
     var latitude: Double
@@ -337,7 +331,7 @@ enum FeatureLoadState<Value> {
 }
 
 enum PrayerDataSource: String, Codable, Sendable {
-    case network, memoryCache, diskCache
+    case calculated, memoryCache, diskCache
 }
 
 enum PrayerDataError: Error, Equatable, LocalizedError, Sendable {
@@ -351,11 +345,11 @@ enum PrayerDataError: Error, Equatable, LocalizedError, Sendable {
 
     var errorDescription: String? {
         switch self {
-        case .invalidURL: "The prayer-time request could not be created."
-        case .transport: "Prayer times could not be downloaded."
-        case .httpStatus(let code): "The prayer-time service returned error \(code)."
-        case .decoding, .invalidData: "The prayer-time response could not be read."
-        case .unavailableOffline: "No cached prayer times are available for this date."
+        case .invalidURL: "The prayer-time calculation could not be created."
+        case .transport: "Prayer times could not be calculated."
+        case .httpStatus(let code): "The prayer-time calculation returned error \(code)."
+        case .decoding, .invalidData: "Prayer times could not be calculated for this date."
+        case .unavailableOffline: "Prayer times are unavailable for this date."
         case .cancelled: "The request was cancelled."
         }
     }

@@ -492,7 +492,7 @@ final class CalendarViewModel {
             if loaded.contains(where: \.isStale), let timestamp = days.map(\.fetchedAt).max() {
                 state = .offline(days, lastUpdated: timestamp)
             } else {
-                state = .loaded(days, source: loaded.contains { $0.source == .network } ? .network : .diskCache)
+                state = .loaded(days, source: loaded.contains { $0.source == .calculated } ? .calculated : .diskCache)
             }
         } catch let error as PrayerDataError {
             state = .failed(error)

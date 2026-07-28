@@ -1,241 +1,133 @@
+import Adhan
 import Foundation
 
-struct AlAdhanEnvelope<Value: Decodable>: Decodable {
-    let code: Int?
-    let status: String?
-    let data: Value
+protocol PrayerTimesCalculating: Sendable {
+    func calculateDay(query: PrayerTimesQuery, location: PrayerLocation) throws -> PrayerDay
 }
 
-struct AlAdhanDayDTO: Codable, Sendable {
-    let timings: AlAdhanTimingsDTO
-    let date: AlAdhanDateDTO
-    let meta: AlAdhanMetaDTO?
-}
+struct AdhanPrayerTimesCalculator: PrayerTimesCalculating {
+    /// Preserve the common Imsak convention of ten minutes before Fajr before
+    /// applying Salah's user-controlled safety adjustment.
+    private let imsakLeadMinutes = 10
 
-struct AlAdhanTimingsDTO: Codable, Sendable {
-    let imsak: String
-    let fajr: String
-    let sunrise: String
-    let dhuhr: String
-    let asr: String
-    let sunset: String
-    let maghrib: String
-    let isha: String
-
-    enum CodingKeys: String, CodingKey {
-        case imsak = "Imsak"
-        case fajr = "Fajr"
-        case sunrise = "Sunrise"
-        case dhuhr = "Dhuhr"
-        case asr = "Asr"
-        case sunset = "Sunset"
-        case maghrib = "Maghrib"
-        case isha = "Isha"
-    }
-}
-
-struct AlAdhanDateDTO: Codable, Sendable {
-    let hijri: AlAdhanHijriDTO
-    let gregorian: AlAdhanGregorianDTO
-}
-
-struct AlAdhanHijriDTO: Codable, Sendable {
-    let date: String
-    let day: String
-    let month: AlAdhanMonthDTO
-    let year: String?
-}
-
-struct AlAdhanGregorianDTO: Codable, Sendable {
-    let date: String
-    let day: String
-    let weekday: AlAdhanWeekdayDTO
-    let month: AlAdhanMonthDTO
-    let year: String?
-}
-
-struct AlAdhanMonthDTO: Codable, Sendable {
-    let number: Int?
-    let en: String
-}
-
-struct AlAdhanWeekdayDTO: Codable, Sendable {
-    let en: String
-}
-
-struct AlAdhanMetaDTO: Codable, Sendable {
-    let timezone: String?
-    let method: AlAdhanMethodDTO?
-}
-
-struct AlAdhanMethodDTO: Codable, Sendable {
-    let id: Int?
-    let name: String?
-}
-
-protocol PrayerAPIClient: Sendable {
-    func fetchDay(query: PrayerTimesQuery) async throws -> AlAdhanDayDTO
-    func fetchMonth(day: LocalDay, location: PrayerLocation, settings: CalculationSettings) async throws -> [AlAdhanDayDTO]
-}
-
-final class AlAdhanAPIClient: PrayerAPIClient, @unchecked Sendable {
-    private let session: URLSession
-    private let baseURLString = "https://api.aladhan.com/v1"
-
-    init(session: URLSession = .shared) {
-        self.session = session
-    }
-
-    func fetchDay(query: PrayerTimesQuery) async throws -> AlAdhanDayDTO {
-        let url = try makeURL(
-            path: "timings/\(query.day.apiString)",
-            latitude: query.latitude,
-            longitude: query.longitude,
-            method: query.method,
-            madhab: query.madhab,
-            hijriAdjustment: query.hijriAdjustment
-        )
-        let envelope: AlAdhanEnvelope<AlAdhanDayDTO> = try await request(url)
-        return envelope.data
-    }
-
-    func fetchMonth(day: LocalDay, location: PrayerLocation, settings: CalculationSettings) async throws -> [AlAdhanDayDTO] {
-        let url = try makeURL(
-            path: "calendar/\(day.year)/\(day.month)",
-            latitude: location.latitude,
-            longitude: location.longitude,
-            method: settings.method,
-            madhab: settings.madhab,
-            hijriAdjustment: settings.hijriAdjustment
-        )
-        let envelope: AlAdhanEnvelope<[AlAdhanDayDTO]> = try await request(url)
-        return envelope.data
-    }
-
-    private func makeURL(
-        path: String,
-        latitude: Double,
-        longitude: Double,
-        method: CalculationMethod,
-        madhab: Madhab,
-        hijriAdjustment: Int
-    ) throws -> URL {
-        var components = URLComponents(string: "\(baseURLString)/\(path)")
-        var items = [
-            URLQueryItem(name: "latitude", value: String(latitude)),
-            URLQueryItem(name: "longitude", value: String(longitude)),
-            URLQueryItem(name: "school", value: String(madhab.apiSchool)),
-            URLQueryItem(name: "adjustment", value: String(hijriAdjustment))
-        ]
-        if let methodID = method.apiID {
-            items.append(URLQueryItem(name: "method", value: String(methodID)))
-        }
-        components?.queryItems = items
-        guard let url = components?.url else { throw PrayerDataError.invalidURL }
-        return url
-    }
-
-    private func request<Value: Decodable>(_ url: URL) async throws -> AlAdhanEnvelope<Value> {
-        do {
-            let (data, response) = try await session.data(from: url)
-            guard let http = response as? HTTPURLResponse else {
-                throw PrayerDataError.invalidData("Missing HTTP response")
-            }
-            guard (200...299).contains(http.statusCode) else {
-                throw PrayerDataError.httpStatus(http.statusCode)
-            }
-            do {
-                let envelope = try JSONDecoder().decode(AlAdhanEnvelope<Value>.self, from: data)
-                if let code = envelope.code, !(200...299).contains(code) {
-                    throw PrayerDataError.httpStatus(code)
-                }
-                return envelope
-            } catch {
-                throw PrayerDataError.decoding(error.localizedDescription)
-            }
-        } catch is CancellationError {
-            throw PrayerDataError.cancelled
-        } catch let error as PrayerDataError {
-            throw error
-        } catch {
-            throw PrayerDataError.transport(error.localizedDescription)
-        }
-    }
-}
-
-enum PrayerDayMapper {
-    static func map(
-        _ dto: AlAdhanDayDTO,
-        fallbackLocation: PrayerLocation,
-        settings: CalculationSettings,
-        nextSahri: Date? = nil,
-        fetchedAt: Date = .now
-    ) throws -> PrayerDay {
-        guard let day = LocalDay(apiString: dto.date.gregorian.date) else {
-            throw PrayerDataError.invalidData("Invalid Gregorian date")
-        }
-        let timeZoneID = dto.meta?.timezone ?? fallbackLocation.timeZoneIdentifier
-        guard let timeZone = TimeZone(identifier: timeZoneID) else {
+    func calculateDay(query: PrayerTimesQuery, location: PrayerLocation) throws -> PrayerDay {
+        guard TimeZone(identifier: location.timeZoneIdentifier) != nil else {
             throw PrayerDataError.invalidData("Invalid timezone")
         }
 
-        func time(_ source: String, on localDay: LocalDay = day) throws -> Date {
-            guard let pair = parseTime(source), let date = localDay.date(in: timeZone, hour: pair.hour, minute: pair.minute) else {
-                throw PrayerDataError.invalidData("Invalid time: \(source)")
-            }
-            return date
+        let method = resolvedMethod(query.method, for: location)
+        let coordinates = Coordinates(latitude: query.latitude, longitude: query.longitude)
+        let date = dateComponents(for: query.day)
+        let tomorrow = query.day.adding(days: 1, in: location.timeZone)
+        let tomorrowDate = dateComponents(for: tomorrow)
+        var parameters = adhanMethod(for: method).params
+        parameters.madhab = query.madhab == .hanafi ? Adhan.Madhab.hanafi : Adhan.Madhab.shafi
+        parameters.rounding = .nearest
+
+        guard let times = Adhan.PrayerTimes(
+            coordinates: coordinates,
+            date: date,
+            calculationParameters: parameters
+        ), let tomorrowTimes = Adhan.PrayerTimes(
+            coordinates: coordinates,
+            date: tomorrowDate,
+            calculationParameters: parameters
+        ) else {
+            throw PrayerDataError.invalidData("Prayer times cannot be calculated for this location and date")
         }
 
-        let caution = TimeInterval(settings.cautionMinutes * 60)
-        let imsak = try time(dto.timings.imsak)
-        let fajr = try time(dto.timings.fajr)
-        let sunrise = try time(dto.timings.sunrise)
-        let dhuhr = try time(dto.timings.dhuhr)
-        let asr = try time(dto.timings.asr)
-        let sunset = try time(dto.timings.sunset)
-        let maghrib = try time(dto.timings.maghrib).addingTimeInterval(caution)
-        let isha = try time(dto.timings.isha)
-        let sahri = imsak.addingTimeInterval(-caution)
-        let iftar = sunset.addingTimeInterval(caution)
-        let tomorrow = day.adding(days: 1, in: timeZone)
-        let ishaEnd: Date
-        if let nextSahri {
-            ishaEnd = nextSahri
-        } else {
-            ishaEnd = try time(dto.timings.imsak, on: tomorrow).addingTimeInterval(-caution)
-        }
+        let caution = TimeInterval(query.cautionMinutes * 60)
+        let imsakLead = TimeInterval(imsakLeadMinutes * 60)
+        let sahri = times.fajr.addingTimeInterval(-imsakLead - caution)
+        let iftar = times.maghrib.addingTimeInterval(caution)
+        let nextSahri = tomorrowTimes.fajr.addingTimeInterval(-imsakLead - caution)
 
         return PrayerDay(
-            localDay: day,
-            gregorianSummary: "\(dto.date.gregorian.weekday.en), \(dto.date.gregorian.day) \(dto.date.gregorian.month.en)",
-            hijriSummary: "\(dto.date.hijri.day) \(dto.date.hijri.month.en) \(dto.date.hijri.year ?? "")".trimmingCharacters(in: .whitespaces),
-            timeZoneIdentifier: timeZoneID,
-            sunrise: sunrise,
-            sunset: sunset,
+            localDay: query.day,
+            gregorianSummary: gregorianSummary(for: query.day, timeZone: location.timeZone),
+            hijriSummary: try hijriSummary(
+                for: query.day,
+                adjustment: query.hijriAdjustment,
+                timeZone: location.timeZone
+            ),
+            timeZoneIdentifier: location.timeZoneIdentifier,
+            sunrise: times.sunrise,
+            sunset: times.maghrib,
             sahri: sahri,
             iftar: iftar,
             windows: [
-                PrayerWindow(prayer: .fajr, start: fajr, end: sunrise),
-                PrayerWindow(prayer: .dhuhr, start: dhuhr, end: asr),
-                PrayerWindow(prayer: .asr, start: asr, end: sunset),
-                PrayerWindow(prayer: .maghrib, start: maghrib, end: isha),
-                PrayerWindow(prayer: .isha, start: isha, end: ishaEnd)
+                PrayerWindow(prayer: .fajr, start: times.fajr, end: times.sunrise),
+                PrayerWindow(prayer: .dhuhr, start: times.dhuhr, end: times.asr),
+                PrayerWindow(prayer: .asr, start: times.asr, end: times.maghrib),
+                PrayerWindow(prayer: .maghrib, start: iftar, end: times.isha),
+                PrayerWindow(prayer: .isha, start: times.isha, end: nextSahri)
             ],
-            methodName: dto.meta?.method?.name ?? settings.method.title,
-            fetchedAt: fetchedAt
+            methodName: method.fullTitle,
+            fetchedAt: .now
         )
     }
 
-    private static func parseTime(_ value: String) -> (hour: Int, minute: Int)? {
-        let pattern = #"\b([01]?\d|2[0-3]):([0-5]\d)\b"#
-        guard let expression = try? NSRegularExpression(pattern: pattern),
-              let match = expression.firstMatch(in: value, range: NSRange(value.startIndex..., in: value)),
-              let hourRange = Range(match.range(at: 1), in: value),
-              let minuteRange = Range(match.range(at: 2), in: value),
-              let hour = Int(value[hourRange]),
-              let minute = Int(value[minuteRange]) else { return nil }
-        return (hour, minute)
+    private func resolvedMethod(_ method: CalculationMethod, for location: PrayerLocation) -> CalculationMethod {
+        guard method == .automatic else { return method }
+        switch location.countryCode?.uppercased() {
+        case "BD", "PK", "IN", "AF": return .karachi
+        case "EG": return .egyptian
+        case "SA": return .ummAlQura
+        case "US", "CA": return .isna
+        default:
+            return location.timeZoneIdentifier == "Asia/Dhaka" ? .karachi : .muslimWorldLeague
+        }
     }
+
+    private func adhanMethod(for method: CalculationMethod) -> Adhan.CalculationMethod {
+        switch method {
+        case .automatic, .karachi: .karachi
+        case .muslimWorldLeague: .muslimWorldLeague
+        case .ummAlQura: .ummAlQura
+        case .egyptian: .egyptian
+        case .isna: .northAmerica
+        }
+    }
+
+    private func dateComponents(for day: LocalDay) -> DateComponents {
+        DateComponents(calendar: Calendar(identifier: .gregorian), year: day.year, month: day.month, day: day.day)
+    }
+
+    private func gregorianSummary(for day: LocalDay, timeZone: TimeZone) -> String {
+        guard let date = day.date(in: timeZone, hour: 12) else { return day.key }
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = timeZone
+        formatter.dateFormat = "EEEE, d MMMM"
+        return formatter.string(from: date)
+    }
+
+    private func hijriSummary(for day: LocalDay, adjustment: Int, timeZone: TimeZone) throws -> String {
+        guard let date = day.date(in: timeZone, hour: 12) else {
+            throw PrayerDataError.invalidData("Invalid Gregorian date")
+        }
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = timeZone
+        guard let adjustedDate = gregorian.date(byAdding: .day, value: adjustment, to: date) else {
+            throw PrayerDataError.invalidData("Invalid Hijri adjustment")
+        }
+        var hijri = Calendar(identifier: .islamicUmmAlQura)
+        hijri.timeZone = timeZone
+        let components = hijri.dateComponents([.day, .month, .year], from: adjustedDate)
+        guard let hijriDay = components.day,
+              let month = components.month,
+              let year = components.year,
+              Self.hijriMonths.indices.contains(month - 1) else {
+            throw PrayerDataError.invalidData("Hijri date cannot be calculated")
+        }
+        return "\(hijriDay) \(Self.hijriMonths[month - 1]) \(year)"
+    }
+
+    private static let hijriMonths = [
+        "Muharram", "Safar", "Rabi al-Awwal", "Rabi al-Thani", "Jumada al-Awwal", "Jumada al-Thani",
+        "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"
+    ]
 }
 
 private struct PrayerCacheEntry: Codable, Sendable {
@@ -287,7 +179,7 @@ actor PrayerTimesCache {
         values.isExcludedFromBackup = true
         var mutableDirectory = directory
         try? mutableDirectory.setResourceValues(values)
-        fileURL = directory.appending(path: "PrayerTimesCache-v2.json")
+        fileURL = directory.appending(path: "PrayerTimesCache-v3.json")
         if let data = try? Data(contentsOf: fileURL),
            let decoded = try? JSONDecoder().decode(PrayerCacheFile.self, from: data) {
             disk = decoded.entries
@@ -333,13 +225,13 @@ actor PrayerTimesCache {
 }
 
 actor DefaultPrayerTimesRepository: PrayerTimesRepository {
-    private let client: any PrayerAPIClient
+    private let calculator: any PrayerTimesCalculating
     private let cache: PrayerTimesCache
     private var inFlight: [String: Task<PrayerDay, Error>] = [:]
     private var inFlightMonths: [String: Task<[PrayerDay], Error>] = [:]
 
-    init(client: any PrayerAPIClient, cache: PrayerTimesCache) {
-        self.client = client
+    init(calculator: any PrayerTimesCalculating, cache: PrayerTimesCache) {
+        self.calculator = calculator
         self.cache = cache
     }
 
@@ -350,8 +242,8 @@ actor DefaultPrayerTimesRepository: PrayerTimesRepository {
         }
 
         do {
-            let value = try await networkDay(for: query, location: location)
-            return LoadedPrayerDay(value: value, source: .network, isStale: false)
+            let value = try await calculatedDay(for: query, location: location)
+            return LoadedPrayerDay(value: value, source: .calculated, isStale: false)
         } catch {
             if let cached {
                 return LoadedPrayerDay(value: cached.day, source: cached.source, isStale: true)
@@ -374,12 +266,12 @@ actor DefaultPrayerTimesRepository: PrayerTimesRepository {
         }
 
         do {
-            let prayerDays = try await networkMonth(containing: day, location: location, settings: settings)
+            let prayerDays = try await calculatedMonth(containing: day, location: location, settings: settings)
             var loaded: [LoadedPrayerDay] = []
             for prayerDay in prayerDays {
                 let query = PrayerTimesQuery(day: prayerDay.localDay, location: location, settings: settings)
                 await cache.store(prayerDay, for: query)
-                loaded.append(LoadedPrayerDay(value: prayerDay, source: .network, isStale: false))
+                loaded.append(LoadedPrayerDay(value: prayerDay, source: .calculated, isStale: false))
             }
             return loaded.sorted { $0.value.localDay < $1.value.localDay }
         } catch {
@@ -395,36 +287,12 @@ actor DefaultPrayerTimesRepository: PrayerTimesRepository {
         await cache.invalidate(signature: signature)
     }
 
-    private func networkDay(for query: PrayerTimesQuery, location: PrayerLocation) async throws -> PrayerDay {
+    private func calculatedDay(for query: PrayerTimesQuery, location: PrayerLocation) async throws -> PrayerDay {
         if let task = inFlight[query.cacheKey] { return try await task.value }
-        let client = self.client
+        let calculator = self.calculator
         let cache = self.cache
         let task = Task<PrayerDay, Error> {
-            let dto = try await client.fetchDay(query: query)
-            let settings = CalculationSettings(
-                method: query.method,
-                madhab: query.madhab,
-                hijriAdjustment: query.hijriAdjustment,
-                cautionMinutes: query.cautionMinutes,
-                timeFormat: .system
-            )
-            let nextDay = query.day.adding(days: 1, in: location.timeZone)
-            let nextQuery = PrayerTimesQuery(day: nextDay, location: location, settings: settings)
-            let nextPrayerDay: PrayerDay?
-            if let hit = await cache.value(for: nextQuery), !hit.isStale {
-                nextPrayerDay = hit.day
-            } else if let nextDTO = try? await client.fetchDay(query: nextQuery) {
-                nextPrayerDay = try? PrayerDayMapper.map(nextDTO, fallbackLocation: location, settings: settings)
-                if let nextPrayerDay { await cache.store(nextPrayerDay, for: nextQuery) }
-            } else {
-                nextPrayerDay = nil
-            }
-            return try PrayerDayMapper.map(
-                dto,
-                fallbackLocation: location,
-                settings: settings,
-                nextSahri: nextPrayerDay?.sahri
-            )
+            try calculator.calculateDay(query: query, location: location)
         }
         inFlight[query.cacheKey] = task
         defer { inFlight[query.cacheKey] = nil }
@@ -433,24 +301,20 @@ actor DefaultPrayerTimesRepository: PrayerTimesRepository {
         return value
     }
 
-    private func networkMonth(
+    private func calculatedMonth(
         containing day: LocalDay,
         location: PrayerLocation,
         settings: CalculationSettings
     ) async throws -> [PrayerDay] {
         let key = "\(day.year)-\(day.month)|\(PrayerTimesQuery(day: day, location: location, settings: settings).signature)"
         if let task = inFlightMonths[key] { return try await task.value }
-        let client = self.client
+        let calculator = self.calculator
+        let expectedDays = daysInMonth(containing: day, timeZone: location.timeZone)
         let task = Task<[PrayerDay], Error> {
-            let dtos = try await client.fetchMonth(day: day, location: location, settings: settings)
-            var values = try dtos.map { try PrayerDayMapper.map($0, fallbackLocation: location, settings: settings) }
-                .sorted { $0.localDay < $1.localDay }
-            guard values.count > 1 else { return values }
-            for index in values.indices.dropLast() {
-                guard let ishaIndex = values[index].windows.firstIndex(where: { $0.prayer == .isha }) else { continue }
-                values[index].windows[ishaIndex].end = values[index + 1].sahri
+            try expectedDays.map { localDay in
+                let query = PrayerTimesQuery(day: localDay, location: location, settings: settings)
+                return try calculator.calculateDay(query: query, location: location)
             }
-            return values
         }
         inFlightMonths[key] = task
         defer { inFlightMonths[key] = nil }

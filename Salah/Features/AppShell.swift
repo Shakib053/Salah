@@ -171,7 +171,7 @@ struct LocationEducationView: View {
                 .accessibilityHidden(true)
             Text("Use your location?")
                 .font(.largeTitle.bold())
-            Text("Salah uses a one-time location request to calculate prayer times. It does not track your location in the background. You can choose a district instead.")
+            Text("Salah uses a one-time location request to calculate prayer times on this device. It does not transmit or track your location in the background. You can choose a district instead.")
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 

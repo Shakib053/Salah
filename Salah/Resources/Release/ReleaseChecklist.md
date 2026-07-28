@@ -16,4 +16,4 @@
 - [ ] Complete privacy-label answers, age rating, content rights, and export compliance.
 - [ ] Add the review notes in this directory.
 - [ ] Validate signing, bundle identifier, version, and build number.
-- [ ] Validate the repository, support, AlAdhan, and license links immediately before submission.
+- [ ] Validate the repository, support, Adhan Swift, and license links immediately before submission.

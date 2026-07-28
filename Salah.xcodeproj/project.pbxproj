@@ -30,6 +30,7 @@
 		D2000000000000000000000F /* WidgetDataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000F /* WidgetDataPublisher.swift */; };
 		D50000000000000000000001 /* SalahDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000001 /* SalahDomainTests.swift */; };
 		D50000000000000000000002 /* SalahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000002 /* SalahUITests.swift */; };
+		E10000000000000000000001 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = E30000000000000000000001 /* Adhan */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +131,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E10000000000000000000001 /* Adhan in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,6 +317,9 @@
 				0C7044C03017C6BA00277BD4 /* PBXTargetDependency */,
 			);
 			name = Salah;
+			packageProductDependencies = (
+				E30000000000000000000001 /* Adhan */,
+			);
 			productName = Salah;
 			productReference = 5AA6AB532B81E90900E2A7DB /* Salah.app */;
 			productType = "com.apple.product-type.application";
@@ -390,6 +395,9 @@
 				Base,
 			);
 			mainGroup = 5AA6AB4A2B81E90900E2A7DB;
+			packageReferences = (
+				E20000000000000000000001 /* XCRemoteSwiftPackageReference "adhan-swift" */,
+			);
 			productRefGroup = 5AA6AB542B81E90900E2A7DB /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -544,7 +552,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahiOSNew.SalahWidgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -576,7 +584,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahiOSNew.SalahWidgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -715,11 +723,11 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GRW9NYZR4G;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Salah uses your approximate location while the app is open to calculate local prayer times.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Salah uses your approximate location while the app is open to calculate prayer times on this device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -730,7 +738,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahiOSNew;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -746,11 +754,11 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GRW9NYZR4G;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Salah uses your approximate location while the app is open to calculate local prayer times.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Salah uses your approximate location while the app is open to calculate prayer times on this device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -761,7 +769,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahiOSNew;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -774,9 +782,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -789,9 +798,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -803,9 +813,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -817,9 +828,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = MahiAlJawad.SalahUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -876,6 +888,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E20000000000000000000001 /* XCRemoteSwiftPackageReference "adhan-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/batoulapps/adhan-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E30000000000000000000001 /* Adhan */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E20000000000000000000001 /* XCRemoteSwiftPackageReference "adhan-swift" */;
+			productName = Adhan;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5AA6AB4B2B81E90900E2A7DB /* Project object */;
 }

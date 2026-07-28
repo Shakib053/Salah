@@ -13,7 +13,7 @@ actor UITestPrayerTimesRepository: PrayerTimesRepository {
     func day(for query: PrayerTimesQuery, location: PrayerLocation, policy: CachePolicy) async throws -> LoadedPrayerDay {
         try await Task.sleep(for: delay)
         let value = makeDay(query.day, location: location, settings: query.settings)
-        return LoadedPrayerDay(value: value, source: offline ? .diskCache : .network, isStale: offline)
+        return LoadedPrayerDay(value: value, source: offline ? .diskCache : .calculated, isStale: offline)
     }
 
     func month(containing day: LocalDay, location: PrayerLocation, settings: CalculationSettings, policy: CachePolicy) async throws -> [LoadedPrayerDay] {
@@ -22,7 +22,7 @@ actor UITestPrayerTimesRepository: PrayerTimesRepository {
         let count = day.date(in: location.timeZone).flatMap { calendar.range(of: .day, in: .month, for: $0)?.count } ?? 30
         return (1...count).map {
             let value = makeDay(LocalDay(year: day.year, month: day.month, day: $0), location: location, settings: settings)
-            return LoadedPrayerDay(value: value, source: offline ? .diskCache : .network, isStale: offline)
+            return LoadedPrayerDay(value: value, source: offline ? .diskCache : .calculated, isStale: offline)
         }
     }
 
@@ -64,7 +64,7 @@ final class UITestLocationProvider: LocationProviding {
 
     func requestCurrentLocation() async throws -> PrayerLocation {
         if authorization == .denied { throw LocationServiceError.denied }
-        return PrayerLocation(name: "Dhaka, Bangladesh", latitude: 23.71, longitude: 90.41, timeZoneIdentifier: "Asia/Dhaka", source: .automatic)
+        return PrayerLocation(name: "Dhaka, Bangladesh", latitude: 23.71, longitude: 90.41, timeZoneIdentifier: "Asia/Dhaka", countryCode: "BD", source: .automatic)
     }
 }
 

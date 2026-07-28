@@ -5,8 +5,8 @@ private enum ExternalLinks {
     static let support = URL(string: "https://www.linkedin.com/in/mahi-al-jawad/")
     static let repository = URL(string: "https://github.com/Shakib053/Salah")
     static let license = URL(string: "https://github.com/Shakib053/Salah/blob/main/LICENSE")
-    static let alAdhanAPI = URL(string: "https://aladhan.com/prayer-times-api")
-    static let alAdhanTerms = URL(string: "https://aladhan.com/credits-and-terms")
+    static let adhanSwift = URL(string: "https://github.com/batoulapps/adhan-swift")
+    static let adhanSwiftLicense = URL(string: "https://github.com/batoulapps/adhan-swift/blob/main/LICENSE")
 }
 
 @MainActor
@@ -372,7 +372,7 @@ struct LocationCalculationView: View {
             } header: {
                 Text("Prayer Location")
             } footer: {
-                Text("Location is used only for prayer-time requests. Approximate When In Use access is sufficient.")
+                Text("Location is used only to calculate prayer times on this device. Approximate When In Use access is sufficient.")
             }
 
             Section {
@@ -460,7 +460,7 @@ struct CurrentLocationSettingsSheet: View {
             VStack(spacing: 20) {
                 Image(systemName: "location.circle.fill").font(.system(size: 64)).foregroundStyle(SalahPalette.accent)
                 Text("Use Current Location").font(.title.bold())
-                Text("Salah requests When In Use access and retrieves one approximate coordinate. Background tracking is not used.")
+                Text("Salah retrieves one approximate coordinate and calculates prayer times on this device. Background tracking and location transmission are not used.")
                     .foregroundStyle(.secondary).multilineTextAlignment(.center)
                 if let error { Text(error).font(.footnote).foregroundStyle(.red).multilineTextAlignment(.center) }
                 Spacer()
@@ -540,7 +540,7 @@ struct PrivacyView: View {
                 Text("Salah collects the minimum information required for prayer timings and remains useful when optional permissions are declined.")
             }
             Section("How Data Is Used") {
-                privacyRow("Location", detail: "A coordinate is sent to AlAdhan only when prayer times are requested. Continuous and background tracking are not used.", symbol: "location.fill")
+                privacyRow("Location", detail: "Prayer times are calculated on this device. Your coordinate is not sent to a prayer-time service, and continuous or background tracking is not used.", symbol: "location.fill")
                 privacyRow("Prayer tracking", detail: "Completion records and notes stay in local SwiftData on this device.", symbol: "checkmark.circle.fill")
                 privacyRow("Notifications", detail: "Optional reminders are scheduled locally. No marketing notification service is used.", symbol: "bell.fill")
                 privacyRow("Advertising and analytics", detail: "The app contains no advertising identifier, tracking SDK, or unnecessary analytics.", symbol: "eye.slash.fill")
@@ -598,7 +598,7 @@ struct AboutView: View {
             }
             Section("Project") {
                 if let url = ExternalLinks.repository { Link("View Source on GitHub", destination: url) }
-                if let url = ExternalLinks.alAdhanAPI { Link("AlAdhan Prayer Times API", destination: url) }
+                if let url = ExternalLinks.adhanSwift { Link("Adhan Swift prayer-time library", destination: url) }
             }
         }
         .navigationTitle("About Salah")
@@ -613,14 +613,31 @@ struct OpenSourceView: View {
                 Text("Released under the MIT License.")
                 if let url = ExternalLinks.license { Link("Read the repository license", destination: url) }
             }
-            Section("Prayer-Time Data") {
-                Text("Prayer-time and Hijri calendar data are provided by the AlAdhan API operated by Islamic Network. No third-party advertising or analytics SDK is included.")
-                if let url = ExternalLinks.alAdhanTerms { Link("AlAdhan terms and credits", destination: url) }
+            Section("Prayer-Time Calculation") {
+                Text("Prayer times are calculated on-device using the MIT-licensed Adhan Swift library by Batoul Apps. Hijri dates are calculated on-device using Apple's calendar framework.")
+                DisclosureGroup("Adhan Swift license notice") {
+                    Text(Self.adhanSwiftLicenseNotice)
+                        .font(.footnote)
+                        .textSelection(.enabled)
+                }
+                if let url = ExternalLinks.adhanSwiftLicense { Link("Adhan Swift MIT License", destination: url) }
             }
             Section("Apple Frameworks") {
-                Text("SwiftUI, SwiftData, Charts, Core Location, Network, and UserNotifications are used under the platform terms supplied with iOS.")
+                Text("SwiftUI, SwiftData, Charts, Core Location, Foundation, and UserNotifications are used under the platform terms supplied with iOS.")
             }
         }
         .navigationTitle("Open Source")
     }
+
+    private static let adhanSwiftLicenseNotice = """
+    The MIT License (MIT)
+
+    Copyright (c) 2016 Batoul Apps
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    """
 }

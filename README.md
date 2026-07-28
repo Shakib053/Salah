@@ -14,7 +14,7 @@ Salah is a free, privacy-first, open-source iPhone application for prayer timing
 2. Select the shared `Salah` scheme and an iPhone destination.
 3. Run with Command-R.
 
-The app does not require an account. Choose a bundled Bangladesh district or allow one-shot When In Use location access. Network prayer-time requests use AlAdhan; cached timings and the local SwiftData tracker remain available offline.
+The app does not require an account. Choose a bundled Bangladesh district or allow one-shot When In Use location access. Prayer times and Hijri dates are calculated on-device, so schedules, reminders, and the local SwiftData tracker remain available offline.
 
 Run deterministic tests without a live network connection:
 
@@ -26,9 +26,9 @@ xcodebuild -project Salah.xcodeproj -scheme Salah \
 ## Architecture
 
 - `App`: dependency container, routing, app entry, and test configuration
-- `Core`: Core Location, local notification scheduling, network status, shared presentation
+- `Core`: Core Location, local notification scheduling, shared presentation
 - `Domain`: prayer, date, cache-key, tracker, and insight rules
-- `Data`: AlAdhan DTO/client/repository, memory/disk cache, SwiftData persistence
+- `Data`: Adhan Swift calculation adapter, memory/disk cache, SwiftData persistence
 - `Features`: onboarding, Today, Calendar, Tracker/History, reminders, settings, privacy, and about
 - `Resources`: districts, privacy manifest/policy, localization catalog, and release notes
 

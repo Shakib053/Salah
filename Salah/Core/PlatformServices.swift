@@ -1,6 +1,5 @@
 @preconcurrency import CoreLocation
 import Foundation
-import Network
 import Observation
 import UserNotifications
 
@@ -89,6 +88,7 @@ final class CoreLocationProvider: NSObject, LocationProviding, @preconcurrency C
                 latitude: value.coordinate.latitude,
                 longitude: value.coordinate.longitude,
                 timeZoneIdentifier: placemark?.timeZone?.identifier ?? TimeZone.current.identifier,
+                countryCode: placemark?.isoCountryCode,
                 source: .automatic
             ))
         }
@@ -176,6 +176,7 @@ struct District: Codable, Identifiable, Hashable, Sendable {
             latitude: latitude,
             longitude: longitude,
             timeZoneIdentifier: "Asia/Dhaka",
+            countryCode: "BD",
             source: .district
         )
     }
@@ -328,21 +329,4 @@ final class LocalNotificationScheduler: NotificationScheduling {
         let eventPrefix = "\(prefix)\(event.rawValue)."
         center.removePendingNotificationRequests(withIdentifiers: pending.map(\.identifier).filter { $0.hasPrefix(eventPrefix) })
     }
-}
-
-@MainActor
-@Observable
-final class NetworkMonitor {
-    private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "org.salah.network-monitor")
-    private(set) var isConnected = true
-
-    init() {
-        monitor.pathUpdateHandler = { [weak self] path in
-            Task { @MainActor in self?.isConnected = path.status == .satisfied }
-        }
-        monitor.start(queue: queue)
-    }
-
-    deinit { monitor.cancel() }
 }

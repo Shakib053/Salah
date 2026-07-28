@@ -157,7 +157,6 @@ final class AppContainer {
     let locationProvider: any LocationProviding
     let notificationScheduler: any NotificationScheduling
     let trackingRepository: any PrayerTrackingRepository
-    let networkMonitor: NetworkMonitor
     let syncCoordinator: any TrackerSyncCoordinating
     let modelContainer: ModelContainer?
     let districts: [District]
@@ -185,7 +184,6 @@ final class AppContainer {
         self.locationProvider = locationProvider ?? CoreLocationProvider()
         self.notificationScheduler = notificationScheduler ?? LocalNotificationScheduler()
         #endif
-        networkMonitor = NetworkMonitor()
         syncCoordinator = LocalOnlySyncCoordinator()
         districts = DistrictLoader.load()
 
@@ -199,7 +197,7 @@ final class AppContainer {
             )
         } else {
             self.prayerTimesRepository = DefaultPrayerTimesRepository(
-                client: AlAdhanAPIClient(),
+                calculator: AdhanPrayerTimesCalculator(),
                 cache: PrayerTimesCache()
             )
         }
@@ -208,7 +206,7 @@ final class AppContainer {
             self.prayerTimesRepository = prayerTimesRepository
         } else {
             self.prayerTimesRepository = DefaultPrayerTimesRepository(
-                client: AlAdhanAPIClient(),
+                calculator: AdhanPrayerTimesCalculator(),
                 cache: PrayerTimesCache()
             )
         }
