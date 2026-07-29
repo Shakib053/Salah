@@ -20,7 +20,8 @@ struct AppRootView: View {
                 OnboardingFlow(container: container)
             }
         }
-        .tint(SalahPalette.accent)
+        .environment(\.salahPalette, container.settings.theme.palette)
+        .tint(container.settings.theme.palette.accent)
         .preferredColorScheme(preferredScheme)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active, container.settings.onboardingComplete {
@@ -94,6 +95,7 @@ private struct OnboardingPage: Identifiable {
 
 struct OnboardingFlow: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
     @State private var page = 0
     @State private var showingLocationEducation = false
 
@@ -124,9 +126,9 @@ struct OnboardingFlow: View {
                         VStack(spacing: 26) {
                             Image(systemName: page.symbol)
                                 .font(.system(size: 72, weight: .medium))
-                                .foregroundStyle(SalahPalette.accent)
+                                .foregroundStyle(palette.accent)
                                 .frame(width: 150, height: 150)
-                                .background(SalahPalette.accentSoft, in: RoundedRectangle(cornerRadius: 42))
+                                .background(palette.accentSoft, in: RoundedRectangle(cornerRadius: 42))
                                 .accessibilityHidden(true)
                             Text(page.title)
                                 .font(.largeTitle.bold())
@@ -160,6 +162,7 @@ struct OnboardingFlow: View {
 
 struct LocationEducationView: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
     @State private var isRequesting = false
     @State private var errorMessage: String?
     @State private var showingDistricts = false
@@ -169,7 +172,7 @@ struct LocationEducationView: View {
             Spacer()
             Image(systemName: "location.circle.fill")
                 .font(.system(size: 88))
-                .foregroundStyle(SalahPalette.accent)
+                .foregroundStyle(palette.accent)
                 .accessibilityHidden(true)
             Text("Use your location?")
                 .font(.largeTitle.bold())

@@ -187,6 +187,24 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertEqual(QiblaGeometry.shortestAngle(350), -10, accuracy: 0.001)
     }
 
+    @MainActor
+    func testAppearanceAndThemePreferencesPersist() throws {
+        let suiteName = "SalahDomainTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let initial = AppSettings(defaults: defaults)
+        XCTAssertEqual(initial.appearance, .system)
+        XCTAssertEqual(initial.theme, .greyishBlue)
+
+        initial.appearance = .dark
+        initial.theme = .greenishDark
+
+        let restored = AppSettings(defaults: defaults)
+        XCTAssertEqual(restored.appearance, .dark)
+        XCTAssertEqual(restored.theme, .greenishDark)
+    }
+
     func testNearestDistrictUsesCoordinateDistance() throws {
         let districts = [
             District(id: "dhaka", name: "Dhaka", banglaName: "ঢাকা", latitude: 23.7115, longitude: 90.4111),

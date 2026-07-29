@@ -119,6 +119,27 @@ enum AppearancePreference: String, CaseIterable, Codable, Identifiable, Sendable
     }
 }
 
+enum ThemePreference: String, CaseIterable, Codable, Identifiable, Sendable {
+    case greyishBlue
+    case greenishDark
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .greyishBlue: String(localized: "Greyish Blue")
+        case .greenishDark: String(localized: "Greenish Dark")
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .greyishBlue: String(localized: "The original calm blue palette")
+        case .greenishDark: String(localized: "Deep green with a mint accent")
+        }
+    }
+}
+
 enum LocationSource: String, Codable, Sendable {
     case automatic, district, fallback
 

@@ -82,6 +82,7 @@ private struct GoodDeedDefinition: Identifiable {
 
 struct DeedsView: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
     @State private var viewModel: TrackerViewModel
     @State private var selection = DeedsSection.prayers
     @State private var showingDatePicker = false
@@ -131,7 +132,7 @@ struct DeedsView: View {
                 .padding()
             }
         }
-        .background(SalahPalette.screenBackground.ignoresSafeArea())
+        .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle("Deeds")
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
@@ -212,7 +213,7 @@ struct DeedsView: View {
         }
         .foregroundStyle(.white)
         .background(
-            LinearGradient(colors: [SalahPalette.heroStart, SalahPalette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing),
+            LinearGradient(colors: [palette.heroStart, palette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing),
             in: RoundedRectangle(cornerRadius: 20)
         )
 
@@ -238,10 +239,10 @@ struct DeedsView: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity)
             ZStack {
-                Circle().stroke(SalahPalette.accent.opacity(0.15), lineWidth: 10)
+                Circle().stroke(palette.accent.opacity(0.15), lineWidth: 10)
                 Circle()
                     .trim(from: 0, to: min(1, Double(istighfarCount) / 100))
-                    .stroke(SalahPalette.accent, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                    .stroke(palette.accent, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                 VStack(spacing: 4) {
                     Text("\(istighfarCount)")
@@ -255,7 +256,7 @@ struct DeedsView: View {
             .frame(maxWidth: .infinity)
             Text("Astaghfirullāh")
                 .font(.title2.bold())
-                .foregroundStyle(SalahPalette.accent)
+                .foregroundStyle(palette.accent)
                 .frame(maxWidth: .infinity)
             Text("I seek the forgiveness of Allah")
                 .font(.subheadline)
@@ -361,7 +362,7 @@ struct DeedsView: View {
                         x: .value("Day", value.day.key),
                         y: .value("Completed", value.count)
                     )
-                    .foregroundStyle(value.day == today ? SalahPalette.heroStart : SalahPalette.accent)
+                    .foregroundStyle(value.day == today ? palette.heroStart : palette.accent)
                     .cornerRadius(5)
                 }
                 .chartYScale(domain: 0...5)
@@ -445,6 +446,7 @@ struct TrackerPrayerRow: View {
     let prayer: PrayerType
     let completed: Bool
     let action: () -> Void
+    @Environment(\.salahPalette) private var palette
 
     var body: some View {
         Button(action: action) {
@@ -458,12 +460,12 @@ struct TrackerPrayerRow: View {
                 Spacer()
                 Image(systemName: completed ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundStyle(completed ? SalahPalette.accent : .secondary)
+                    .foregroundStyle(completed ? palette.accent : .secondary)
                     .accessibilityHidden(true)
             }
             .padding()
             .frame(minHeight: 64)
-            .background(SalahPalette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(palette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(prayer.title), \(completed ? "completed" : "not completed")")
@@ -539,6 +541,7 @@ enum QiblaGeometry {
 
 struct QiblaView: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
     @State private var headingProvider = QiblaHeadingProvider()
 
     private var qiblaBearing: Double {
@@ -567,7 +570,7 @@ struct QiblaView: View {
                         systemImage: isAligned ? "checkmark.circle.fill" : "location.north.line.fill"
                     )
                     .font(.headline)
-                    .foregroundStyle(isAligned ? SalahPalette.accent : Color.secondary)
+                    .foregroundStyle(isAligned ? palette.accent : Color.secondary)
                     .contentTransition(.symbolEffect(.replace))
                 } else {
                     ContentUnavailableView {
@@ -599,7 +602,7 @@ struct QiblaView: View {
             }
             .padding()
         }
-        .background(SalahPalette.screenBackground.ignoresSafeArea())
+        .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle("Qibla")
         .onAppear { headingProvider.start() }
         .onDisappear { headingProvider.stop() }
@@ -629,11 +632,11 @@ struct QiblaView: View {
                     .font(.title2)
                     .foregroundStyle(.white)
                     .padding(10)
-                    .background(SalahPalette.accent, in: RoundedRectangle(cornerRadius: 10))
+                    .background(palette.accent, in: RoundedRectangle(cornerRadius: 10))
                 Image(systemName: "arrowtriangle.up.fill")
-                    .foregroundStyle(SalahPalette.accent)
+                    .foregroundStyle(palette.accent)
                 Rectangle()
-                    .fill(LinearGradient(colors: [SalahPalette.accent, .clear], startPoint: .top, endPoint: .bottom))
+                    .fill(LinearGradient(colors: [palette.accent, .clear], startPoint: .top, endPoint: .bottom))
                     .frame(width: 2, height: 72)
                 Spacer(minLength: 0)
             }
@@ -646,7 +649,7 @@ struct QiblaView: View {
                 .frame(width: 16, height: 16)
                 .overlay {
                     if isAligned {
-                        Circle().stroke(SalahPalette.accent, lineWidth: 3).frame(width: 52, height: 52)
+                        Circle().stroke(palette.accent, lineWidth: 3).frame(width: 52, height: 52)
                     }
                 }
         }
@@ -680,6 +683,7 @@ private struct DailyChartValue: Identifiable {
 
 struct HistoryView: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
     @State private var records: [PrayerRecordSnapshot] = []
 
     private var today: LocalDay { LocalDay(.now, timeZone: container.settings.location.timeZone) }
@@ -717,7 +721,7 @@ struct HistoryView: View {
                                 x: .value("Day", value.day.key),
                                 y: .value("Completed", value.count)
                             )
-                            .foregroundStyle(value.day == today ? SalahPalette.heroStart : SalahPalette.accent)
+                            .foregroundStyle(value.day == today ? palette.heroStart : palette.accent)
                             .cornerRadius(5)
                         }
                         .chartYScale(domain: 0...5)
@@ -757,7 +761,7 @@ struct HistoryView: View {
             }
             .padding()
         }
-        .background(SalahPalette.screenBackground.ignoresSafeArea())
+        .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle("History")
         .task { records = (try? container.trackingRepository.allRecords()) ?? [] }
     }

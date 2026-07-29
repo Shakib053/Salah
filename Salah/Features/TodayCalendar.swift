@@ -78,6 +78,7 @@ final class TodayViewModel {
 
 struct TodayView: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
     @State private var viewModel: TodayViewModel
     @State private var showingDistricts = false
     @State private var showingCurrentLocation = false
@@ -115,7 +116,7 @@ struct TodayView: View {
                 LocationEducationView(container: container)
             }
         }
-        .background(SalahPalette.screenBackground.ignoresSafeArea())
+        .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -191,7 +192,14 @@ struct TodayView: View {
 
                 if day.localDay == LocalDay(.now, timeZone: day.timeZone) {
                     TimelineView(.periodic(from: .now, by: 1)) { context in
-                        currentPrayerCard(day: day, now: context.date)
+                        CurrentPrayerCard(
+                            moment: PrayerTimeline.moment(
+                                now: context.date,
+                                today: day,
+                                previous: viewModel.previousDay
+                            ),
+                            now: context.date
+                        )
                     }
                 } else {
                     SalahCard {
@@ -233,7 +241,7 @@ struct TodayView: View {
                         if window.prayer != .isha { Divider().padding(.leading, 62) }
                     }
                 }
-                .background(SalahPalette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(palette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
 
                 HStack(spacing: 12) {
                     eventCard(title: "Sunrise", date: day.sunrise, symbol: "sunrise.fill", day: day)
@@ -258,7 +266,7 @@ struct TodayView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
-        .background(SalahPalette.screenBackground)
+        .background(palette.screenBackground)
         .refreshable {
             await viewModel.load(day: container.router.selectedDay, policy: .reload)
         }
@@ -268,9 +276,39 @@ struct TodayView: View {
         day.localDay == LocalDay(.now, timeZone: day.timeZone) && window.contains(.now)
     }
 
-    @ViewBuilder
-    private func currentPrayerCard(day: PrayerDay, now: Date) -> some View {
-        let moment = PrayerTimeline.moment(now: now, today: day, previous: viewModel.previousDay)
+    private func eventCard(title: String, date: Date, symbol: String, day: PrayerDay) -> some View {
+        SalahCard {
+            Image(systemName: symbol).foregroundStyle(palette.warm).accessibilityHidden(true)
+            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(PrayerDateFormatting.time(date, preference: container.settings.calculation.timeFormat, timeZone: day.timeZone))
+                .font(.headline.monospacedDigit())
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func updateLocation(_ location: PrayerLocation) {
+        let oldSignature = PrayerTimesQuery(
+            day: container.router.selectedDay,
+            location: container.settings.location,
+            settings: container.settings.calculation
+        ).signature
+        container.settings.location = location
+        container.router.selectedDay = LocalDay(.now, timeZone: location.timeZone)
+        Task {
+            await container.prayerTimesRepository.invalidate(signature: oldSignature)
+            await ReminderCoordinator.reconcile(container: container)
+        }
+    }
+}
+
+struct CurrentPrayerCard: View {
+    let moment: PrayerMoment
+    let now: Date
+    @Environment(\.salahPalette) private var palette
+
+    var body: some View {
         let displayed = moment.next ?? moment.current
         let countdown = moment.next.map { max(0, $0.start.timeIntervalSince(now)) } ?? moment.remaining
         SalahCard(isTransparent: true) {
@@ -308,37 +346,11 @@ struct TodayView: View {
             .foregroundStyle(.white)
         }
         .background(
-            LinearGradient(colors: [SalahPalette.heroStart, SalahPalette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing),
+            LinearGradient(colors: [palette.heroStart, palette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing),
             in: RoundedRectangle(cornerRadius: 22, style: .continuous)
         )
-        .shadow(color: SalahPalette.heroEnd.opacity(0.28), radius: 12, y: 6)
+        .shadow(color: palette.heroEnd.opacity(0.28), radius: 12, y: 6)
         .accessibilityElement(children: .combine)
-    }
-
-    private func eventCard(title: String, date: Date, symbol: String, day: PrayerDay) -> some View {
-        SalahCard {
-            Image(systemName: symbol).foregroundStyle(SalahPalette.warm).accessibilityHidden(true)
-            Text(title).font(.caption).foregroundStyle(.secondary)
-            Text(PrayerDateFormatting.time(date, preference: container.settings.calculation.timeFormat, timeZone: day.timeZone))
-                .font(.headline.monospacedDigit())
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-        }
-        .accessibilityElement(children: .combine)
-    }
-
-    private func updateLocation(_ location: PrayerLocation) {
-        let oldSignature = PrayerTimesQuery(
-            day: container.router.selectedDay,
-            location: container.settings.location,
-            settings: container.settings.calculation
-        ).signature
-        container.settings.location = location
-        container.router.selectedDay = LocalDay(.now, timeZone: location.timeZone)
-        Task {
-            await container.prayerTimesRepository.invalidate(signature: oldSignature)
-            await ReminderCoordinator.reconcile(container: container)
-        }
     }
 }
 
@@ -349,6 +361,7 @@ struct PrayerScheduleRow: View {
     let isActive: Bool
     let isCompleted: Bool
     var showsDisclosure = true
+    @Environment(\.salahPalette) private var palette
 
     var body: some View {
         HStack(spacing: 12) {
@@ -367,7 +380,7 @@ struct PrayerScheduleRow: View {
             if isCompleted {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title3)
-                    .foregroundStyle(SalahPalette.accent)
+                    .foregroundStyle(palette.accent)
                     .accessibilityLabel("Completed")
             } else if !showsDisclosure {
                 Image(systemName: "circle")
@@ -381,7 +394,7 @@ struct PrayerScheduleRow: View {
         }
         .padding(.horizontal)
         .frame(minHeight: 64)
-        .background(isActive ? SalahPalette.accentSoft : .clear)
+        .background(isActive ? palette.accentSoft : .clear)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(window.prayer.title), starts \(PrayerDateFormatting.time(window.start, preference: preference, timeZone: day.timeZone)), ends \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))\(isActive ? ", current prayer" : "")\(isCompleted ? ", completed" : "")")
@@ -514,6 +527,7 @@ final class CalendarViewModel {
 
 struct PrayerCalendarView: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
     @State private var viewModel: CalendarViewModel
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
 
@@ -590,7 +604,7 @@ struct PrayerCalendarView: View {
                             if window.prayer != .isha { Divider().padding(.leading, 62) }
                         }
                     }
-                    .background(SalahPalette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .background(palette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .sheet(item: $viewModel.selectedPrayer) { prayer in
                         if let window = selected.window(for: prayer) {
                             PrayerDetailSheet(
@@ -610,7 +624,7 @@ struct PrayerCalendarView: View {
             .padding()
         }
         .refreshable { await viewModel.load(policy: .reload) }
-        .background(SalahPalette.screenBackground)
+        .background(palette.screenBackground)
     }
 
     private func calendarCell(_ day: PrayerDay) -> some View {
@@ -624,14 +638,14 @@ struct PrayerCalendarView: View {
                     .font(.body.weight(selected ? .bold : .regular))
                     .foregroundStyle(selected ? .white : .primary)
                     .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(selected ? SalahPalette.accent : .clear, in: RoundedRectangle(cornerRadius: 12))
+                    .background(selected ? palette.accent : .clear, in: RoundedRectangle(cornerRadius: 12))
                     .overlay {
                         if day.localDay == today, !selected {
-                            RoundedRectangle(cornerRadius: 12).stroke(SalahPalette.accent, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 12).stroke(palette.accent, lineWidth: 2)
                         }
                     }
                 if viewModel.trackerDays.contains(day.localDay) {
-                    Circle().fill(selected ? .white : SalahPalette.accent).frame(width: 5, height: 5).padding(.bottom, 4)
+                    Circle().fill(selected ? .white : palette.accent).frame(width: 5, height: 5).padding(.bottom, 4)
                 }
             }
         }

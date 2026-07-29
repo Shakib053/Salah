@@ -41,6 +41,7 @@ enum ReminderCoordinator {
 
 struct MoreView: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
 
     var body: some View {
         List {
@@ -52,7 +53,7 @@ struct MoreView: View {
                     settingsLabel("Location & Calculation", subtitle: container.settings.location.name, symbol: "location.fill", tint: .blue)
                 }
                 NavigationLink { AppearanceView(container: container) } label: {
-                    settingsLabel("Appearance & Accessibility", subtitle: "System-aware display", symbol: "circle.lefthalf.filled", tint: .indigo)
+                    settingsLabel("Appearances & Theme", subtitle: "Display mode and colors", symbol: "paintpalette.fill", tint: palette.accent)
                 }
                 NavigationLink { CharityView() } label: {
                     settingsLabel("Ṣadaqah", subtitle: "A private giving intention", symbol: "heart.fill", tint: .pink)
@@ -61,7 +62,7 @@ struct MoreView: View {
 
             Section {
                 NavigationLink { PrivacyView(container: container) } label: {
-                    settingsLabel("Privacy & Data", subtitle: "Local-first and transparent", symbol: "hand.raised.fill", tint: SalahPalette.accent)
+                    settingsLabel("Privacy & Data", subtitle: "Local-first and transparent", symbol: "hand.raised.fill", tint: palette.accent)
                 }
                 NavigationLink { AboutView() } label: {
                     settingsLabel("About Salah", subtitle: "Charitable and open source", symbol: "info.circle.fill", tint: .purple)
@@ -452,13 +453,14 @@ struct CurrentLocationSettingsSheet: View {
     @Bindable var container: AppContainer
     let onLocation: (PrayerLocation) -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.salahPalette) private var palette
     @State private var isWorking = false
     @State private var error: String?
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                Image(systemName: "location.circle.fill").font(.system(size: 64)).foregroundStyle(SalahPalette.accent)
+                Image(systemName: "location.circle.fill").font(.system(size: 64)).foregroundStyle(palette.accent)
                 Text("Use Current Location").font(.title.bold())
                 Text("Salah retrieves one approximate coordinate and calculates prayer times on this device. Background tracking and location transmission are not used.")
                     .foregroundStyle(.secondary).multilineTextAlignment(.center)
@@ -495,41 +497,98 @@ struct CurrentLocationSettingsSheet: View {
 
 struct AppearanceView: View {
     @Bindable var container: AppContainer
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.accessibilityDifferentiateWithoutColor) private var differentiateWithoutColor
-    @Environment(\.colorSchemeContrast) private var contrast
 
     var body: some View {
         Form {
             Section("Appearance") {
-                Picker("Appearance", selection: Binding(
+                Picker("Color scheme", selection: Binding(
                     get: { container.settings.appearance },
                     set: { container.settings.appearance = $0 }
                 )) {
                     ForEach(AppearancePreference.allCases) { appearance in Text(appearance.title).tag(appearance) }
                 }
                 .pickerStyle(.inline)
+                .labelsHidden()
+                .accessibilityLabel("Color scheme")
             }
+
             Section {
-                LabeledContent("Reduce Motion", value: reduceMotion ? "On" : "Off")
-                LabeledContent("Increase Contrast", value: contrast == .increased ? "On" : "Off")
-                LabeledContent("Differentiate Without Color", value: differentiateWithoutColor ? "On" : "Off")
+                Picker("Theme", selection: Binding(
+                    get: { container.settings.theme },
+                    set: { container.settings.theme = $0 }
+                )) {
+                    ForEach(ThemePreference.allCases) { theme in
+                        ThemeOptionLabel(theme: theme)
+                            .tag(theme)
+                    }
+                }
+                .pickerStyle(.inline)
+                .labelsHidden()
+                .accessibilityLabel("Theme")
             } header: {
-                Text("System Accessibility")
+                Text("Theme")
             } footer: {
-                Text("These accessibility choices are controlled in iOS Settings. Salah follows them automatically.")
+                Text("Theme changes the accent and feature colors throughout Salah. Greenish Dark pairs deep blue-green surfaces with a mint accent.")
             }
+
             Section("Dynamic Type Preview") {
-                Text("Prayer times should remain calm, readable, and complete at every system text size.")
-                Label("Fajr · 4:12 AM", systemImage: "moon.stars.fill").font(.title3.bold())
+                CurrentPrayerCard(moment: Self.previewMoment, now: Self.previewDate)
             }
         }
-        .navigationTitle("Appearance")
+        .navigationTitle("Appearances & Theme")
+    }
+
+    private static let previewDate = Date(timeIntervalSinceReferenceDate: 0)
+    private static let previewMoment = PrayerMoment(
+        current: PrayerWindow(
+            prayer: .asr,
+            start: previewDate.addingTimeInterval(-58 * 60),
+            end: previewDate.addingTimeInterval(42 * 60)
+        ),
+        next: PrayerWindow(
+            prayer: .maghrib,
+            start: previewDate.addingTimeInterval(42 * 60),
+            end: previewDate.addingTimeInterval(102 * 60)
+        ),
+        remaining: 42 * 60,
+        progress: 0.58
+    )
+}
+
+private struct ThemeOptionLabel: View {
+    let theme: ThemePreference
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(theme.palette.heroStart)
+                    .frame(width: 34, height: 34)
+                Circle()
+                    .fill(theme.palette.accent)
+                    .frame(width: 14, height: 14)
+                    .overlay {
+                        Circle()
+                            .stroke(Color(uiColor: .systemBackground), lineWidth: 2)
+                            .frame(width: 16, height: 16)
+                    }
+                    .offset(x: 10, y: 10)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(theme.title)
+                    .foregroundStyle(.primary)
+                Text(theme.subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 
 struct PrivacyView: View {
     @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
     @State private var showingClearConfirmation = false
     @State private var cleared = false
 
@@ -548,7 +607,7 @@ struct PrivacyView: View {
             }
             Section {
                 Button("Clear Local Tracker Data", role: .destructive) { showingClearConfirmation = true }
-                if cleared { Label("Tracker data cleared", systemImage: "checkmark.circle.fill").foregroundStyle(SalahPalette.accent) }
+                if cleared { Label("Tracker data cleared", systemImage: "checkmark.circle.fill").foregroundStyle(palette.accent) }
             } header: {
                 Text("Your Data")
             } footer: {
@@ -574,7 +633,7 @@ struct PrivacyView: View {
                 Text(detail).font(.subheadline).foregroundStyle(.secondary)
             }
         } icon: {
-            Image(systemName: symbol).foregroundStyle(SalahPalette.accent)
+            Image(systemName: symbol).foregroundStyle(palette.accent)
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
@@ -582,11 +641,13 @@ struct PrivacyView: View {
 }
 
 struct AboutView: View {
+    @Environment(\.salahPalette) private var palette
+
     var body: some View {
         List {
             Section {
                 VStack(spacing: 14) {
-                    Image(systemName: "moon.stars.fill").font(.system(size: 58)).foregroundStyle(SalahPalette.accent)
+                    Image(systemName: "moon.stars.fill").font(.system(size: 58)).foregroundStyle(palette.accent)
                     Text("Salah").font(.largeTitle.bold())
                     Text("A free, charitable, and non-profit prayer timing and tracking project.")
                         .multilineTextAlignment(.center).foregroundStyle(.secondary)

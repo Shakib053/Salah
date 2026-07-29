@@ -34,6 +34,7 @@ private struct StoredSettings: Codable {
     var location = PrayerLocation.dhaka
     var calculation = CalculationSettings()
     var appearance = AppearancePreference.system
+    var theme: ThemePreference?
     var reminders: [String: ReminderPreference] = [:]
 }
 
@@ -48,6 +49,7 @@ final class AppSettings {
     var location: PrayerLocation { didSet { save() } }
     var calculation: CalculationSettings { didSet { save() } }
     var appearance: AppearancePreference { didSet { save() } }
+    var theme: ThemePreference { didSet { save() } }
     private var storedReminders: [String: ReminderPreference] { didSet { save() } }
 
     init(defaults: UserDefaults = .standard) {
@@ -76,6 +78,7 @@ final class AppSettings {
         location = initialLocation
         calculation = stored.calculation
         appearance = stored.appearance
+        theme = stored.theme ?? .greyishBlue
         storedReminders = stored.reminders
         if initialLocation != stored.location { save() }
     }
@@ -99,6 +102,7 @@ final class AppSettings {
             location: location,
             calculation: calculation,
             appearance: appearance,
+            theme: theme,
             reminders: storedReminders
         )
         if let data = try? JSONEncoder().encode(value) {

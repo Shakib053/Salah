@@ -1,14 +1,52 @@
 import SwiftUI
 
-enum SalahPalette {
-    static let accent = Color.accentColor
-    static let accentSoft = Color("AccentSoft")
-    static let accentForeground = Color("AccentForeground")
-    static let heroStart = Color("BrandNavy")
-    static let heroEnd = Color("BrandNavyDeep")
-    static let warm = Color.accentColor
-    static let screenBackground = Color(uiColor: .systemGroupedBackground)
-    static let groupedSurface = Color(uiColor: .systemBackground)
+struct SalahPalette {
+    let accent: Color
+    let accentSoft: Color
+    let accentForeground: Color
+    let heroStart: Color
+    let heroEnd: Color
+    let warm: Color
+    let screenBackground = Color(uiColor: .systemGroupedBackground)
+    let groupedSurface = Color(uiColor: .systemBackground)
+
+    static let greyishBlue = SalahPalette(
+        accent: Color("AccentColor"),
+        accentSoft: Color("AccentSoft"),
+        accentForeground: Color("AccentForeground"),
+        heroStart: Color("BrandNavy"),
+        heroEnd: Color("BrandNavyDeep"),
+        warm: Color("AccentColor")
+    )
+
+    static let greenishDark = SalahPalette(
+        accent: Color("GreenAccent"),
+        accentSoft: Color("GreenAccentSoft"),
+        accentForeground: Color("GreenAccentForeground"),
+        heroStart: Color("GreenHero"),
+        heroEnd: Color("GreenHeroDeep"),
+        warm: Color("GreenAccent")
+    )
+}
+
+extension ThemePreference {
+    var palette: SalahPalette {
+        switch self {
+        case .greyishBlue: .greyishBlue
+        case .greenishDark: .greenishDark
+        }
+    }
+}
+
+private struct SalahPaletteEnvironmentKey: EnvironmentKey {
+    static let defaultValue = SalahPalette.greyishBlue
+}
+
+extension EnvironmentValues {
+    var salahPalette: SalahPalette {
+        get { self[SalahPaletteEnvironmentKey.self] }
+        set { self[SalahPaletteEnvironmentKey.self] = newValue }
+    }
 }
 
 struct SalahCard<Content: View>: View {
@@ -47,15 +85,16 @@ struct SalahCard<Content: View>: View {
 struct StatusBadge: View {
     let text: String
     let symbol: String
-    var tint: Color = SalahPalette.accent
+    var tint: Color?
+    @Environment(\.salahPalette) private var palette
 
     var body: some View {
         Label(text, systemImage: symbol)
             .font(.caption.weight(.semibold))
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .foregroundStyle(tint)
-            .background(SalahPalette.accentSoft, in: Capsule())
+            .foregroundStyle(tint ?? palette.accent)
+            .background(palette.accentSoft, in: Capsule())
             .accessibilityElement(children: .combine)
     }
 }
@@ -98,13 +137,14 @@ struct OfflineBanner: View {
 struct PrayerIcon: View {
     let prayer: PrayerType
     var active = false
+    @Environment(\.salahPalette) private var palette
 
     var body: some View {
         Image(systemName: prayer.symbol)
             .font(.headline)
-            .foregroundStyle(active ? .white : SalahPalette.accentForeground)
+            .foregroundStyle(active ? .white : palette.accentForeground)
             .frame(width: 40, height: 40)
-            .background(active ? SalahPalette.accent : SalahPalette.accentSoft, in: RoundedRectangle(cornerRadius: 10))
+            .background(active ? palette.accent : palette.accentSoft, in: RoundedRectangle(cornerRadius: 10))
             .accessibilityHidden(true)
     }
 }
