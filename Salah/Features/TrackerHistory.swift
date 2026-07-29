@@ -615,10 +615,14 @@ struct QiblaView: View {
                 .stroke(Color(uiColor: .separator), style: StrokeStyle(lineWidth: 1, dash: [2, 8]))
                 .padding(24)
 
-            Text("N").font(.headline).frame(maxHeight: .infinity, alignment: .top).padding(.top, 18)
-            Text("S").font(.headline).frame(maxHeight: .infinity, alignment: .bottom).padding(.bottom, 18)
-            Text("W").font(.headline).frame(maxWidth: .infinity, alignment: .leading).padding(.leading, 18)
-            Text("E").font(.headline).frame(maxWidth: .infinity, alignment: .trailing).padding(.trailing, 18)
+            ZStack {
+                Text("N").font(.headline).frame(maxHeight: .infinity, alignment: .top).padding(.top, 18)
+                Text("S").font(.headline).frame(maxHeight: .infinity, alignment: .bottom).padding(.bottom, 18)
+                Text("W").font(.headline).frame(maxWidth: .infinity, alignment: .leading).padding(.leading, 18)
+                Text("E").font(.headline).frame(maxWidth: .infinity, alignment: .trailing).padding(.trailing, 18)
+            }
+            .rotationEffect(.degrees(-(headingProvider.heading ?? 0)))
+            .animation(.smooth(duration: 0.45), value: headingProvider.heading)
 
             VStack(spacing: 5) {
                 Image(systemName: "building.columns.fill")
