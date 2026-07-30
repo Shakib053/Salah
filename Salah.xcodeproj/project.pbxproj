@@ -24,11 +24,11 @@
 		D20000000000000000000009 /* TrackerHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000009 /* TrackerHistory.swift */; };
 		D2000000000000000000000A /* MoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* MoreSettings.swift */; };
 		D2000000000000000000000B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
-		D20000000000000000000010 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
 		D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000C /* PrivacyInfo.xcprivacy */; };
 		D2000000000000000000000D /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* UITestSupport.swift */; };
 		D2000000000000000000000E /* WidgetSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000E /* WidgetSharedData.swift */; };
 		D2000000000000000000000F /* WidgetDataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000F /* WidgetDataPublisher.swift */; };
+		D20000000000000000000010 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
 		D50000000000000000000001 /* SalahDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000001 /* SalahDomainTests.swift */; };
 		D50000000000000000000002 /* SalahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000002 /* SalahUITests.swift */; };
 		E10000000000000000000001 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = E30000000000000000000001 /* Adhan */; };
@@ -543,7 +543,7 @@
 				CODE_SIGN_ENTITLEMENTS = SalahWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = GRW9NYZR4G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SalahWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
@@ -555,7 +555,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -575,7 +575,7 @@
 				CODE_SIGN_ENTITLEMENTS = SalahWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = GRW9NYZR4G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SalahWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
@@ -587,7 +587,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -726,7 +726,7 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = GRW9NYZR4G;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -741,7 +741,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -757,7 +757,7 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = GRW9NYZR4G;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -772,7 +772,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
