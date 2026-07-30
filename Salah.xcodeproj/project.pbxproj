@@ -10,6 +10,7 @@
 		0C7044AE3017C6B800277BD4 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C7044AD3017C6B800277BD4 /* WidgetKit.framework */; };
 		0C7044B03017C6B800277BD4 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C7044AF3017C6B800277BD4 /* SwiftUI.framework */; };
 		0C7044C23017C6BA00277BD4 /* SalahWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0C7044AB3017C6B800277BD4 /* SalahWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0CEE636C301BCC49000F3FF9 /* DebugDrawerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CEE636B301BCC41000F3FF9 /* DebugDrawerView.swift */; };
 		5A8F54892B87696500ED1BFC /* Location/districts.json in Resources */ = {isa = PBXBuildFile; fileRef = 5A8F54882B87696500ED1BFC /* Location/districts.json */; };
 		5AA6AB572B81E90900E2A7DB /* SalahApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AA6AB562B81E90900E2A7DB /* SalahApp.swift */; };
 		5AA6AB5B2B81E90A00E2A7DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */; };
@@ -24,11 +25,11 @@
 		D20000000000000000000009 /* TrackerHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000009 /* TrackerHistory.swift */; };
 		D2000000000000000000000A /* MoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* MoreSettings.swift */; };
 		D2000000000000000000000B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
-		D20000000000000000000010 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
 		D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000C /* PrivacyInfo.xcprivacy */; };
 		D2000000000000000000000D /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* UITestSupport.swift */; };
 		D2000000000000000000000E /* WidgetSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000E /* WidgetSharedData.swift */; };
 		D2000000000000000000000F /* WidgetDataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000F /* WidgetDataPublisher.swift */; };
+		D20000000000000000000010 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
 		D50000000000000000000001 /* SalahDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000001 /* SalahDomainTests.swift */; };
 		D50000000000000000000002 /* SalahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000002 /* SalahUITests.swift */; };
 		E10000000000000000000001 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = E30000000000000000000001 /* Adhan */; };
@@ -79,6 +80,7 @@
 		0C7044AF3017C6B800277BD4 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		0C7044C73017C8F900277BD4 /* Salah.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Salah.entitlements; sourceTree = "<group>"; };
 		0C7044C83017C92200277BD4 /* SalahWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SalahWidgetsExtension.entitlements; sourceTree = "<group>"; };
+		0CEE636B301BCC41000F3FF9 /* DebugDrawerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugDrawerView.swift; sourceTree = "<group>"; };
 		5A8F54882B87696500ED1BFC /* Location/districts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Location/districts.json; sourceTree = "<group>"; };
 		5AA6AB532B81E90900E2A7DB /* Salah.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Salah.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5AA6AB562B81E90900E2A7DB /* SalahApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahApp.swift; sourceTree = "<group>"; };
@@ -162,6 +164,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		0CEE636A301BCC02000F3FF9 /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				0CEE636B301BCC41000F3FF9 /* DebugDrawerView.swift */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
 		5AA6AB4A2B81E90900E2A7DB = {
 			isa = PBXGroup;
 			children = (
@@ -201,6 +211,7 @@
 				D30000000000000000000005 /* Features */,
 				D30000000000000000000006 /* Resources */,
 				5AA6AB5A2B81E90A00E2A7DB /* Assets.xcassets */,
+				0CEE636A301BCC02000F3FF9 /* Debug */,
 			);
 			path = Salah;
 			sourceTree = "<group>";
@@ -490,6 +501,7 @@
 				D20000000000000000000005 /* Persistence.swift in Sources */,
 				D20000000000000000000006 /* SharedViews.swift in Sources */,
 				D20000000000000000000007 /* AppShell.swift in Sources */,
+				0CEE636C301BCC49000F3FF9 /* DebugDrawerView.swift in Sources */,
 				D20000000000000000000008 /* TodayCalendar.swift in Sources */,
 				D20000000000000000000009 /* TrackerHistory.swift in Sources */,
 				D2000000000000000000000A /* MoreSettings.swift in Sources */,
@@ -543,7 +555,7 @@
 				CODE_SIGN_ENTITLEMENTS = SalahWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = GRW9NYZR4G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SalahWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
@@ -555,7 +567,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -575,7 +587,7 @@
 				CODE_SIGN_ENTITLEMENTS = SalahWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = GRW9NYZR4G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SalahWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
@@ -587,7 +599,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -726,7 +738,7 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = GRW9NYZR4G;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -741,7 +753,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -757,7 +769,7 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = GRW9NYZR4G;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -772,7 +784,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

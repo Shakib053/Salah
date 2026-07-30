@@ -42,6 +42,9 @@ enum ReminderCoordinator {
 struct MoreView: View {
     @Bindable var container: AppContainer
     @Environment(\.salahPalette) private var palette
+    #if DEBUG
+    @State private var showingDebugDrawer = false
+    #endif
 
     var body: some View {
         List {
@@ -83,12 +86,23 @@ struct MoreView: View {
                         Label("Share Salah", systemImage: "square.and.arrow.up")
                     }
                 }
+                #if DEBUG
                 LabeledContent("Version", value: versionText)
+                    .onTapGesture(count: 5) { showingDebugDrawer = true }
+                #else
+                LabeledContent("Version", value: versionText)
+                #endif
             } footer: {
                 Text("Salah is free, has no advertising, and does not require an account.")
             }
         }
         .navigationTitle("More")
+        #if DEBUG
+        .sheet(isPresented: $showingDebugDrawer) {
+            DebugDrawerView(container: container)
+                .presentationDetents([.medium])
+        }
+        #endif
     }
 
     private func settingsLabel(_ title: String, subtitle: String, symbol: String, tint: Color) -> some View {
