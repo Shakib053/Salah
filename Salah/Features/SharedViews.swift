@@ -149,6 +149,21 @@ struct PrayerIcon: View {
     }
 }
 
+struct TrackerSymbolIcon: View {
+    let symbol: String
+    var active = false
+    @Environment(\.salahPalette) private var palette
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.headline)
+            .foregroundStyle(active ? .white : palette.accentForeground)
+            .frame(width: 40, height: 40)
+            .background(active ? palette.accent : palette.accentSoft, in: RoundedRectangle(cornerRadius: 10))
+            .accessibilityHidden(true)
+    }
+}
+
 extension ShapeStyle where Self == Color {
     static var separator: Color { Color(uiColor: .separator) }
 }

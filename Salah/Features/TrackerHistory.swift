@@ -22,7 +22,6 @@ final class TrackerViewModel {
     }
 
     var completedCount: Int { completed.count }
-    var remainingCount: Int { PrayerType.allCases.count - completed.count }
     var progress: Double { Double(completed.count) / Double(PrayerType.allCases.count) }
 
     func refresh() {
@@ -84,7 +83,7 @@ struct DeedsView: View {
     @Bindable var container: AppContainer
     @Environment(\.salahPalette) private var palette
     @State private var viewModel: TrackerViewModel
-    @State private var selection = DeedsSection.prayers
+    @State private var selection = DeedsSection.deeds
     @State private var showingDatePicker = false
     @State private var records: [PrayerRecordSnapshot] = []
     @AppStorage("salah.deeds.istighfar-count") private var istighfarCount = 0
@@ -97,10 +96,7 @@ struct DeedsView: View {
     private let goodDeeds = [
         GoodDeedDefinition(id: 0, title: "Read the Qurʾān", symbol: "book.closed.fill"),
         GoodDeedDefinition(id: 1, title: "Morning and evening adhkār", symbol: "sun.horizon.fill"),
-        GoodDeedDefinition(id: 2, title: "Gave ṣadaqah", symbol: "heart.fill"),
-        GoodDeedDefinition(id: 3, title: "Helped someone in need", symbol: "hands.sparkles.fill"),
-        GoodDeedDefinition(id: 4, title: "Kept ties of kinship", symbol: "person.2.fill"),
-        GoodDeedDefinition(id: 5, title: "Made duʿāʾ for others", symbol: "sparkles")
+        GoodDeedDefinition(id: 2, title: "Gave ṣadaqah", symbol: "heart.fill")
     ]
 
     init(container: AppContainer) {
@@ -110,14 +106,9 @@ struct DeedsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker("Deeds category", selection: $selection) {
-                ForEach(DeedsSection.allCases) { section in
-                    Text(section.title).tag(section)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.top, 8)
+            deedsTabBar
+                .padding(.horizontal)
+                .padding(.top, 8)
 
             ScrollView {
                 LazyVStack(spacing: 16) {
@@ -190,6 +181,30 @@ struct DeedsView: View {
         }
     }
 
+    private var deedsTabBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(DeedsSection.allCases) { section in
+                    Button {
+                        withAnimation(.snappy) {
+                            selection = section
+                        }
+                    } label: {
+                        Text(section.title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(selection == section ? .primary : .secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(selection == section ? Color(uiColor: .systemBackground) : Color.clear, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(4)
+            .background(Color(uiColor: .systemGray5), in: Capsule())
+        }
+    }
+
     @ViewBuilder
     private var prayerTracker: some View {
         SalahCard(isTransparent: true) {
@@ -208,8 +223,6 @@ struct DeedsView: View {
                 .tint(.white)
                 .accessibilityLabel("Daily completion")
                 .accessibilityValue("\(viewModel.completedCount) of 5 prayers completed")
-            Text("\(viewModel.remainingCount) remaining")
-                .font(.caption.bold())
         }
         .foregroundStyle(.white)
         .background(
@@ -288,13 +301,20 @@ struct DeedsView: View {
                 .foregroundStyle(.secondary)
         }
 
-        SalahCard {
+        VStack(spacing: 12) {
             ForEach(goodDeeds) { deed in
-                Toggle(isOn: goodDeedBinding(deed.id)) {
-                    Label(deed.title, systemImage: deed.symbol)
+                SalahCard {
+                    GoodDeedRow(
+                        title: deed.title,
+                        symbol: deed.symbol,
+                        completed: isGoodDeedCompleted(deed.id),
+                        accent: palette.accent
+                    ) {
+                        withAnimation(.snappy) {
+                            toggleGoodDeed(deed.id)
+                        }
+                    }
                 }
-                .frame(minHeight: 44)
-                if deed.id != goodDeeds.last?.id { Divider() }
             }
         }
 
@@ -400,17 +420,16 @@ struct DeedsView: View {
         goodDeeds.filter { goodDeedsMask & (1 << $0.id) != 0 }.count
     }
 
-    private func goodDeedBinding(_ id: Int) -> Binding<Bool> {
-        Binding(
-            get: { goodDeedsMask & (1 << id) != 0 },
-            set: { enabled in
-                if enabled {
-                    goodDeedsMask |= (1 << id)
-                } else {
-                    goodDeedsMask &= ~(1 << id)
-                }
-            }
-        )
+    private func isGoodDeedCompleted(_ id: Int) -> Bool {
+        goodDeedsMask & (1 << id) != 0
+    }
+
+    private func toggleGoodDeed(_ id: Int) {
+        if goodDeedsMask & (1 << id) != 0 {
+            goodDeedsMask &= ~(1 << id)
+        } else {
+            goodDeedsMask |= (1 << id)
+        }
     }
 
     private func refreshRecords() {
@@ -450,18 +469,13 @@ struct TrackerPrayerRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 12) {
+            TrackerStatusRowContent(
+                title: prayer.title,
+                subtitle: completed ? "Completed" : "Not marked yet",
+                completed: completed,
+                accent: palette.accent
+            ) {
                 PrayerIcon(prayer: prayer)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(prayer.title).font(.headline)
-                    Text(completed ? "Completed" : "Not marked yet")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                Spacer()
-                Image(systemName: completed ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundStyle(completed ? palette.accent : .secondary)
-                    .accessibilityHidden(true)
             }
             .padding()
             .frame(minHeight: 64)
@@ -470,6 +484,59 @@ struct TrackerPrayerRow: View {
         .buttonStyle(.plain)
         .accessibilityLabel("\(prayer.title), \(completed ? "completed" : "not completed")")
         .accessibilityHint(completed ? "Double tap to mark as not completed" : "Double tap to mark as completed")
+    }
+}
+
+private struct GoodDeedRow: View {
+    let title: String
+    let symbol: String
+    let completed: Bool
+    let accent: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            TrackerStatusRowContent(
+                title: title,
+                subtitle: completed ? "Completed" : "Not marked yet",
+                completed: completed,
+                accent: accent
+            ) {
+                TrackerSymbolIcon(symbol: symbol)
+            }
+            .padding(.vertical, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityLabel(title)
+        .accessibilityValue(completed ? "completed" : "not completed")
+        .accessibilityHint(completed ? "Double tap to mark as not completed" : "Double tap to mark as completed")
+    }
+}
+
+private struct TrackerStatusRowContent<Leading: View>: View {
+    let title: String
+    let subtitle: String
+    let completed: Bool
+    let accent: Color
+    @ViewBuilder let leading: Leading
+
+    var body: some View {
+        HStack(spacing: 12) {
+            leading
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.headline)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Image(systemName: completed ? "checkmark.circle.fill" : "circle")
+                .font(.title2)
+                .foregroundStyle(completed ? accent : .secondary)
+                .accessibilityHidden(true)
+        }
     }
 }
 
