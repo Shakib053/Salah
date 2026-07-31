@@ -1,5 +1,6 @@
 import Charts
 @preconcurrency import CoreLocation
+import AVFoundation
 import Observation
 import SwiftUI
 import UIKit
@@ -88,6 +89,7 @@ struct TrackerView: View {
     @State private var showingDatePicker = false
     @State private var records: [PrayerRecordSnapshot] = []
     @AppStorage("salah.deeds.istighfar-count") private var tasbihCount = 0
+    @AppStorage("salah.deeds.tasbih-goal") private var tasbihGoal = 0
     @AppStorage("salah.deeds.good-deeds-mask") private var goodDeedsMask = 0
     @AppStorage("salah.deeds.good-deeds-day") private var goodDeedsDay = ""
     @AppStorage("salah.deeds.charity-total") private var charityTotal = 0
@@ -238,7 +240,7 @@ struct TrackerView: View {
     }
 
     private var tasbihTracker: some View {
-        TasbihCounterPad(count: $tasbihCount)
+        TasbihCounterPad(count: $tasbihCount, goal: $tasbihGoal)
     }
 
     @ViewBuilder
@@ -413,11 +415,28 @@ struct TrackerView: View {
 
 private struct TasbihCounterPad: View {
     @Binding var count: Int
+    @Binding var goal: Int
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.salahPalette) private var palette
     @State private var resetArmed = false
     @State private var rippleExpanded = true
+    @State private var showingCustomGoal = false
+    @State private var customGoalText = ""
+    @State private var showingGoalCompletion = false
+    @State private var completedGoal = 0
+
+    private let presetGoals = [33, 99, 100]
+
+    private var goalProgress: Double {
+        guard goal > 0 else { return 0 }
+        return min(1, Double(count) / Double(goal))
+    }
+
+    private var customGoalValue: Int? {
+        guard let value = Int(customGoalText), (1...999_999).contains(value) else { return nil }
+        return value
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -446,6 +465,17 @@ private struct TasbihCounterPad: View {
                                 Circle()
                                     .stroke(palette.accent.opacity(0.12), lineWidth: 2)
                                     .frame(width: ringSize * 0.72, height: ringSize * 0.72)
+                                if goal > 0 {
+                                    Circle()
+                                        .trim(from: 0, to: goalProgress)
+                                        .stroke(
+                                            palette.accent,
+                                            style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                                        )
+                                        .frame(width: ringSize * 0.72, height: ringSize * 0.72)
+                                        .rotationEffect(.degrees(-90))
+                                        .animation(.snappy, value: goalProgress)
+                                }
                                 Circle()
                                     .fill(palette.groupedSurface.opacity(colorScheme == .dark ? 0.38 : 0.66))
                                     .frame(width: ringSize * 0.42, height: ringSize * 0.42)
@@ -459,6 +489,11 @@ private struct TasbihCounterPad: View {
                                     Text("count")
                                         .font(.title3)
                                         .foregroundStyle(.secondary)
+                                    if goal > 0 {
+                                        Text("\(count) of \(goal)")
+                                            .font(.subheadline.weight(.semibold))
+                                            .foregroundStyle(palette.accentForeground)
+                                    }
                                 }
                                 .padding(.horizontal, 22)
                             }
@@ -493,9 +528,17 @@ private struct TasbihCounterPad: View {
                 .buttonStyle(TasbihPadButtonStyle())
                 .accessibilityLabel("Tasbih counter. Current count \(count).")
                 .accessibilityHint("Tap anywhere to increase the count")
+                .accessibilityIdentifier("tasbih.counter")
 
-                resetButton
-                    .padding(16)
+                VStack {
+                    HStack(alignment: .top) {
+                        goalMenu
+                        Spacer(minLength: 12)
+                        resetButton
+                    }
+                    Spacer()
+                }
+                .padding(16)
             }
             .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
             .overlay {
@@ -505,6 +548,13 @@ private struct TasbihCounterPad: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .alert("Tasbih goal completed", isPresented: $showingGoalCompletion) {
+            Button("OK") {
+                count = 0
+            }
+        } message: {
+            Text("You completed \(completedGoal) counts.")
+        }
     }
 
     private var padBackground: some View {
@@ -561,12 +611,84 @@ private struct TasbihCounterPad: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(resetArmed ? "Confirm reset counter" : "Reset counter")
+        .accessibilityIdentifier("tasbih.reset")
         .animation(.easeInOut(duration: 0.18), value: resetArmed)
     }
 
+    private var goalMenu: some View {
+        Menu {
+            Button {
+                selectGoal(0)
+            } label: {
+                if goal == 0 {
+                    Label("No Goal", systemImage: "checkmark")
+                } else {
+                    Text("No Goal")
+                }
+            }
+
+            ForEach(presetGoals, id: \.self) { preset in
+                Button {
+                    selectGoal(preset)
+                } label: {
+                    if goal == preset {
+                        Label("\(preset)", systemImage: "checkmark")
+                    } else {
+                        Text("\(preset)")
+                    }
+                }
+            }
+
+            Divider()
+
+            Button {
+                customGoalText = goal > 0 ? String(goal) : ""
+                showingCustomGoal = true
+            } label: {
+                Label("Custom…", systemImage: "number")
+            }
+        } label: {
+            HStack(spacing: 7) {
+                Image(systemName: "target")
+                Text(goal > 0 ? "Goal: \(goal)" : "Set Goal")
+                Image(systemName: "chevron.down")
+                    .font(.caption2.weight(.bold))
+            }
+            .font(.subheadline.weight(.medium))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 11)
+            .foregroundStyle(palette.accentForeground)
+            .background(palette.accentSoft, in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(goal > 0 ? "Tasbih goal, \(goal)" : "Tasbih goal, none")
+        .accessibilityIdentifier("tasbih.goal.menu")
+        .alert("Custom Tasbih Goal", isPresented: $showingCustomGoal) {
+            TextField("Goal count", text: $customGoalText)
+                .keyboardType(.numberPad)
+            Button("Set Goal") {
+                if let customGoalValue {
+                    selectGoal(customGoalValue)
+                }
+            }
+            .disabled(customGoalValue == nil)
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Enter a goal from 1 to 999,999.")
+        }
+    }
+
     private func increment() {
-        count += 1
-        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        let nextCount = count + 1
+        count = nextCount
+
+        if goal > 0, nextCount == goal {
+            completedGoal = goal
+            TasbihCompletionFeedback.shared.play()
+            showingGoalCompletion = true
+        } else {
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        }
 
         guard !reduceMotion else { return }
         var transaction = Transaction(animation: nil)
@@ -596,6 +718,13 @@ private struct TasbihCounterPad: View {
         resetArmed = false
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
+
+    private func selectGoal(_ newGoal: Int) {
+        goal = newGoal
+        if newGoal > 0, count >= newGoal {
+            count = 0
+        }
+    }
 }
 
 private struct TasbihPadButtonStyle: ButtonStyle {
@@ -604,6 +733,79 @@ private struct TasbihPadButtonStyle: ButtonStyle {
             .brightness(configuration.isPressed ? -0.015 : 0)
             .scaleEffect(configuration.isPressed ? 0.995 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+@MainActor
+private final class TasbihCompletionFeedback {
+    static let shared = TasbihCompletionFeedback()
+
+    private var player: AVAudioPlayer?
+
+    private init() { }
+
+    func play() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
+        try? session.setActive(true)
+
+        player = try? AVAudioPlayer(data: Self.completionChime)
+        player?.volume = 0.45
+        player?.prepareToPlay()
+        player?.play()
+    }
+
+    private static let completionChime: Data = {
+        let sampleRate: UInt32 = 44_100
+        let duration = 0.52
+        let sampleCount = Int(Double(sampleRate) * duration)
+        let dataSize = UInt32(sampleCount * MemoryLayout<Int16>.size)
+        var data = Data()
+
+        func appendString(_ value: String) {
+            data.append(contentsOf: value.utf8)
+        }
+
+        func appendInteger<T: FixedWidthInteger>(_ value: T) {
+            var littleEndian = value.littleEndian
+            withUnsafeBytes(of: &littleEndian) { bytes in
+                data.append(contentsOf: bytes)
+            }
+        }
+
+        appendString("RIFF")
+        appendInteger(UInt32(36) + dataSize)
+        appendString("WAVE")
+        appendString("fmt ")
+        appendInteger(UInt32(16))
+        appendInteger(UInt16(1))
+        appendInteger(UInt16(1))
+        appendInteger(sampleRate)
+        appendInteger(sampleRate * 2)
+        appendInteger(UInt16(2))
+        appendInteger(UInt16(16))
+        appendString("data")
+        appendInteger(dataSize)
+
+        for sampleIndex in 0..<sampleCount {
+            let time = Double(sampleIndex) / Double(sampleRate)
+            let firstEnvelope = sineEnvelope(time, start: 0, end: 0.30)
+            let secondEnvelope = sineEnvelope(time, start: 0.16, end: duration)
+            let firstTone = sin(2 * Double.pi * 659.25 * time) * firstEnvelope
+            let secondTone = sin(2 * Double.pi * 880.00 * time) * secondEnvelope
+            let amplitude = (firstTone + secondTone) * 0.17
+            appendInteger(Int16(clamping: Int(amplitude * Double(Int16.max))))
+        }
+
+        return data
+    }()
+
+    private static func sineEnvelope(_ time: Double, start: Double, end: Double) -> Double {
+        guard time >= start, time <= end else { return 0 }
+        let progress = (time - start) / (end - start)
+        return sin(Double.pi * progress)
     }
 }
 

@@ -228,6 +228,8 @@ final class AppContainer {
         }
         if isUITesting, arguments.contains("-reset-tracker") {
             try? self.trackingRepository.clearAll()
+            UserDefaults.standard.set(0, forKey: "salah.deeds.istighfar-count")
+            UserDefaults.standard.set(0, forKey: "salah.deeds.tasbih-goal")
         }
     }
 }

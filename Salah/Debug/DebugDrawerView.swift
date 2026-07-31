@@ -19,6 +19,7 @@ struct DebugDrawerView: View {
 
     // Mirror the same AppStorage keys used by TrackerView in TrackerHistory.swift.
     @AppStorage("salah.deeds.istighfar-count") private var tasbihCount = 0
+    @AppStorage("salah.deeds.tasbih-goal") private var tasbihGoal = 0
     @AppStorage("salah.deeds.good-deeds-mask") private var goodDeedsMask = 0
     @AppStorage("salah.deeds.good-deeds-day")  private var goodDeedsDay = ""
     @AppStorage("salah.deeds.charity-total")   private var charityTotal = 0
@@ -114,6 +115,7 @@ struct DebugDrawerView: View {
 
         // ── Tasbih: set counter to a random value 40–99 ──
         tasbihCount = Int.random(in: 40...99)
+        tasbihGoal = 100
 
         // ── Good Deeds: mark all 3 deeds as done for today ──
         //    Bits 0, 1, 2 map to the three GoodDeedDefinitions in TrackerView
@@ -138,6 +140,7 @@ struct DebugDrawerView: View {
 
         // ── Tasbih ──
         tasbihCount = 0
+        tasbihGoal = 0
 
         // ── Good Deeds ──
         goodDeedsMask = 0

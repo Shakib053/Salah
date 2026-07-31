@@ -98,6 +98,34 @@ final class SalahUITests: XCTestCase {
         XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Tasbih counter. Current count 0'")).firstMatch.waitForExistence(timeout: 2))
     }
 
+    func testTasbihGoalCompletionResetsAfterAcknowledgement() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing", "-reset-tracker", "-onboarding-complete"]
+        app.launch()
+        app.tabBars.buttons["Tracker"].tap()
+        app.segmentedControls.buttons["Tasbih"].tap()
+
+        let goalMenu = app.buttons["tasbih.goal.menu"]
+        XCTAssertTrue(goalMenu.waitForExistence(timeout: 3))
+        goalMenu.tap()
+        let goal33 = app.buttons["33"]
+        XCTAssertTrue(goal33.waitForExistence(timeout: 2))
+        goal33.tap()
+
+        let counter = app.buttons["tasbih.counter"]
+        XCTAssertTrue(counter.waitForExistence(timeout: 2))
+        for _ in 0..<33 {
+            counter.tap()
+        }
+
+        let completionAlert = app.alerts["Tasbih goal completed"]
+        XCTAssertTrue(completionAlert.waitForExistence(timeout: 3))
+        XCTAssertTrue(completionAlert.staticTexts["You completed 33 counts."].exists)
+        completionAlert.buttons["OK"].tap()
+
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Tasbih counter. Current count 0'")).firstMatch.waitForExistence(timeout: 2))
+    }
+
     func testCalculationAndReminderScreensRemainReachable() {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing", "-onboarding-complete"]
