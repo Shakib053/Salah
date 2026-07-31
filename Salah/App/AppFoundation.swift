@@ -4,7 +4,7 @@ import Observation
 import SwiftData
 
 enum AppTab: Hashable {
-    case today, calendar, deeds, qibla, more
+    case today, calendar, tracker, qibla, more
 }
 
 @MainActor

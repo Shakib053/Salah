@@ -555,7 +555,7 @@
 				CODE_SIGN_ENTITLEMENTS = SalahWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GRW9NYZR4G;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SalahWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
@@ -567,7 +567,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib.widgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -587,7 +587,7 @@
 				CODE_SIGN_ENTITLEMENTS = SalahWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GRW9NYZR4G;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SalahWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
@@ -599,7 +599,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib.widgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -738,7 +738,7 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GRW9NYZR4G;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -753,7 +753,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -769,7 +769,7 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GRW9NYZR4G;
+				DEVELOPMENT_TEAM = PXF7DUQPQ9;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -784,7 +784,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tanjimshakib;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

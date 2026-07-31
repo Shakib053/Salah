@@ -66,10 +66,10 @@ struct RootTabView: View {
             .tag(AppTab.calendar)
 
             NavigationStack {
-                DeedsView(container: container)
+                TrackerView(container: container)
             }
-            .tabItem { Label("Deeds", systemImage: "checklist") }
-            .tag(AppTab.deeds)
+            .tabItem { Label("Tracker", systemImage: "checklist") }
+            .tag(AppTab.tracker)
 
             NavigationStack {
                 QiblaView(container: container)

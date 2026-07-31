@@ -17,8 +17,8 @@ struct DebugDrawerView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.salahPalette) private var palette
 
-    // Mirror the same AppStorage keys used by DeedsView in TrackerHistory.swift
-    @AppStorage("salah.deeds.istighfar-count") private var istighfarCount = 0
+    // Mirror the same AppStorage keys used by TrackerView in TrackerHistory.swift.
+    @AppStorage("salah.deeds.istighfar-count") private var tasbihCount = 0
     @AppStorage("salah.deeds.good-deeds-mask") private var goodDeedsMask = 0
     @AppStorage("salah.deeds.good-deeds-day")  private var goodDeedsDay = ""
     @AppStorage("salah.deeds.charity-total")   private var charityTotal = 0
@@ -41,7 +41,7 @@ struct DebugDrawerView: View {
                     .foregroundStyle(.secondary)
                 }
 
-                Section("Deeds Tab") {
+                Section("Tracker Tab") {
                     Button {
                         seedDummyData()
                     } label: {
@@ -86,7 +86,7 @@ struct DebugDrawerView: View {
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
-                Text("This resets all Deeds tab data: prayer records, Dhikr counter, Good Deeds, and Charity.")
+                Text("This resets all Tracker tab data: prayer records, Tasbih counter, Good Deeds, and Charity.")
             }
         }
     }
@@ -112,11 +112,11 @@ struct DebugDrawerView: View {
             }
         }
 
-        // ── Dhikr: set counter to a random value 40–99 ──
-        istighfarCount = Int.random(in: 40...99)
+        // ── Tasbih: set counter to a random value 40–99 ──
+        tasbihCount = Int.random(in: 40...99)
 
         // ── Good Deeds: mark all 3 deeds as done for today ──
-        //    Bits 0, 1, 2 map to the three GoodDeedDefinitions in DeedsView
+        //    Bits 0, 1, 2 map to the three GoodDeedDefinitions in TrackerView
         goodDeedsDay = today.key
         goodDeedsMask = 0b111
 
@@ -136,8 +136,8 @@ struct DebugDrawerView: View {
         // ── Prayer records: wipe all SwiftData tracker records ──
         try? container.trackingRepository.clearAll()
 
-        // ── Dhikr ──
-        istighfarCount = 0
+        // ── Tasbih ──
+        tasbihCount = 0
 
         // ── Good Deeds ──
         goodDeedsMask = 0

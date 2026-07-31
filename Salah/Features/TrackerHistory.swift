@@ -2,6 +2,7 @@ import Charts
 @preconcurrency import CoreLocation
 import Observation
 import SwiftUI
+import UIKit
 
 @MainActor
 @Observable
@@ -57,15 +58,15 @@ final class TrackerViewModel {
     }
 }
 
-private enum DeedsSection: String, CaseIterable, Identifiable {
-    case prayers, repentance, deeds, charity, insights
+private enum TrackerSection: String, CaseIterable, Identifiable {
+    case prayers, tasbih, deeds, charity, insights
 
     var id: Self { self }
 
     var title: String {
         switch self {
         case .prayers: String(localized: "Ṣalāh")
-        case .repentance: String(localized: "Dhikr")
+        case .tasbih: String(localized: "Tasbih")
         case .deeds: String(localized: "Deeds")
         case .charity: String(localized: "Charity")
         case .insights: String(localized: "Insights")
@@ -79,14 +80,14 @@ private struct GoodDeedDefinition: Identifiable {
     let symbol: String
 }
 
-struct DeedsView: View {
+struct TrackerView: View {
     @Bindable var container: AppContainer
     @Environment(\.salahPalette) private var palette
     @State private var viewModel: TrackerViewModel
-    @State private var selection = DeedsSection.deeds
+    @State private var selection = TrackerSection.prayers
     @State private var showingDatePicker = false
     @State private var records: [PrayerRecordSnapshot] = []
-    @AppStorage("salah.deeds.istighfar-count") private var istighfarCount = 0
+    @AppStorage("salah.deeds.istighfar-count") private var tasbihCount = 0
     @AppStorage("salah.deeds.good-deeds-mask") private var goodDeedsMask = 0
     @AppStorage("salah.deeds.good-deeds-day") private var goodDeedsDay = ""
     @AppStorage("salah.deeds.charity-total") private var charityTotal = 0
@@ -106,25 +107,30 @@ struct DeedsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            deedsTabBar
+            trackerSectionPicker
                 .padding(.horizontal)
                 .padding(.top, 8)
 
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    switch selection {
-                    case .prayers: prayerTracker
-                    case .repentance: repentanceTracker
-                    case .deeds: goodDeedsTracker
-                    case .charity: charityTracker
-                    case .insights: insightsTracker
+            if selection == .tasbih {
+                tasbihTracker
+                    .padding()
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        switch selection {
+                        case .prayers: prayerTracker
+                        case .tasbih: EmptyView()
+                        case .deeds: goodDeedsTracker
+                        case .charity: charityTracker
+                        case .insights: insightsTracker
+                        }
                     }
+                    .padding()
                 }
-                .padding()
             }
         }
         .background(palette.screenBackground.ignoresSafeArea())
-        .navigationTitle("Deeds")
+        .navigationTitle("Tracker")
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if selection == .prayers {
@@ -181,28 +187,15 @@ struct DeedsView: View {
         }
     }
 
-    private var deedsTabBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(DeedsSection.allCases) { section in
-                    Button {
-                        withAnimation(.snappy) {
-                            selection = section
-                        }
-                    } label: {
-                        Text(section.title)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(selection == section ? .primary : .secondary)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(selection == section ? Color(uiColor: .systemBackground) : Color.clear, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                }
+    private var trackerSectionPicker: some View {
+        Picker("Tracker section", selection: $selection) {
+            ForEach(TrackerSection.allCases) { section in
+                Text(section.title).tag(section)
             }
-            .padding(4)
-            .background(Color(uiColor: .systemGray5), in: Capsule())
         }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .accessibilityLabel("Tracker section")
     }
 
     @ViewBuilder
@@ -244,51 +237,8 @@ struct DeedsView: View {
         }
     }
 
-    @ViewBuilder
-    private var repentanceTracker: some View {
-        SalahCard {
-            Text("Istighfār counter")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity)
-            ZStack {
-                Circle().stroke(palette.accent.opacity(0.15), lineWidth: 10)
-                Circle()
-                    .trim(from: 0, to: min(1, Double(istighfarCount) / 100))
-                    .stroke(palette.accent, style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                VStack(spacing: 4) {
-                    Text("\(istighfarCount)")
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold).monospacedDigit())
-                    Text("of 100")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .frame(width: 190, height: 190)
-            .frame(maxWidth: .infinity)
-            Text("Astaghfirullāh")
-                .font(.title2.bold())
-                .foregroundStyle(palette.accent)
-                .frame(maxWidth: .infinity)
-            Text("I seek the forgiveness of Allah")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity)
-        }
-
-        Button("Count", systemImage: "plus") { istighfarCount += 1 }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .frame(maxWidth: .infinity)
-
-        Button("Reset", systemImage: "arrow.counterclockwise", role: .destructive) { istighfarCount = 0 }
-            .buttonStyle(.bordered)
-
-        Text("This private counter is a quiet reminder, never a public score.")
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.center)
+    private var tasbihTracker: some View {
+        TasbihCounterPad(count: $tasbihCount)
     }
 
     @ViewBuilder
@@ -458,6 +408,202 @@ struct DeedsView: View {
 
     private var isToday: Bool {
         viewModel.selectedDay == LocalDay(.now, timeZone: container.settings.location.timeZone)
+    }
+}
+
+private struct TasbihCounterPad: View {
+    @Binding var count: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.salahPalette) private var palette
+    @State private var resetArmed = false
+    @State private var rippleExpanded = true
+
+    var body: some View {
+        GeometryReader { proxy in
+            let ringSize = min(340, max(220, proxy.size.width * 0.78))
+            let countSize = min(136, max(80, proxy.size.width * 0.30))
+            let handSize = min(76, max(56, proxy.size.width * 0.18))
+
+            ZStack(alignment: .topTrailing) {
+                Button(action: increment) {
+                    ZStack {
+                        padBackground
+
+                        Circle()
+                            .stroke(palette.accent.opacity(rippleExpanded ? 0 : 0.45), lineWidth: 2)
+                            .frame(width: 96, height: 96)
+                            .scaleEffect(rippleExpanded ? 1.7 : 0.35)
+                            .position(x: proxy.size.width / 2, y: proxy.size.height * 0.39)
+
+                        VStack(spacing: 0) {
+                            Spacer(minLength: 56)
+
+                            ZStack {
+                                Circle()
+                                    .stroke(palette.accent.opacity(0.08), lineWidth: 2)
+                                    .frame(width: ringSize, height: ringSize)
+                                Circle()
+                                    .stroke(palette.accent.opacity(0.12), lineWidth: 2)
+                                    .frame(width: ringSize * 0.72, height: ringSize * 0.72)
+                                Circle()
+                                    .fill(palette.groupedSurface.opacity(colorScheme == .dark ? 0.38 : 0.66))
+                                    .frame(width: ringSize * 0.42, height: ringSize * 0.42)
+
+                                VStack(spacing: 8) {
+                                    Text(count, format: .number)
+                                        .font(.system(size: countSize, weight: .semibold, design: .rounded).monospacedDigit())
+                                        .tracking(-3)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.45)
+                                    Text("count")
+                                        .font(.title3)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding(.horizontal, 22)
+                            }
+
+                            Spacer(minLength: 24)
+
+                            VStack(spacing: 14) {
+                                ZStack {
+                                    Circle()
+                                        .stroke(palette.accent.opacity(0.18), lineWidth: 2)
+                                        .frame(width: handSize * 1.25, height: handSize * 1.25)
+                                    Circle()
+                                        .stroke(palette.accent.opacity(0.32), lineWidth: 2)
+                                        .frame(width: handSize * 0.86, height: handSize * 0.86)
+                                    Image(systemName: "hand.tap")
+                                        .font(.system(size: handSize, weight: .light))
+                                        .symbolEffect(.bounce, value: count)
+                                }
+                                .foregroundStyle(palette.accent)
+
+                                Text("Tap anywhere to count")
+                                    .font(.headline)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer(minLength: 34)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    .contentShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                }
+                .buttonStyle(TasbihPadButtonStyle())
+                .accessibilityLabel("Tasbih counter. Current count \(count).")
+                .accessibilityHint("Tap anywhere to increase the count")
+
+                resetButton
+                    .padding(16)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .stroke(Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.05), lineWidth: 1)
+                    .allowsHitTesting(false)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var padBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            palette.groupedSurface,
+                            palette.accentSoft.opacity(colorScheme == .dark ? 0.76 : 0.94)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            palette.groupedSurface.opacity(colorScheme == .dark ? 0.54 : 0.92),
+                            palette.accent.opacity(colorScheme == .dark ? 0.07 : 0.04),
+                            .clear
+                        ],
+                        center: UnitPoint(x: 0.5, y: 0.39),
+                        startRadius: 4,
+                        endRadius: 230
+                    )
+                )
+
+            Ellipse()
+                .fill(
+                    RadialGradient(
+                        colors: [palette.accent.opacity(0.10), .clear],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 170
+                    )
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 150)
+                .offset(y: 230)
+        }
+    }
+
+    private var resetButton: some View {
+        Button(action: handleReset) {
+            Label(resetArmed ? "Tap again" : "Reset", systemImage: "arrow.counterclockwise")
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .foregroundStyle(resetArmed ? Color.red : palette.accentForeground)
+                .background(resetArmed ? Color.red.opacity(0.13) : palette.accentSoft, in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(resetArmed ? "Confirm reset counter" : "Reset counter")
+        .animation(.easeInOut(duration: 0.18), value: resetArmed)
+    }
+
+    private func increment() {
+        count += 1
+        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+
+        guard !reduceMotion else { return }
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            rippleExpanded = false
+        }
+        Task { @MainActor in
+            await Task.yield()
+            withAnimation(.easeOut(duration: 0.52)) {
+                rippleExpanded = true
+            }
+        }
+    }
+
+    private func handleReset() {
+        guard resetArmed else {
+            resetArmed = true
+            Task { @MainActor in
+                try? await Task.sleep(nanoseconds: 2_200_000_000)
+                resetArmed = false
+            }
+            return
+        }
+
+        count = 0
+        resetArmed = false
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+}
+
+private struct TasbihPadButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .brightness(configuration.isPressed ? -0.015 : 0)
+            .scaleEffect(configuration.isPressed ? 0.995 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
