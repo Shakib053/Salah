@@ -104,7 +104,7 @@ struct TodayView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .loaded(let day, _):
                 dashboard(day: day, offlineDate: nil)
-            case .offline(let day, let lastUpdated):
+            case let .offline(day, lastUpdated):
                 dashboard(day: day, offlineDate: lastUpdated)
             case .failed(let error):
                 PrayerDataUnavailableView(error: error) {
@@ -309,8 +309,8 @@ struct CurrentPrayerCard: View {
     @Environment(\.salahPalette) private var palette
 
     var body: some View {
-        let displayed = moment.next ?? moment.current
-        let countdown = moment.next.map { max(0, $0.start.timeIntervalSince(now)) } ?? moment.remaining
+        let displayed = moment.current ?? moment.next
+        let countdown = moment.current.map { max(0, $0.end.timeIntervalSince(now)) } ?? moment.next.map { max(0, $0.start.timeIntervalSince(now)) }
         SalahCard(isTransparent: true) {
             HStack(alignment: .center, spacing: 16) {
                 ZStack {
@@ -326,7 +326,7 @@ struct CurrentPrayerCard: View {
                 .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(moment.next.map { "Next prayer · \($0.prayer.title)" } ?? "Current prayer")
+                    Text(moment.current != nil ? "Current prayer" : (moment.next.map { "Next prayer · \($0.prayer.title)" } ?? "Current prayer"))
                         .font(.caption.weight(.semibold))
                         .textCase(.uppercase)
                         .tracking(0.7)
@@ -336,7 +336,7 @@ struct CurrentPrayerCard: View {
                     if let remaining = countdown {
                         Text(PrayerDateFormatting.countdown(remaining))
                             .font(.title2.bold().monospacedDigit())
-                        Text(moment.next.map { "until \($0.prayer.title) begins" } ?? "remaining in this window")
+                        Text(moment.current != nil ? "Waqt ends in" : (moment.next.map { "until \($0.prayer.title) begins" } ?? "Waqt ends in"))
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.8))
                     }
@@ -580,15 +580,6 @@ struct PrayerCalendarView: View {
                 }
 
                 if let selected = days.first(where: { $0.localDay == viewModel.selectedDay }) {
-                    SalahCard {
-                        Text(selected.gregorianSummary).font(.headline)
-                        Text(selected.hijriSummary).foregroundStyle(.secondary)
-                        if viewModel.trackerDays.contains(selected.localDay) {
-                            StatusBadge(text: "Has tracker records", symbol: "checkmark.circle.fill")
-                        }
-                        Button("Open in Today") { container.router.show(selected.localDay) }
-                            .buttonStyle(.bordered)
-                    }
                     VStack(spacing: 0) {
                         ForEach(selected.windows) { window in
                             Button { viewModel.selectedPrayer = window.prayer } label: {
