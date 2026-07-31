@@ -440,9 +440,17 @@ private struct TasbihCounterPad: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let ringSize = min(340, max(220, proxy.size.width * 0.78))
+            let contentHeight = min(proxy.size.height, 752)
+            let contentTop = max(0, (proxy.size.height - contentHeight) / 2)
+            let ringSize = min(460, max(280, min(proxy.size.width * 0.92, contentHeight * 0.62)))
             let countSize = min(136, max(80, proxy.size.width * 0.30))
-            let handSize = min(76, max(56, proxy.size.width * 0.18))
+            let handWidth = min(148, max(100, proxy.size.width * 0.25))
+            let handHeight = handWidth * 86 / 72
+            let ringCenterY = contentTop + contentHeight * 0.39
+            let hintSpacing = min(88, max(52, contentHeight * 0.09))
+            let hintHeight = handHeight + 42
+            let preferredHintTop = ringCenterY + ringSize * 0.27 + hintSpacing
+            let hintTop = min(preferredHintTop, proxy.size.height - hintHeight - 24)
 
             ZStack(alignment: .topTrailing) {
                 Button(action: increment) {
@@ -453,75 +461,71 @@ private struct TasbihCounterPad: View {
                             .stroke(palette.accent.opacity(rippleExpanded ? 0 : 0.45), lineWidth: 2)
                             .frame(width: 96, height: 96)
                             .scaleEffect(rippleExpanded ? 1.7 : 0.35)
-                            .position(x: proxy.size.width / 2, y: proxy.size.height * 0.39)
+                            .position(x: proxy.size.width / 2, y: ringCenterY)
 
-                        VStack(spacing: 0) {
-                            Spacer(minLength: 56)
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    RadialGradient(
+                                        stops: [
+                                            .init(color: palette.groupedSurface.opacity(colorScheme == .dark ? 0.52 : 0.96), location: 0),
+                                            .init(color: palette.groupedSurface.opacity(colorScheme == .dark ? 0.52 : 0.96), location: 0.27),
+                                            .init(color: palette.groupedSurface.opacity(colorScheme == .dark ? 0.28 : 0.48), location: 0.29),
+                                            .init(color: palette.groupedSurface.opacity(colorScheme == .dark ? 0.18 : 0.34), location: 0.54),
+                                            .init(color: .clear, location: 0.56),
+                                            .init(color: .clear, location: 0.73),
+                                            .init(color: palette.groupedSurface.opacity(colorScheme == .dark ? 0.18 : 0.34), location: 0.75),
+                                            .init(color: palette.groupedSurface.opacity(colorScheme == .dark ? 0.12 : 0.24), location: 0.98),
+                                            .init(color: .clear, location: 1)
+                                        ],
+                                        center: .center,
+                                        startRadius: 0,
+                                        endRadius: ringSize / 2
+                                    )
+                                )
+                                .frame(width: ringSize, height: ringSize)
 
-                            ZStack {
+                            if goal > 0 {
                                 Circle()
-                                    .stroke(palette.accent.opacity(0.08), lineWidth: 2)
-                                    .frame(width: ringSize, height: ringSize)
-                                Circle()
-                                    .stroke(palette.accent.opacity(0.12), lineWidth: 2)
+                                    .trim(from: 0, to: goalProgress)
+                                    .stroke(
+                                        palette.accent,
+                                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                                    )
                                     .frame(width: ringSize * 0.72, height: ringSize * 0.72)
-                                if goal > 0 {
-                                    Circle()
-                                        .trim(from: 0, to: goalProgress)
-                                        .stroke(
-                                            palette.accent,
-                                            style: StrokeStyle(lineWidth: 4, lineCap: .round)
-                                        )
-                                        .frame(width: ringSize * 0.72, height: ringSize * 0.72)
-                                        .rotationEffect(.degrees(-90))
-                                        .animation(.snappy, value: goalProgress)
-                                }
-                                Circle()
-                                    .fill(palette.groupedSurface.opacity(colorScheme == .dark ? 0.38 : 0.66))
-                                    .frame(width: ringSize * 0.42, height: ringSize * 0.42)
-
-                                VStack(spacing: 8) {
-                                    Text(count, format: .number)
-                                        .font(.system(size: countSize, weight: .semibold, design: .rounded).monospacedDigit())
-                                        .tracking(-3)
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.45)
-                                    Text("count")
-                                        .font(.title3)
-                                        .foregroundStyle(.secondary)
-                                    if goal > 0 {
-                                        Text("\(count) of \(goal)")
-                                            .font(.subheadline.weight(.semibold))
-                                            .foregroundStyle(palette.accentForeground)
-                                    }
-                                }
-                                .padding(.horizontal, 22)
+                                    .rotationEffect(.degrees(-90))
+                                    .animation(.snappy, value: goalProgress)
                             }
 
-                            Spacer(minLength: 24)
-
-                            VStack(spacing: 14) {
-                                ZStack {
-                                    Circle()
-                                        .stroke(palette.accent.opacity(0.18), lineWidth: 2)
-                                        .frame(width: handSize * 1.25, height: handSize * 1.25)
-                                    Circle()
-                                        .stroke(palette.accent.opacity(0.32), lineWidth: 2)
-                                        .frame(width: handSize * 0.86, height: handSize * 0.86)
-                                    Image(systemName: "hand.tap")
-                                        .font(.system(size: handSize, weight: .light))
-                                        .symbolEffect(.bounce, value: count)
-                                }
-                                .foregroundStyle(palette.accent)
-
-                                Text("Tap anywhere to count")
-                                    .font(.headline)
+                            VStack(spacing: 8) {
+                                Text(count, format: .number)
+                                    .font(.system(size: countSize, weight: .semibold, design: .rounded).monospacedDigit())
+                                    .tracking(-3)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.45)
+                                Text("count")
+                                    .font(.title3)
                                     .foregroundStyle(.secondary)
+                                if goal > 0 {
+                                    Text("\(count) of \(goal)")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(palette.accentForeground)
+                                }
                             }
-
-                            Spacer(minLength: 34)
+                            .padding(.horizontal, 22)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .position(x: proxy.size.width / 2, y: ringCenterY)
+
+                        VStack(spacing: 13) {
+                            TasbihHandHint(color: palette.accent)
+                                .frame(width: handWidth, height: handHeight)
+
+                            Text("Tap anywhere to count")
+                                .font(.system(size: min(21, max(16, proxy.size.width * 0.045)), weight: .semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(height: hintHeight, alignment: .top)
+                        .position(x: proxy.size.width / 2, y: hintTop + hintHeight / 2)
                     }
                     .contentShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
                 }
@@ -733,6 +737,129 @@ private struct TasbihPadButtonStyle: ButtonStyle {
             .brightness(configuration.isPressed ? -0.015 : 0)
             .scaleEffect(configuration.isPressed ? 0.995 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+private struct TasbihHandHint: View {
+    let color: Color
+
+    var body: some View {
+        GeometryReader { proxy in
+            let scale = proxy.size.width / 72
+            let fingertip = CGPoint(
+                x: proxy.size.width * 34.5 / 72,
+                y: proxy.size.height * 14 / 86
+            )
+
+            ZStack {
+                Circle()
+                    .stroke(color.opacity(0.22), lineWidth: 3 * scale)
+                    .frame(width: 34 * scale, height: 34 * scale)
+                    .position(fingertip)
+
+                Circle()
+                    .stroke(color.opacity(0.45), lineWidth: 3 * scale)
+                    .frame(width: 20 * scale, height: 20 * scale)
+                    .position(fingertip)
+
+                TasbihFingerShape()
+                    .stroke(
+                        color,
+                        style: StrokeStyle(
+                            lineWidth: 3 * scale,
+                            lineCap: .round,
+                            lineJoin: .round
+                        )
+                    )
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+private struct TasbihFingerShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
+            CGPoint(x: rect.minX + x * rect.width / 72, y: rect.minY + y * rect.height / 86)
+        }
+
+        var path = Path()
+        path.move(to: point(34.5, 14))
+        path.addLine(to: point(34.5, 48))
+
+        path.move(to: point(34.5, 48))
+        path.addLine(to: point(34.5, 31.5))
+        path.addCurve(
+            to: point(39.5, 26),
+            control1: point(34.5, 28.5),
+            control2: point(36.5, 26)
+        )
+        path.addCurve(
+            to: point(44.5, 31.4),
+            control1: point(42.5, 26),
+            control2: point(44.5, 28.4)
+        )
+        path.addLine(to: point(44.5, 45.5))
+        path.addLine(to: point(44.5, 36.9))
+        path.addCurve(
+            to: point(49.5, 31.6),
+            control1: point(44.5, 33.9),
+            control2: point(46.5, 31.6)
+        )
+        path.addCurve(
+            to: point(54.5, 37),
+            control1: point(52.5, 31.6),
+            control2: point(54.5, 34)
+        )
+        path.addLine(to: point(54.5, 47.6))
+        path.addLine(to: point(54.5, 42.3))
+        path.addCurve(
+            to: point(59.5, 37.1),
+            control1: point(54.5, 39.4),
+            control2: point(56.6, 37.1)
+        )
+        path.addCurve(
+            to: point(64.5, 42.3),
+            control1: point(62.4, 37.1),
+            control2: point(64.5, 39.4)
+        )
+        path.addLine(to: point(64.5, 56.2))
+        path.addCurve(
+            to: point(39.5, 82),
+            control1: point(64.5, 71.7),
+            control2: point(54, 82)
+        )
+        path.addLine(to: point(35.8, 82))
+        path.addCurve(
+            to: point(17.7, 71.4),
+            control1: point(27.2, 82),
+            control2: point(21.8, 77.4)
+        )
+        path.addLine(to: point(2.8, 54.7))
+        path.addCurve(
+            to: point(4.9, 46.9),
+            control1: point(1.1, 52),
+            control2: point(2.1, 48.4)
+        )
+        path.addCurve(
+            to: point(12, 48.4),
+            control1: point(7.3, 45.6),
+            control2: point(10.3, 46.2)
+        )
+        path.addLine(to: point(19.5, 58.1))
+        path.addLine(to: point(19.5, 14))
+        path.addCurve(
+            to: point(27, 6.5),
+            control1: point(19.5, 9.8),
+            control2: point(22.8, 6.5)
+        )
+        path.addCurve(
+            to: point(34.5, 14),
+            control1: point(31.2, 6.5),
+            control2: point(34.5, 9.8)
+        )
+        path.closeSubpath()
+        return path
     }
 }
 

@@ -122,6 +122,7 @@ enum AppearancePreference: String, CaseIterable, Codable, Identifiable, Sendable
 enum ThemePreference: String, CaseIterable, Codable, Identifiable, Sendable {
     case greyishBlue
     case greenishDark
+    case slateInkNavy
 
     var id: String { rawValue }
 
@@ -129,6 +130,7 @@ enum ThemePreference: String, CaseIterable, Codable, Identifiable, Sendable {
         switch self {
         case .greyishBlue: String(localized: "Greyish Blue")
         case .greenishDark: String(localized: "Greenish Dark")
+        case .slateInkNavy: String(localized: "Slate to Ink Navy")
         }
     }
 
@@ -136,6 +138,7 @@ enum ThemePreference: String, CaseIterable, Codable, Identifiable, Sendable {
         switch self {
         case .greyishBlue: String(localized: "The original calm blue palette")
         case .greenishDark: String(localized: "Deep green with a mint accent")
+        case .slateInkNavy: String(localized: "Layered slate and navy with a crisp blue accent")
         }
     }
 }

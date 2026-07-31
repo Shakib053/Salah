@@ -576,7 +576,7 @@ private struct ThemeOptionLabel: View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(theme.palette.heroStart)
+                    .fill(theme.palette.heroGradient)
                     .frame(width: 34, height: 34)
                 Circle()
                     .fill(theme.palette.accent)

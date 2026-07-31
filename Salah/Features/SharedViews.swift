@@ -4,6 +4,7 @@ struct SalahPalette {
     let accent: Color
     let accentSoft: Color
     let accentForeground: Color
+    let heroHighlight: Color
     let heroStart: Color
     let heroEnd: Color
     let warm: Color
@@ -14,6 +15,7 @@ struct SalahPalette {
         accent: Color("AccentColor"),
         accentSoft: Color("AccentSoft"),
         accentForeground: Color("AccentForeground"),
+        heroHighlight: Color(red: 0.322, green: 0.420, blue: 0.604),
         heroStart: Color("BrandNavy"),
         heroEnd: Color("BrandNavyDeep"),
         warm: Color("AccentColor")
@@ -23,10 +25,29 @@ struct SalahPalette {
         accent: Color("GreenAccent"),
         accentSoft: Color("GreenAccentSoft"),
         accentForeground: Color("GreenAccentForeground"),
+        heroHighlight: Color(red: 0.090, green: 0.306, blue: 0.271),
         heroStart: Color("GreenHero"),
         heroEnd: Color("GreenHeroDeep"),
         warm: Color("GreenAccent")
     )
+
+    static let slateInkNavy = SalahPalette(
+        accent: Color(red: 0.345, green: 0.518, blue: 0.788),
+        accentSoft: Color(red: 0.902, green: 0.937, blue: 0.996),
+        accentForeground: Color(red: 0.165, green: 0.286, blue: 0.537),
+        heroHighlight: Color(red: 0.322, green: 0.420, blue: 0.604),
+        heroStart: Color(red: 0.153, green: 0.235, blue: 0.408),
+        heroEnd: Color(red: 0.075, green: 0.137, blue: 0.247),
+        warm: Color(red: 0.345, green: 0.518, blue: 0.788)
+    )
+
+    var heroGradient: LinearGradient {
+        LinearGradient(
+            colors: [heroHighlight, heroStart, heroEnd],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
 }
 
 extension ThemePreference {
@@ -34,6 +55,7 @@ extension ThemePreference {
         switch self {
         case .greyishBlue: .greyishBlue
         case .greenishDark: .greenishDark
+        case .slateInkNavy: .slateInkNavy
         }
     }
 }

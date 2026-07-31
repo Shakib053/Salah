@@ -346,7 +346,7 @@ struct CurrentPrayerCard: View {
             .foregroundStyle(.white)
         }
         .background(
-            LinearGradient(colors: [palette.heroStart, palette.heroEnd], startPoint: .topLeading, endPoint: .bottomTrailing),
+            palette.heroGradient,
             in: RoundedRectangle(cornerRadius: 22, style: .continuous)
         )
         .shadow(color: palette.heroEnd.opacity(0.28), radius: 12, y: 6)
