@@ -244,14 +244,18 @@ struct ReminderEducationSheet: View {
                             .font(.body)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
 
-                        Text("Notifications are turned off for this app. Turn them on in Settings to get this reminder.")
-                            .font(.body)
-                            .foregroundStyle(.red)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
-                            .background(Color.red.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        if status == .denied {
+                            Text("Notifications are turned off for this app. Turn them on in Settings to get this reminder.")
+                                .font(.body)
+                                .foregroundStyle(.red)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 12)
+                                .background(Color.red.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 18)
@@ -259,16 +263,31 @@ struct ReminderEducationSheet: View {
                     Divider()
 
                     VStack {
-                        Button {
-                            openAppSettings()
-                        } label: {
-                            Text("Open settings")
-                                .frame(maxWidth: .infinity)
-                        }
+                        if status == .denied {
+                            Button {
+                                openAppSettings()
+                            } label: {
+                                Text("Open settings")
+                                    .frame(maxWidth: .infinity)
+                            }
                             .buttonStyle(.borderedProminent)
                             .controlSize(.large)
                             .tint(palette.heroStart)
                             .frame(minHeight: 52)
+                        } else {
+                            Button {
+                                Task {
+                                    await enableNotifications()
+                                }
+                            } label: {
+                                Text("Enable notifications")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .tint(palette.heroStart)
+                            .frame(minHeight: 52)
+                        }
 
                         Divider()
 
@@ -306,6 +325,18 @@ struct ReminderEducationSheet: View {
 
     private func openAppSettings() {
         settingsOpener()
+    }
+
+    private func enableNotifications() async {
+        let newStatus = await container.notificationScheduler.requestAuthorization()
+        status = newStatus
+        if newStatus == .authorized {
+            var preference = container.settings.reminder(for: event)
+            preference.enabled = true
+            container.settings.setReminder(preference, for: event)
+            await ReminderCoordinator.reconcile(container: container)
+            dismiss()
+        }
     }
 }
 
