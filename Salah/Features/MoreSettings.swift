@@ -616,6 +616,8 @@ struct AppearanceView: View {
 
             Section("Dynamic Type Preview") {
                 CurrentPrayerCard(moment: Self.previewMoment, now: Self.previewDate)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             }
         }
         .navigationTitle("Appearances & Theme")
