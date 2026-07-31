@@ -30,6 +30,7 @@ private struct StoredSettings: Codable {
     var calculation = CalculationSettings()
     var appearance = AppearancePreference.system
     var theme: ThemePreference?
+    var customThemeColor: CustomThemeColor?
     var reminders: [String: ReminderPreference] = [:]
 }
 
@@ -45,6 +46,7 @@ final class AppSettings {
     var calculation: CalculationSettings { didSet { save() } }
     var appearance: AppearancePreference { didSet { save() } }
     var theme: ThemePreference { didSet { save() } }
+    var customThemeColor: CustomThemeColor { didSet { save() } }
     private var storedReminders: [String: ReminderPreference] { didSet { save() } }
 
     init(defaults: UserDefaults = .standard) {
@@ -74,8 +76,13 @@ final class AppSettings {
         calculation = stored.calculation
         appearance = stored.appearance
         theme = stored.theme ?? .greyishBlue
+        customThemeColor = stored.customThemeColor ?? .oceanBlue
         storedReminders = stored.reminders
         if initialLocation != stored.location { save() }
+    }
+
+    var palette: SalahPalette {
+        theme.palette(customColor: customThemeColor)
     }
 
     var reminders: [PrayerEvent: ReminderPreference] {
@@ -98,6 +105,7 @@ final class AppSettings {
             calculation: calculation,
             appearance: appearance,
             theme: theme,
+            customThemeColor: customThemeColor,
             reminders: storedReminders
         )
         if let data = try? JSONEncoder().encode(value) {

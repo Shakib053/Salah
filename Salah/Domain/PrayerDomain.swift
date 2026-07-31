@@ -123,6 +123,7 @@ enum ThemePreference: String, CaseIterable, Codable, Identifiable, Sendable {
     case greyishBlue
     case greenishDark
     case slateInkNavy
+    case custom
 
     var id: String { rawValue }
 
@@ -131,6 +132,7 @@ enum ThemePreference: String, CaseIterable, Codable, Identifiable, Sendable {
         case .greyishBlue: String(localized: "Greyish Blue")
         case .greenishDark: String(localized: "Greenish Dark")
         case .slateInkNavy: String(localized: "Slate to Ink Navy")
+        case .custom: String(localized: "Custom Color")
         }
     }
 
@@ -139,6 +141,31 @@ enum ThemePreference: String, CaseIterable, Codable, Identifiable, Sendable {
         case .greyishBlue: String(localized: "The original calm blue palette")
         case .greenishDark: String(localized: "Deep green with a mint accent")
         case .slateInkNavy: String(localized: "Layered slate and navy with a crisp blue accent")
+        case .custom: String(localized: "Choose from seven curated colors")
+        }
+    }
+}
+
+enum CustomThemeColor: String, CaseIterable, Codable, Identifiable, Sendable {
+    case oceanBlue
+    case deepTeal
+    case emerald
+    case indigo
+    case mutedPurple
+    case dustyRose
+    case terracotta
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .oceanBlue: String(localized: "Ocean")
+        case .deepTeal: String(localized: "Teal")
+        case .emerald: String(localized: "Emerald")
+        case .indigo: String(localized: "Indigo")
+        case .mutedPurple: String(localized: "Purple")
+        case .dustyRose: String(localized: "Rose")
+        case .terracotta: String(localized: "Terracotta")
         }
     }
 }

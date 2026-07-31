@@ -51,12 +51,92 @@ struct SalahPalette {
 }
 
 extension ThemePreference {
-    var palette: SalahPalette {
+    func palette(customColor: CustomThemeColor = .oceanBlue) -> SalahPalette {
         switch self {
         case .greyishBlue: .greyishBlue
         case .greenishDark: .greenishDark
         case .slateInkNavy: .slateInkNavy
+        case .custom: customColor.palette
         }
+    }
+}
+
+extension CustomThemeColor {
+    var palette: SalahPalette {
+        SalahPalette(
+            accent: adaptiveColor(
+                lightSaturation: saturation * 0.78,
+                lightBrightness: 0.68,
+                darkSaturation: saturation * 0.58,
+                darkBrightness: 0.86
+            ),
+            accentSoft: adaptiveColor(
+                lightSaturation: 0.12,
+                lightBrightness: 0.98,
+                darkSaturation: saturation * 0.50,
+                darkBrightness: 0.18
+            ),
+            accentForeground: adaptiveColor(
+                lightSaturation: saturation * 0.88,
+                lightBrightness: 0.45,
+                darkSaturation: saturation * 0.45,
+                darkBrightness: 0.92
+            ),
+            heroHighlight: Color(hue: hue, saturation: saturation * 0.58, brightness: 0.58),
+            heroStart: Color(hue: hue, saturation: saturation * 0.82, brightness: 0.40),
+            heroEnd: Color(hue: hue, saturation: saturation * 0.88, brightness: 0.20),
+            warm: adaptiveColor(
+                lightSaturation: saturation * 0.78,
+                lightBrightness: 0.68,
+                darkSaturation: saturation * 0.58,
+                darkBrightness: 0.86
+            )
+        )
+    }
+
+    var swatch: Color {
+        Color(hue: hue, saturation: saturation * 0.76, brightness: 0.72)
+    }
+
+    private var hue: Double {
+        switch self {
+        case .oceanBlue: 0.59
+        case .deepTeal: 0.49
+        case .emerald: 0.40
+        case .indigo: 0.65
+        case .mutedPurple: 0.75
+        case .dustyRose: 0.95
+        case .terracotta: 0.055
+        }
+    }
+
+    private var saturation: Double {
+        switch self {
+        case .oceanBlue: 0.72
+        case .deepTeal: 0.64
+        case .emerald: 0.66
+        case .indigo: 0.60
+        case .mutedPurple: 0.46
+        case .dustyRose: 0.46
+        case .terracotta: 0.64
+        }
+    }
+
+    private func adaptiveColor(
+        lightSaturation: Double,
+        lightBrightness: Double,
+        darkSaturation: Double,
+        darkBrightness: Double
+    ) -> Color {
+        Color(uiColor: UIColor { traits in
+            let isDark = traits.userInterfaceStyle == .dark
+            return UIColor(
+                hue: hue,
+                saturation: isDark ? darkSaturation : lightSaturation,
+                brightness: isDark ? darkBrightness : lightBrightness,
+                alpha: 1
+            )
+        })
     }
 }
 

@@ -196,13 +196,17 @@ final class SalahDomainTests: XCTestCase {
         let initial = AppSettings(defaults: defaults)
         XCTAssertEqual(initial.appearance, .system)
         XCTAssertEqual(initial.theme, .greyishBlue)
+        XCTAssertEqual(initial.customThemeColor, .oceanBlue)
+        XCTAssertEqual(CustomThemeColor.allCases.count, 7)
 
         initial.appearance = .dark
-        initial.theme = .greenishDark
+        initial.theme = .custom
+        initial.customThemeColor = .dustyRose
 
         let restored = AppSettings(defaults: defaults)
         XCTAssertEqual(restored.appearance, .dark)
-        XCTAssertEqual(restored.theme, .greenishDark)
+        XCTAssertEqual(restored.theme, .custom)
+        XCTAssertEqual(restored.customThemeColor, .dustyRose)
     }
 
     @MainActor

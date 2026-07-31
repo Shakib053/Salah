@@ -601,7 +601,10 @@ struct AppearanceView: View {
                     set: { container.settings.theme = $0 }
                 )) {
                     ForEach(ThemePreference.allCases) { theme in
-                        ThemeOptionLabel(theme: theme)
+                        ThemeOptionLabel(
+                            theme: theme,
+                            customColor: container.settings.customThemeColor
+                        )
                             .tag(theme)
                     }
                 }
@@ -611,7 +614,16 @@ struct AppearanceView: View {
             } header: {
                 Text("Theme")
             } footer: {
-                Text("Theme changes the accent and feature colors throughout Salah. Greenish Dark pairs deep blue-green surfaces with a mint accent.")
+                Text("Themes change accent and feature colors throughout Salah. Custom Color applies the same balanced shading to your selected color.")
+            }
+
+            if container.settings.theme == .custom {
+                Section("Custom Color") {
+                    CustomThemeColorPicker(selection: Binding(
+                        get: { container.settings.customThemeColor },
+                        set: { container.settings.customThemeColor = $0 }
+                    ))
+                }
             }
 
             Section("Dynamic Type Preview") {
@@ -642,15 +654,20 @@ struct AppearanceView: View {
 
 private struct ThemeOptionLabel: View {
     let theme: ThemePreference
+    let customColor: CustomThemeColor
+
+    private var palette: SalahPalette {
+        theme.palette(customColor: customColor)
+    }
 
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(theme.palette.heroGradient)
+                    .fill(palette.heroGradient)
                     .frame(width: 34, height: 34)
                 Circle()
-                    .fill(theme.palette.accent)
+                    .fill(palette.accent)
                     .frame(width: 14, height: 14)
                     .overlay {
                         Circle()
@@ -668,6 +685,61 @@ private struct ThemeOptionLabel: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+}
+
+private struct CustomThemeColorPicker: View {
+    @Binding var selection: CustomThemeColor
+
+    private let columns = Array(
+        repeating: GridItem(.flexible(), spacing: 8),
+        count: 4
+    )
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 16) {
+            ForEach(CustomThemeColor.allCases) { color in
+                Button {
+                    selection = color
+                } label: {
+                    VStack(spacing: 7) {
+                        ZStack {
+                            Circle()
+                                .fill(color.swatch)
+                                .frame(width: 42, height: 42)
+                                .overlay {
+                                    Circle()
+                                        .stroke(
+                                            selection == color ? Color.primary : Color.secondary.opacity(0.22),
+                                            lineWidth: selection == color ? 3 : 1
+                                        )
+                                        .padding(selection == color ? -4 : 0)
+                                }
+
+                            if selection == color {
+                                Image(systemName: "checkmark")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.white)
+                                    .shadow(color: .black.opacity(0.25), radius: 1, y: 1)
+                            }
+                        }
+
+                        Text(color.title)
+                            .font(.caption2)
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.72)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(color.title)
+                .accessibilityValue(selection == color ? "Selected" : "")
+                .accessibilityAddTraits(selection == color ? .isSelected : [])
+            }
+        }
+        .padding(.vertical, 6)
     }
 }
 

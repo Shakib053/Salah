@@ -20,8 +20,8 @@ struct AppRootView: View {
                 OnboardingFlow(container: container)
             }
         }
-        .environment(\.salahPalette, container.settings.theme.palette)
-        .tint(container.settings.theme.palette.accent)
+        .environment(\.salahPalette, container.settings.palette)
+        .tint(container.settings.palette.accent)
         .preferredColorScheme(preferredScheme)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active, container.settings.onboardingComplete {
