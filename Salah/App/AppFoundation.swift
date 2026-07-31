@@ -21,11 +21,6 @@ final class AppRouter {
         selectedDay = LocalDay(.now, timeZone: timeZone)
         selectedTab = .today
     }
-
-    func show(_ day: LocalDay) {
-        selectedDay = day
-        selectedTab = .today
-    }
 }
 
 private struct StoredSettings: Codable {
