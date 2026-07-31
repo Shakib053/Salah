@@ -205,6 +205,18 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertEqual(restored.theme, .greenishDark)
     }
 
+    @MainActor
+    func testSettingsOpenerInvokesInjectedAction() {
+        var opened = false
+        let opener = SettingsOpener {
+            opened = true
+        }
+
+        opener()
+
+        XCTAssertTrue(opened)
+    }
+
     func testNearestDistrictUsesCoordinateDistance() throws {
         let districts = [
             District(id: "dhaka", name: "Dhaka", banglaName: "ঢাকা", latitude: 23.7115, longitude: 90.4111),

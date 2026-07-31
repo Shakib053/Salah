@@ -21,11 +21,6 @@ final class AppRouter {
         selectedDay = LocalDay(.now, timeZone: timeZone)
         selectedTab = .today
     }
-
-    func show(_ day: LocalDay) {
-        selectedDay = day
-        selectedTab = .today
-    }
 }
 
 private struct StoredSettings: Codable {
@@ -182,7 +177,11 @@ final class AppContainer {
             ? UITestLocationProvider(denied: arguments.contains("-location-denied"))
             : CoreLocationProvider())
         self.notificationScheduler = notificationScheduler ?? (isUITesting
-            ? UITestNotificationScheduler(denied: arguments.contains("-notification-denied"))
+            ? UITestNotificationScheduler(status: arguments.contains("-notification-denied")
+                ? .denied
+                : arguments.contains("-notification-authorized")
+                    ? .authorized
+                    : .notDetermined)
             : LocalNotificationScheduler())
         #else
         self.locationProvider = locationProvider ?? CoreLocationProvider()

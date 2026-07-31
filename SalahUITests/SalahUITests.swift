@@ -140,7 +140,7 @@ final class SalahUITests: XCTestCase {
 
     func testChangingCalculationMethodAndEnablingReminder() {
         let app = XCUIApplication()
-        app.launchArguments = ["-ui-testing", "-reset-state", "-onboarding-complete"]
+        app.launchArguments = ["-ui-testing", "-reset-state", "-onboarding-complete", "-notification-authorized"]
         app.launch()
         app.tabBars.buttons["More"].tap()
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Location & Calculation'")).firstMatch.tap()
@@ -156,15 +156,12 @@ final class SalahUITests: XCTestCase {
         let fajrOff = app.buttons["Fajr reminder, off"]
         XCTAssertTrue(fajrOff.waitForExistence(timeout: 3))
         fajrOff.tap()
-        let enable = app.buttons["Enable Reminder"]
-        XCTAssertTrue(enable.waitForExistence(timeout: 3))
-        enable.tap()
         let fajr = app.switches["Fajr"]
         XCTAssertTrue(fajr.waitForExistence(timeout: 3))
         XCTAssertEqual(fajr.value as? String, "1")
     }
 
-    func testNotificationDeniedRecoveryKeepsRemindersUsable() {
+    func testNotificationDeniedReminderSheetShowsSettingsShortcut() {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing", "-reset-state", "-onboarding-complete", "-notification-denied"]
         app.launch()
@@ -173,10 +170,8 @@ final class SalahUITests: XCTestCase {
         let fajrOff = app.buttons["Fajr reminder, off"]
         XCTAssertTrue(fajrOff.waitForExistence(timeout: 3))
         fajrOff.tap()
-        let enable = app.buttons["Enable Reminder"]
-        XCTAssertTrue(enable.waitForExistence(timeout: 3))
-        enable.tap()
-        XCTAssertTrue(app.buttons["Open Settings"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["Enable Reminder"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["Open settings"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'currently denied'")).firstMatch.exists)
     }
 }
