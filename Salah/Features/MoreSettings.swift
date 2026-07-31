@@ -235,8 +235,8 @@ struct ReminderEducationSheet: View {
                             .font(.title3.bold())
                             .multilineTextAlignment(.center)
                     }
-                    .padding(.top, 20)
-                    .padding(.horizontal, 22)
+                    .padding(.top, 22)
+                    .padding(.horizontal, 20)
                     .padding(.bottom, 14)
 
                     VStack(spacing: 12) {
@@ -249,38 +249,43 @@ struct ReminderEducationSheet: View {
                             .font(.body)
                             .foregroundStyle(.red)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, 14)
                             .padding(.vertical, 12)
                             .background(Color.red.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
-                    .padding(.horizontal, 22)
-                    .padding(.bottom, 16)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 18)
 
                     Divider()
 
-                    Button("Open settings") { openAppSettings() }
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: 52)
-                        .background(palette.heroStart)
+                    VStack {
+                        Button {
+                            openAppSettings()
+                        } label: {
+                            Text("Open settings")
+                                .frame(maxWidth: .infinity)
+                        }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .tint(palette.heroStart)
+                            .frame(minHeight: 52)
 
-                    Divider()
+                        Divider()
 
-                    Button("Not now") { dismiss() }
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: 52)
+                        Button {
+                            dismiss()
+                        } label: {
+                            Text("Not now")
+                                .frame(maxWidth: .infinity)
+                        }
+                            .buttonStyle(.bordered)
+                            .controlSize(.large)
+                            .tint(.secondary)
+                            .frame(minHeight: 52)
+                    }
+                    .padding(.horizontal, 10)
                 }
-                .frame(maxWidth: 340)
-                .background(palette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(.separator.opacity(0.35), lineWidth: 0.5)
-                }
-                .shadow(color: palette.heroStart.opacity(0.14), radius: 18, x: 0, y: 8)
-                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity, alignment: .center)
             }
             .background(palette.screenBackground)
             .navigationTitle("")
