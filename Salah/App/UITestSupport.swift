@@ -72,8 +72,8 @@ final class UITestLocationProvider: LocationProviding {
 final class UITestNotificationScheduler: NotificationScheduling {
     private var status: NotificationAuthorization
 
-    init(denied: Bool) {
-        status = denied ? .denied : .notDetermined
+    init(status: NotificationAuthorization) {
+        self.status = status
     }
 
     func authorizationStatus() async -> NotificationAuthorization { status }

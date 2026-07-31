@@ -177,7 +177,11 @@ final class AppContainer {
             ? UITestLocationProvider(denied: arguments.contains("-location-denied"))
             : CoreLocationProvider())
         self.notificationScheduler = notificationScheduler ?? (isUITesting
-            ? UITestNotificationScheduler(denied: arguments.contains("-notification-denied"))
+            ? UITestNotificationScheduler(status: arguments.contains("-notification-denied")
+                ? .denied
+                : arguments.contains("-notification-authorized")
+                    ? .authorized
+                    : .notDetermined)
             : LocalNotificationScheduler())
         #else
         self.locationProvider = locationProvider ?? CoreLocationProvider()

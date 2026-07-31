@@ -9,6 +9,31 @@ private enum ExternalLinks {
     static let adhanSwiftLicense = URL(string: "https://github.com/batoulapps/adhan-swift/blob/main/LICENSE")
 }
 
+struct SettingsOpener {
+    let open: @MainActor () -> Void
+
+    @MainActor
+    func callAsFunction() {
+        open()
+    }
+
+    static let system = SettingsOpener {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
+    }
+}
+
+private struct SettingsOpenerEnvironmentKey: EnvironmentKey {
+    static let defaultValue = SettingsOpener.system
+}
+
+extension EnvironmentValues {
+    var settingsOpener: SettingsOpener {
+        get { self[SettingsOpenerEnvironmentKey.self] }
+        set { self[SettingsOpenerEnvironmentKey.self] = newValue }
+    }
+}
+
 @MainActor
 enum ReminderCoordinator {
     static func reconcile(container: AppContainer) async {
@@ -181,72 +206,101 @@ struct ReminderEducationSheet: View {
     let event: PrayerEvent
     @Bindable var container: AppContainer
     @Environment(\.dismiss) private var dismiss
-    @State private var isWorking = false
-    @State private var denied = false
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.salahPalette) private var palette
+    @Environment(\.settingsOpener) private var settingsOpener
+    @State private var status: NotificationAuthorization = .notDetermined
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                Image(systemName: "bell.badge.fill")
-                    .font(.system(size: 66))
-                    .foregroundStyle(.orange)
-                    .accessibilityHidden(true)
-                Text("Enable \(event.title) Reminder?")
-                    .font(.title.bold()).multilineTextAlignment(.center)
-                Text("Notifications are optional and scheduled locally. Prayer times and tracking continue to work if you decline.")
-                    .foregroundStyle(.secondary).multilineTextAlignment(.center)
-                if denied {
-                    Text("Notifications are currently denied. You can enable them in iOS Settings.")
-                        .font(.footnote).foregroundStyle(.red).multilineTextAlignment(.center)
-                    Button("Open Settings") { openAppSettings() }
-                        .buttonStyle(.bordered)
-                }
-                Spacer()
-                Button {
-                    enable()
-                } label: {
-                    if isWorking {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                    } else {
-                        Text("Enable Reminder")
-                            .frame(maxWidth: .infinity)
+            ZStack {
+                palette.screenBackground
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    Capsule(style: .continuous)
+                        .fill(.secondary.opacity(0.18))
+                        .frame(width: 36, height: 4)
+                        .padding(.top, 8)
+
+                    VStack(spacing: 10) {
+                        Text("Reminder permission")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        Image(systemName: "bell")
+                            .font(.system(size: 28, weight: .regular))
+                            .foregroundStyle(palette.warm)
+                            .accessibilityHidden(true)
+                        Text("Enable \(event.title) reminder?")
+                            .font(.title3.bold())
+                            .multilineTextAlignment(.center)
                     }
+                    .padding(.top, 20)
+                    .padding(.horizontal, 22)
+                    .padding(.bottom, 14)
+
+                    VStack(spacing: 12) {
+                        Text("Notifications are optional and scheduled locally on your device.")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+
+                        Text("Notifications are turned off for this app. Turn them on in Settings to get this reminder.")
+                            .font(.body)
+                            .foregroundStyle(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 12)
+                            .background(Color.red.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                    .padding(.horizontal, 22)
+                    .padding(.bottom, 16)
+
+                    Divider()
+
+                    Button("Open settings") { openAppSettings() }
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 52)
+                        .background(palette.heroStart)
+
+                    Divider()
+
+                    Button("Not now") { dismiss() }
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 52)
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .disabled(isWorking || denied)
-                Button("Not Now") { dismiss() }.frame(minHeight: 44)
+                .frame(maxWidth: 340)
+                .background(palette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(.separator.opacity(0.35), lineWidth: 0.5)
+                }
+                .shadow(color: palette.heroStart.opacity(0.14), radius: 18, x: 0, y: 8)
+                .padding(.horizontal, 20)
             }
-            .padding()
-            .navigationTitle("Reminder Permission")
+            .background(palette.screenBackground)
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
+            .task { await refreshStatus() }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    Task { await refreshStatus() }
+                }
+            }
         }
     }
 
-    private func enable() {
-        isWorking = true
-        Task {
-            var status = await container.notificationScheduler.authorizationStatus()
-            if status == .notDetermined {
-                status = await container.notificationScheduler.requestAuthorization()
-            }
-            if status == .authorized {
-                var preference = container.settings.reminder(for: event)
-                preference.enabled = true
-                container.settings.setReminder(preference, for: event)
-                await ReminderCoordinator.reconcile(container: container)
-                dismiss()
-            } else {
-                denied = true
-            }
-            isWorking = false
-        }
+    private func refreshStatus() async {
+        status = await container.notificationScheduler.authorizationStatus()
     }
 
     private func openAppSettings() {
-        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-        UIApplication.shared.open(url)
+        settingsOpener()
     }
 }
 
@@ -255,16 +309,18 @@ struct RemindersView: View {
     @State private var status: NotificationAuthorization = .notDetermined
     @State private var educationEvent: PrayerEvent = .fajr
     @State private var showingEducation = false
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.settingsOpener) private var settingsOpener
 
     var body: some View {
         Form {
             Section {
                 LabeledContent("Permission", value: permissionText)
                 if status == .denied {
-                    Button("Open Notification Settings") { openAppSettings() }
+                    Button("Open settings") { openAppSettings() }
                 }
             } footer: {
-                Text("Permission is requested only after you enable your first reminder.")
+                Text("Notification permission is managed in iPhone Settings.")
             }
 
             Section("Daily Prayers") {
@@ -279,11 +335,16 @@ struct RemindersView: View {
             }
         }
         .navigationTitle("Reminders")
-        .task { status = await container.notificationScheduler.authorizationStatus() }
+        .task { await refreshStatus() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                Task { await refreshStatus() }
+            }
+        }
         .sheet(isPresented: $showingEducation) {
             ReminderEducationSheet(event: educationEvent, container: container)
                 .presentationDetents([.medium])
-                .onDisappear { Task { status = await container.notificationScheduler.authorizationStatus() } }
+                .onDisappear { Task { await refreshStatus() } }
         }
     }
 
@@ -306,7 +367,7 @@ struct RemindersView: View {
                 .buttonStyle(.plain)
                 .frame(minHeight: 44)
                 .accessibilityLabel("\(event.title) reminder, off")
-                .accessibilityHint("Opens notification education and permission options")
+                .accessibilityHint("Opens reminder settings and permission options")
             } else {
                 Toggle(isOn: Binding(
                     get: { container.settings.reminder(for: event).enabled },
@@ -365,9 +426,12 @@ struct RemindersView: View {
         }
     }
 
+    private func refreshStatus() async {
+        status = await container.notificationScheduler.authorizationStatus()
+    }
+
     private func openAppSettings() {
-        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-        UIApplication.shared.open(url)
+        settingsOpener()
     }
 }
 
