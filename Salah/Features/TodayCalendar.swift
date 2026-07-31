@@ -134,7 +134,7 @@ struct TodayView: View {
                         Text(container.settings.location.name)
                             .lineLimit(1)
                             .truncationMode(.tail)
-                            .frame(maxWidth: 155, alignment: .leading)
+                            .layoutPriority(1)
                         Image(systemName: "chevron.down")
                             .font(.caption2.weight(.semibold))
                     }
@@ -312,7 +312,7 @@ struct CurrentPrayerCard: View {
         let displayed = moment.next ?? moment.current
         let countdown = moment.next.map { max(0, $0.start.timeIntervalSince(now)) } ?? moment.remaining
         SalahCard(isTransparent: true) {
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .center, spacing: 16) {
                 ZStack {
                     Circle().stroke(.white.opacity(0.22), lineWidth: 7)
                     Circle()
