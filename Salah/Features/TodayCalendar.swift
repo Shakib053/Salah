@@ -369,7 +369,8 @@ struct PrayerScheduleRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 HStack {
                     Text(window.prayer.title).font(.headline)
-                    if isActive { StatusBadge(text: "Current", symbol: "clock.fill") }
+                    Spacer()
+                    if isActive { currentBadge }
                 }
                 Text("Ends \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))")
                     .font(.caption).foregroundStyle(.secondary)
@@ -399,6 +400,23 @@ struct PrayerScheduleRow: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(window.prayer.title), starts \(PrayerDateFormatting.time(window.start, preference: preference, timeZone: day.timeZone)), ends \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))\(isActive ? ", current prayer" : "")\(isCompleted ? ", completed" : "")")
         .accessibilityHint(showsDisclosure ? "Opens prayer details" : (isCompleted ? "Marks this prayer as not completed" : "Marks this prayer as completed"))
+    }
+
+    private var currentBadge: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "clock.fill")
+                .font(.caption2.weight(.semibold))
+            Text("Current")
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: true, vertical: false)
+        }
+        .font(.caption2.weight(.semibold))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .foregroundStyle(palette.accent)
+        .background(palette.accentSoft, in: Capsule())
+        .accessibilityLabel("Current prayer")
     }
 }
 
