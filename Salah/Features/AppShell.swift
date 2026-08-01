@@ -55,8 +55,6 @@ struct RootTabView: View {
         GeometryReader { proxy in
             if shouldUseSidebar(size: proxy.size) {
                 PadSidebarRootView(container: container)
-            } else if UIDevice.current.userInterfaceIdiom == .pad {
-                PadBottomTabRootView(container: container)
             } else {
                 SystemTabRootView(container: container)
             }
@@ -64,7 +62,7 @@ struct RootTabView: View {
     }
 
     private func shouldUseSidebar(size: CGSize) -> Bool {
-        UIDevice.current.userInterfaceIdiom == .pad && size.width > size.height
+        UIDevice.current.userInterfaceIdiom == .pad
     }
 }
 
@@ -115,12 +113,6 @@ private struct PadSidebarRootView: View {
         @Bindable var router = container.router
         NavigationSplitView {
             VStack(alignment: .leading, spacing: 0) {
-                Label("Salah", systemImage: "moon.stars.fill")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 18)
-                    .padding(.top, 24)
-                    .padding(.bottom, 18)
 
                 VStack(spacing: 6) {
                     ForEach(AppTab.allCases) { tab in
@@ -144,19 +136,6 @@ private struct PadSidebarRootView: View {
                 .padding(.horizontal, 12)
 
                 Spacer()
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(container.settings.location.name)
-                        .font(.caption.weight(.semibold))
-                        .lineLimit(1)
-                    Text(Date.now.formatted(date: .abbreviated, time: .omitted))
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.72))
-                }
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .padding(12)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(palette.heroGradient)
