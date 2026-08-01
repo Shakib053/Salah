@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct AppRootView: View {
     @Environment(\.scenePhase) private var scenePhase
@@ -51,37 +52,188 @@ struct RootTabView: View {
     @Bindable var container: AppContainer
 
     var body: some View {
+        GeometryReader { proxy in
+            if shouldUseSidebar(size: proxy.size) {
+                PadSidebarRootView(container: container)
+            } else if UIDevice.current.userInterfaceIdiom == .pad {
+                PadBottomTabRootView(container: container)
+            } else {
+                SystemTabRootView(container: container)
+            }
+        }
+    }
+
+    private func shouldUseSidebar(size: CGSize) -> Bool {
+        UIDevice.current.userInterfaceIdiom == .pad && size.width > size.height
+    }
+}
+
+private struct SystemTabRootView: View {
+    @Bindable var container: AppContainer
+
+    var body: some View {
         @Bindable var router = container.router
         TabView(selection: $router.selectedTab) {
             NavigationStack {
                 TodayView(container: container)
             }
-            .tabItem { Label("Today", systemImage: "house.fill") }
+            .tabItem { Label(AppTab.today.title, systemImage: AppTab.today.systemImage) }
             .tag(AppTab.today)
 
             NavigationStack {
                 PrayerCalendarView(container: container)
             }
-            .tabItem { Label("Calendar", systemImage: "calendar") }
+            .tabItem { Label(AppTab.calendar.title, systemImage: AppTab.calendar.systemImage) }
             .tag(AppTab.calendar)
 
             NavigationStack {
                 TrackerView(container: container)
             }
-            .tabItem { Label("Tracker", systemImage: "checklist") }
+            .tabItem { Label(AppTab.tracker.title, systemImage: AppTab.tracker.systemImage) }
             .tag(AppTab.tracker)
 
             NavigationStack {
                 QiblaView(container: container)
             }
-            .tabItem { Label("Qibla", systemImage: "location.north.circle.fill") }
+            .tabItem { Label(AppTab.qibla.title, systemImage: AppTab.qibla.systemImage) }
             .tag(AppTab.qibla)
 
             NavigationStack {
                 MoreView(container: container)
             }
-            .tabItem { Label("More", systemImage: "ellipsis.circle.fill") }
+            .tabItem { Label(AppTab.more.title, systemImage: AppTab.more.systemImage) }
             .tag(AppTab.more)
+        }
+    }
+}
+
+private struct PadSidebarRootView: View {
+    @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
+
+    var body: some View {
+        @Bindable var router = container.router
+        NavigationSplitView {
+            VStack(alignment: .leading, spacing: 0) {
+                Label("Salah", systemImage: "moon.stars.fill")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 18)
+                    .padding(.top, 24)
+                    .padding(.bottom, 18)
+
+                VStack(spacing: 6) {
+                    ForEach(AppTab.allCases) { tab in
+                        Button {
+                            router.selectedTab = tab
+                        } label: {
+                            Label(tab.title, systemImage: tab.systemImage)
+                                .font(.subheadline.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
+                                .padding(.horizontal, 12)
+                                .foregroundStyle(router.selectedTab == tab ? .white : .white.opacity(0.82))
+                                .background(
+                                    router.selectedTab == tab ? .white.opacity(0.14) : .clear,
+                                    in: RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityAddTraits(router.selectedTab == tab ? .isSelected : [])
+                    }
+                }
+                .padding(.horizontal, 12)
+
+                Spacer()
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(container.settings.location.name)
+                        .font(.caption.weight(.semibold))
+                        .lineLimit(1)
+                    Text(Date.now.formatted(date: .abbreviated, time: .omitted))
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.72))
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .padding(12)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(palette.heroGradient)
+            .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 260)
+        } detail: {
+            NavigationStack {
+                AppTabContent(tab: router.selectedTab, container: container)
+            }
+        }
+        .navigationSplitViewStyle(.balanced)
+    }
+}
+
+private struct PadBottomTabRootView: View {
+    @Bindable var container: AppContainer
+
+    var body: some View {
+        @Bindable var router = container.router
+        NavigationStack {
+            AppTabContent(tab: router.selectedTab, container: container)
+        }
+        .safeAreaInset(edge: .bottom) {
+            PadBottomTabBar(selection: $router.selectedTab)
+        }
+    }
+}
+
+private struct PadBottomTabBar: View {
+    @Binding var selection: AppTab
+    @Environment(\.salahPalette) private var palette
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(AppTab.allCases) { tab in
+                Button {
+                    selection = tab
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: tab.systemImage)
+                            .font(.system(size: 18, weight: .semibold))
+                        Text(tab.title)
+                            .font(.caption2.weight(.semibold))
+                            .lineLimit(1)
+                    }
+                    .foregroundStyle(selection == tab ? palette.accent : .secondary)
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selection == tab ? .isSelected : [])
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
+        .background(.regularMaterial)
+        .overlay(alignment: .top) {
+            Divider()
+        }
+    }
+}
+
+private struct AppTabContent: View {
+    let tab: AppTab
+    @Bindable var container: AppContainer
+
+    var body: some View {
+        switch tab {
+        case .today:
+            TodayView(container: container)
+        case .calendar:
+            PrayerCalendarView(container: container)
+        case .tracker:
+            TrackerView(container: container)
+        case .qibla:
+            QiblaView(container: container)
+        case .more:
+            MoreView(container: container)
         }
     }
 }

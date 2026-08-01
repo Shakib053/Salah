@@ -3,8 +3,30 @@ import Foundation
 import Observation
 import SwiftData
 
-enum AppTab: Hashable {
+enum AppTab: Hashable, CaseIterable, Identifiable {
     case today, calendar, tracker, qibla, more
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .today: String(localized: "Today")
+        case .calendar: String(localized: "Calendar")
+        case .tracker: String(localized: "Tracker")
+        case .qibla: String(localized: "Qibla")
+        case .more: String(localized: "More")
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .today: "house.fill"
+        case .calendar: "calendar"
+        case .tracker: "checklist"
+        case .qibla: "location.north.circle.fill"
+        case .more: "ellipsis.circle.fill"
+        }
+    }
 }
 
 @MainActor
