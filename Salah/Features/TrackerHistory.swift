@@ -95,6 +95,9 @@ struct TrackerView: View {
     @AppStorage("salah.deeds.charity-total") private var charityTotal = 0
     @AppStorage("salah.deeds.charity-goal") private var charityGoal = 100
     @AppStorage("salah.deeds.charity-month") private var charityMonth = ""
+    @AppStorage(CharityLedger.storageKey) private var charityEntriesData = Data()
+    @State private var showingAddCharity = false
+    @State private var showingCharityGoal = false
 
     private let goodDeeds = [
         GoodDeedDefinition(id: 0, title: "Read the Qurʾān", symbol: "book.closed.fill"),
@@ -278,31 +281,115 @@ struct TrackerView: View {
     @ViewBuilder
     private var charityTracker: some View {
         SalahCard {
-            Text("Given this month")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            HStack(alignment: .firstTextBaseline) {
-                Text(charityTotal, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                    .font(.largeTitle.bold().monospacedDigit())
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Given this month")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(monthlyCharityTotal, format: .currency(code: charityCurrencyCode))
+                        .font(.largeTitle.bold().monospacedDigit())
+                }
                 Spacer()
-                Text("of \(charityGoal, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Monthly intention")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(charityGoal, format: .currency(code: charityCurrencyCode))
+                        .font(.headline.monospacedDigit())
+                }
             }
-            ProgressView(value: Double(charityTotal), total: Double(max(1, charityGoal)))
-            Stepper("Monthly intention: \(charityGoal, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))", value: $charityGoal, in: 10...10_000, step: 10)
-            Button("Record 5", systemImage: "heart.fill") { charityTotal += 5 }
+
+            ProgressView(value: min(monthlyCharityTotal, Double(charityGoal)), total: Double(max(1, charityGoal)))
+                .accessibilityLabel("Monthly charity intention")
+                .accessibilityValue("\(monthlyCharityTotal.formatted(.currency(code: charityCurrencyCode))) of \(charityGoal.formatted(.currency(code: charityCurrencyCode)))")
+
+            HStack {
+                Label("\(monthlyCharityEntries.count) gifts", systemImage: "heart.circle.fill")
+                Spacer()
+                Text(charityProgress, format: .percent.precision(.fractionLength(0)))
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            Button("Add Giving", systemImage: "plus") { showingAddCharity = true }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("charity.add-giving")
+
+            Button("Edit Monthly Intention", systemImage: "target") { showingCharityGoal = true }
+                .buttonStyle(.bordered)
                 .frame(maxWidth: .infinity)
         }
 
         SalahCard {
-            Label("Give with intention", systemImage: "heart.text.square.fill")
-                .font(.headline)
-            Text("Salah does not process donations. Use this local total to reflect on charity you gave through organizations you trust.")
+            NavigationLink {
+                RemindersView(container: container)
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Charity Reminder")
+                        Text(charityReminderSummary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "bell.badge.fill")
+                        .foregroundStyle(palette.accent)
+                }
+            }
+            .accessibilityHint("Opens the Charity section in Reminders")
+            .accessibilityIdentifier("charity.reminder.link")
+        }
+
+        if !monthlyCategoryTotals.isEmpty {
+            SalahCard {
+                Text("This Month by Purpose").font(.headline)
+                ForEach(monthlyCategoryTotals, id: \.category) { item in
+                    HStack {
+                        Label(item.category.title, systemImage: item.category.symbol)
+                        Spacer()
+                        Text(item.total, format: .currency(code: charityCurrencyCode))
+                            .monospacedDigit()
+                    }
+                    .font(.subheadline)
+                }
+            }
+        }
+
+        SalahCard {
+            HStack {
+                Text("Recent Giving").font(.headline)
+                Spacer()
+                NavigationLink("View All") {
+                    CharityHistoryView(container: container)
+                }
                 .font(.subheadline)
+            }
+
+            if charityEntries.isEmpty {
+                Text("No giving recorded yet. Add an entry when you give to build a private history.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(charityEntries.prefix(3)) { entry in
+                    CharityEntryRow(entry: entry)
+                }
+            }
+
+            Text("Salah records your reflection only. It never collects or processes donations.")
+                .font(.footnote)
                 .foregroundStyle(.secondary)
+        }
+        .sheet(isPresented: $showingAddCharity) {
+            AddCharityEntryView(currencyCode: charityCurrencyCode) { entry in
+                addCharityEntry(entry)
+            }
+        }
+        .sheet(isPresented: $showingCharityGoal) {
+            CharityGoalEditor(goal: charityGoal, currencyCode: charityCurrencyCode) {
+                charityGoal = $0
+            }
         }
     }
 
@@ -394,10 +481,77 @@ struct TrackerView: View {
             goodDeedsMask = 0
         }
         let month = String(format: "%04d-%02d", today.year, today.month)
-        if charityMonth != month {
-            charityMonth = month
-            charityTotal = 0
+        var entries = charityEntries
+        if CharityLedger.needsCurrencyMigration(charityEntriesData) {
+            charityEntriesData = CharityLedger.encode(entries)
         }
+        if entries.isEmpty, charityMonth == month, charityTotal > 0 {
+            entries = [
+                CharityEntry(
+                    amount: Double(charityTotal),
+                    date: .now,
+                    category: .other,
+                    note: String(localized: "Imported monthly total")
+                )
+            ]
+            charityEntriesData = CharityLedger.encode(entries)
+        }
+        charityMonth = month
+        charityTotal = Int(
+            CharityLedger.total(
+                entries.filter { $0.currencyCode == charityCurrencyCode },
+                inMonthContaining: .now
+            ).rounded()
+        )
+    }
+
+    private var charityCurrencyCode: String {
+        CharityCurrency.code()
+    }
+
+    private var charityEntries: [CharityEntry] {
+        CharityLedger.decode(charityEntriesData).sorted { $0.date > $1.date }
+    }
+
+    private var monthlyCharityEntries: [CharityEntry] {
+        CharityLedger.entries(charityEntries, inMonthContaining: .now)
+            .filter { $0.currencyCode == charityCurrencyCode }
+    }
+
+    private var monthlyCharityTotal: Double {
+        monthlyCharityEntries.reduce(0) { $0 + $1.amount }
+    }
+
+    private var charityProgress: Double {
+        guard charityGoal > 0 else { return 0 }
+        return min(1, monthlyCharityTotal / Double(charityGoal))
+    }
+
+    private var monthlyCategoryTotals: [(category: CharityCategory, total: Double)] {
+        Dictionary(grouping: monthlyCharityEntries, by: \.category)
+            .map { (category: $0.key, total: $0.value.reduce(0) { $0 + $1.amount }) }
+            .sorted { $0.total > $1.total }
+    }
+
+    private var charityReminderSummary: String {
+        let preference = container.settings.charityReminder
+        guard preference.enabled,
+              let nextDate = CharityReminderPlan.make(preference: preference, now: .now, limit: 1).first else {
+            return String(localized: "Choose a date and time")
+        }
+        return "\(preference.repeatCycle.title) • \(nextDate.formatted(date: .abbreviated, time: .shortened))"
+    }
+
+    private func addCharityEntry(_ entry: CharityEntry) {
+        var entries = charityEntries
+        entries.append(entry)
+        charityEntriesData = CharityLedger.encode(entries)
+        charityTotal = Int(
+            CharityLedger.total(
+                entries.filter { $0.currencyCode == charityCurrencyCode },
+                inMonthContaining: .now
+            ).rounded()
+        )
     }
 
     private func insightCard(_ title: String, value: String, detail: String) -> some View {
@@ -410,6 +564,269 @@ struct TrackerView: View {
 
     private var isToday: Bool {
         viewModel.selectedDay == LocalDay(.now, timeZone: container.settings.location.timeZone)
+    }
+}
+
+struct CharityHistoryView: View {
+    @Bindable var container: AppContainer
+    @Environment(\.salahPalette) private var palette
+    @AppStorage(CharityLedger.storageKey) private var entriesData = Data()
+    @AppStorage("salah.deeds.charity-total") private var legacyTotal = 0
+    @AppStorage("salah.deeds.charity-goal") private var charityGoal = 100
+    @State private var showingAddEntry = false
+    @State private var showingGoalEditor = false
+
+    private var currencyCode: String { CharityCurrency.code() }
+    private var entries: [CharityEntry] { CharityLedger.decode(entriesData).sorted { $0.date > $1.date } }
+    private var monthlyTotal: Double {
+        CharityLedger.total(entries.filter { $0.currencyCode == currencyCode }, inMonthContaining: .now)
+    }
+
+    var body: some View {
+        List {
+            Section {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Given this month")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(monthlyTotal, format: .currency(code: currencyCode))
+                        .font(.largeTitle.bold().monospacedDigit())
+                    ProgressView(value: min(monthlyTotal, Double(charityGoal)), total: Double(max(1, charityGoal)))
+                    Button("Edit Monthly Intention", systemImage: "target") { showingGoalEditor = true }
+                }
+                .padding(.vertical, 6)
+
+                Button("Add Giving", systemImage: "plus.circle.fill") { showingAddEntry = true }
+
+                NavigationLink {
+                    RemindersView(container: container)
+                } label: {
+                    Label("Charity Reminder", systemImage: "bell.badge.fill")
+                        .foregroundStyle(palette.accent)
+                }
+            }
+
+            Section {
+                if entries.isEmpty {
+                    ContentUnavailableView {
+                        Label("No giving recorded", systemImage: "heart")
+                    } description: {
+                        Text("Add a private entry after you give.")
+                    }
+                } else {
+                    ForEach(entries) { entry in
+                        CharityEntryRow(entry: entry)
+                    }
+                    .onDelete(perform: deleteEntries)
+                }
+            } header: {
+                Text("Giving History")
+            } footer: {
+                Text("Entries stay on this device. Swipe an entry to delete it.")
+            }
+        }
+        .navigationTitle("Ṣadaqah")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Add Giving", systemImage: "plus") { showingAddEntry = true }
+            }
+        }
+        .sheet(isPresented: $showingAddEntry) {
+            AddCharityEntryView(currencyCode: currencyCode, onSave: addEntry)
+        }
+        .sheet(isPresented: $showingGoalEditor) {
+            CharityGoalEditor(goal: charityGoal, currencyCode: currencyCode) {
+                charityGoal = $0
+            }
+        }
+        .task {
+            if CharityLedger.needsCurrencyMigration(entriesData) {
+                entriesData = CharityLedger.encode(entries)
+            }
+        }
+    }
+
+    private func addEntry(_ entry: CharityEntry) {
+        var updated = entries
+        updated.append(entry)
+        save(updated)
+    }
+
+    private func deleteEntries(at offsets: IndexSet) {
+        var updated = entries
+        updated.remove(atOffsets: offsets)
+        save(updated)
+    }
+
+    private func save(_ entries: [CharityEntry]) {
+        entriesData = CharityLedger.encode(entries)
+        legacyTotal = Int(
+            CharityLedger.total(
+                entries.filter { $0.currencyCode == currencyCode },
+                inMonthContaining: .now
+            ).rounded()
+        )
+    }
+}
+
+private struct CharityEntryRow: View {
+    let entry: CharityEntry
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: entry.category.symbol)
+                .foregroundStyle(.pink)
+                .frame(width: 30, height: 30)
+                .background(Color.pink.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.recipient.isEmpty ? entry.category.title : entry.recipient)
+                    .font(.subheadline.weight(.semibold))
+                Text(entry.date, format: .dateTime.day().month(.abbreviated).year())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if !entry.note.isEmpty {
+                    Text(entry.note)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            Spacer()
+            Text(entry.amount, format: .currency(code: entry.currencyCode))
+                .font(.subheadline.weight(.semibold).monospacedDigit())
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct AddCharityEntryView: View {
+    let currencyCode: String
+    let onSave: (CharityEntry) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var amountText = ""
+    @State private var date = Date.now
+    @State private var category = CharityCategory.sadaqah
+    @State private var recipient = ""
+    @State private var note = ""
+
+    private var amount: Double? {
+        let separator = Locale.current.decimalSeparator ?? "."
+        let normalized = amountText.replacingOccurrences(of: separator, with: ".")
+        guard let value = Double(normalized), value > 0 else { return nil }
+        return value
+    }
+
+    private var presets: [Int] {
+        currencyCode == "BDT" ? [100, 500, 1_000, 2_000] : [5, 10, 25, 50]
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Amount") {
+                    LabeledContent("Currency", value: currencyCode)
+
+                    TextField("0", text: $amountText)
+                        .keyboardType(.decimalPad)
+                        .font(.title2.monospacedDigit())
+                        .accessibilityLabel("Giving amount in \(currencyCode)")
+
+                    HStack {
+                        ForEach(presets, id: \.self) { preset in
+                            Button(preset.formatted()) { amountText = String(preset) }
+                                .buttonStyle(.bordered)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                }
+
+                Section("Details") {
+                    DatePicker("Date given", selection: $date, in: ...Date.now, displayedComponents: .date)
+                    Picker("Purpose", selection: $category) {
+                        ForEach(CharityCategory.allCases) { category in
+                            Label(category.title, systemImage: category.symbol).tag(category)
+                        }
+                    }
+                    TextField("Organization or recipient (optional)", text: $recipient)
+                    TextField("Private note (optional)", text: $note, axis: .vertical)
+                        .lineLimit(2...4)
+                }
+
+                Section {
+                    Text("This records a private reflection only. Salah does not send money or contact the recipient.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Add Giving")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        guard let amount else { return }
+                        onSave(CharityEntry(
+                            amount: amount,
+                            date: date,
+                            category: category,
+                            currencyCode: currencyCode,
+                            recipient: recipient.trimmingCharacters(in: .whitespacesAndNewlines),
+                            note: note.trimmingCharacters(in: .whitespacesAndNewlines)
+                        ))
+                        dismiss()
+                    }
+                    .disabled(amount == nil)
+                }
+            }
+        }
+    }
+}
+
+private struct CharityGoalEditor: View {
+    let goal: Int
+    let currencyCode: String
+    let onSave: (Int) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var goalText = ""
+
+    private var parsedGoal: Int? {
+        guard let value = Int(goalText), (1...10_000_000).contains(value) else { return nil }
+        return value
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Monthly intention", text: $goalText)
+                        .keyboardType(.numberPad)
+                        .font(.title2.monospacedDigit())
+                } header: {
+                    Text("Amount in \(currencyCode)")
+                } footer: {
+                    Text("An intention is a private guide, not a payment or pledge.")
+                }
+            }
+            .navigationTitle("Monthly Intention")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        guard let parsedGoal else { return }
+                        onSave(parsedGoal)
+                        dismiss()
+                    }
+                    .disabled(parsedGoal == nil)
+                }
+            }
+            .onAppear { goalText = String(goal) }
+        }
     }
 }
 

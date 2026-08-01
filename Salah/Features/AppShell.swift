@@ -32,19 +32,9 @@ struct AppRootView: View {
     }
 
     private func reconcileReminders() async {
-        guard container.settings.reminders.values.contains(where: \.enabled),
+        guard container.settings.reminders.values.contains(where: \.enabled) || container.settings.charityReminder.enabled,
               await container.notificationScheduler.authorizationStatus() == .authorized else { return }
-        let location = container.settings.location
-        let settings = container.settings.calculation
-        let today = LocalDay(.now, timeZone: location.timeZone)
-        if let days = try? await container.prayerTimesRepository.month(
-            containing: today,
-            location: location,
-            settings: settings,
-            policy: .cacheFirst
-        ).map(\.value) {
-            await container.notificationScheduler.reconcile(days: days, preferences: container.settings.reminders)
-        }
+        await ReminderCoordinator.reconcile(container: container)
     }
 }
 

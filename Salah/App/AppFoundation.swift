@@ -54,6 +54,7 @@ private struct StoredSettings: Codable {
     var theme: ThemePreference?
     var customThemeColor: CustomThemeColor?
     var reminders: [String: ReminderPreference] = [:]
+    var charityReminder: CharityReminderPreference?
 }
 
 @MainActor
@@ -70,6 +71,7 @@ final class AppSettings {
     var theme: ThemePreference { didSet { save() } }
     var customThemeColor: CustomThemeColor { didSet { save() } }
     private var storedReminders: [String: ReminderPreference] { didSet { save() } }
+    var charityReminder: CharityReminderPreference { didSet { save() } }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -100,6 +102,7 @@ final class AppSettings {
         theme = stored.theme ?? .greyishBlue
         customThemeColor = stored.customThemeColor ?? .oceanBlue
         storedReminders = stored.reminders
+        charityReminder = stored.charityReminder ?? CharityReminderPreference()
         if initialLocation != stored.location { save() }
     }
 
@@ -128,7 +131,8 @@ final class AppSettings {
             appearance: appearance,
             theme: theme,
             customThemeColor: customThemeColor,
-            reminders: storedReminders
+            reminders: storedReminders,
+            charityReminder: charityReminder
         )
         if let data = try? JSONEncoder().encode(value) {
             defaults.set(data, forKey: key)
@@ -259,6 +263,8 @@ final class AppContainer {
             try? self.trackingRepository.clearAll()
             UserDefaults.standard.set(0, forKey: "salah.deeds.istighfar-count")
             UserDefaults.standard.set(0, forKey: "salah.deeds.tasbih-goal")
+            UserDefaults.standard.set(0, forKey: "salah.deeds.charity-total")
+            UserDefaults.standard.removeObject(forKey: CharityLedger.storageKey)
         }
     }
 }

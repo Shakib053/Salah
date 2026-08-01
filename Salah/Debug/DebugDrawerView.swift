@@ -25,6 +25,7 @@ struct DebugDrawerView: View {
     @AppStorage("salah.deeds.charity-total")   private var charityTotal = 0
     @AppStorage("salah.deeds.charity-goal")    private var charityGoal = 100
     @AppStorage("salah.deeds.charity-month")   private var charityMonth = ""
+    @AppStorage(CharityLedger.storageKey)       private var charityEntriesData = Data()
 
     @State private var seedMessage: String?
     @State private var deleteMessage: String?
@@ -126,7 +127,17 @@ struct DebugDrawerView: View {
         let components = Calendar.current.dateComponents([.year, .month], from: .now)
         charityMonth = String(format: "%04d-%02d", components.year ?? 1970, components.month ?? 1)
         charityGoal = 100
-        charityTotal = Int.random(in: 30...80)
+        let amounts = [15, 20, 25]
+        let entries = amounts.enumerated().map { index, amount in
+            CharityEntry(
+                amount: Double(amount),
+                date: Calendar.current.date(byAdding: .day, value: -(index * 4), to: .now) ?? .now,
+                category: CharityCategory.allCases[index],
+                recipient: ["Local food bank", "Education fund", "Emergency appeal"][index]
+            )
+        }
+        charityEntriesData = CharityLedger.encode(entries)
+        charityTotal = amounts.reduce(0, +)
 
         seedMessage = "Dummy data seeded for all Deeds sections ✓"
         deleteMessage = nil   // clear any prior delete confirmation
@@ -150,6 +161,7 @@ struct DebugDrawerView: View {
         charityTotal = 0
         charityGoal = 100
         charityMonth = ""
+        charityEntriesData = Data()
 
         deleteMessage = "All dummy data deleted ✓"
         seedMessage = nil   // clear any prior seed confirmation

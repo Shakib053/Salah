@@ -83,6 +83,8 @@ final class UITestNotificationScheduler: NotificationScheduling {
     }
     func reconcile(days: [PrayerDay], preferences: [PrayerEvent: ReminderPreference]) async { }
     func cancel(event: PrayerEvent) async { }
+    func scheduleCharityReminder(_ preference: CharityReminderPreference) async { }
+    func cancelCharityReminder() async { }
 }
 
 private extension PrayerTimesQuery {

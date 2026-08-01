@@ -233,12 +233,64 @@ struct ReminderPreference: Codable, Equatable, Sendable {
     var offsetMinutes: Int = 0
 }
 
+enum CharityReminderRepeat: String, Codable, CaseIterable, Identifiable, Sendable {
+    case once
+    case weekly
+    case monthly
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .once: String(localized: "Once")
+        case .weekly: String(localized: "Weekly")
+        case .monthly: String(localized: "Monthly")
+        }
+    }
+}
+
+struct CharityReminderPreference: Codable, Equatable, Sendable {
+    var enabled: Bool = false
+    var date: Date = Self.suggestedDate()
+    var repeatCycle: CharityReminderRepeat = .monthly
+
+    private enum CodingKeys: String, CodingKey {
+        case enabled
+        case date
+        case repeatCycle
+    }
+
+    init(
+        enabled: Bool = false,
+        date: Date = Self.suggestedDate(),
+        repeatCycle: CharityReminderRepeat = .monthly
+    ) {
+        self.enabled = enabled
+        self.date = date
+        self.repeatCycle = repeatCycle
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled) ?? false
+        date = try container.decodeIfPresent(Date.self, forKey: .date) ?? Self.suggestedDate()
+        repeatCycle = try container.decodeIfPresent(CharityReminderRepeat.self, forKey: .repeatCycle) ?? .once
+    }
+
+    static func suggestedDate(now: Date = .now, calendar: Calendar = .current) -> Date {
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now.addingTimeInterval(86_400)
+        return calendar.date(bySettingHour: 9, minute: 0, second: 0, of: tomorrow) ?? tomorrow
+    }
+}
+
 @MainActor
 protocol NotificationScheduling: AnyObject {
     func authorizationStatus() async -> NotificationAuthorization
     func requestAuthorization() async -> NotificationAuthorization
     func reconcile(days: [PrayerDay], preferences: [PrayerEvent: ReminderPreference]) async
     func cancel(event: PrayerEvent) async
+    func scheduleCharityReminder(_ preference: CharityReminderPreference) async
+    func cancelCharityReminder() async
 }
 
 enum ReminderIdentifier {
@@ -286,10 +338,62 @@ enum ReminderPlan {
     }
 }
 
+enum CharityReminderPlan {
+    static func make(
+        preference: CharityReminderPreference,
+        now: Date,
+        limit: Int = 12,
+        calendar sourceCalendar: Calendar = .current
+    ) -> [Date] {
+        guard preference.enabled, limit > 0 else { return [] }
+
+        let calendar = sourceCalendar
+        let anchor = preference.date
+        switch preference.repeatCycle {
+        case .once:
+            return anchor > now ? [anchor] : []
+        case .weekly:
+            var candidate = anchor
+            while candidate <= now {
+                guard let next = calendar.date(byAdding: .weekOfYear, value: 1, to: candidate) else { return [] }
+                candidate = next
+            }
+            return (0..<limit).compactMap {
+                calendar.date(byAdding: .weekOfYear, value: $0, to: candidate)
+            }
+        case .monthly:
+            let anchorComponents = calendar.dateComponents([.day, .hour, .minute, .second], from: anchor)
+            let targetDay = anchorComponents.day ?? 1
+            guard let anchorMonthStart = calendar.dateInterval(of: .month, for: anchor)?.start else { return [] }
+            var monthOffset = 0
+            var dates: [Date] = []
+            while dates.count < limit, monthOffset < limit + 1_200 {
+                guard let month = calendar.date(byAdding: .month, value: monthOffset, to: anchorMonthStart),
+                      let interval = calendar.dateInterval(of: .month, for: month),
+                      let dayRange = calendar.range(of: .day, in: .month, for: month) else {
+                    break
+                }
+                var components = calendar.dateComponents([.year, .month], from: interval.start)
+                components.day = min(targetDay, dayRange.count)
+                components.hour = anchorComponents.hour
+                components.minute = anchorComponents.minute
+                components.second = anchorComponents.second
+                components.timeZone = calendar.timeZone
+                if let candidate = calendar.date(from: components), candidate > now {
+                    dates.append(candidate)
+                }
+                monthOffset += 1
+            }
+            return dates
+        }
+    }
+}
+
 @MainActor
 final class LocalNotificationScheduler: NotificationScheduling {
     private let center: UNUserNotificationCenter
     private let prefix = "salah.reminder."
+    private let charityPrefix = "salah.charity-reminder"
 
     init(center: UNUserNotificationCenter = .current()) {
         self.center = center
@@ -319,7 +423,7 @@ final class LocalNotificationScheduler: NotificationScheduling {
         let owned = pending.map(\.identifier).filter { $0.hasPrefix(prefix) }
         center.removePendingNotificationRequests(withIdentifiers: owned)
 
-        for candidate in ReminderPlan.make(days: days, preferences: preferences, now: .now) {
+        for candidate in ReminderPlan.make(days: days, preferences: preferences, now: .now, limit: 48) {
             let content = UNMutableNotificationContent()
             content.title = candidate.event.title
             content.body = candidate.event == .sahri
@@ -348,5 +452,33 @@ final class LocalNotificationScheduler: NotificationScheduling {
         let pending = await center.pendingNotificationRequests()
         let eventPrefix = "\(prefix)\(event.rawValue)."
         center.removePendingNotificationRequests(withIdentifiers: pending.map(\.identifier).filter { $0.hasPrefix(eventPrefix) })
+    }
+
+    func scheduleCharityReminder(_ preference: CharityReminderPreference) async {
+        await cancelCharityReminder()
+
+        let content = UNMutableNotificationContent()
+        content.title = String(localized: "Charity reminder")
+        content.body = String(localized: "A gentle reminder for the charity you intended to give.")
+        content.sound = .default
+
+        let calendar = Calendar.current
+        for (index, date) in CharityReminderPlan.make(preference: preference, now: .now).enumerated() {
+            var components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+            components.timeZone = calendar.timeZone
+            let request = UNNotificationRequest(
+                identifier: "\(charityPrefix).\(index)",
+                content: content,
+                trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+            )
+            try? await center.add(request)
+        }
+    }
+
+    func cancelCharityReminder() async {
+        let pending = await center.pendingNotificationRequests()
+        center.removePendingNotificationRequests(
+            withIdentifiers: pending.map(\.identifier).filter { $0.hasPrefix(charityPrefix) }
+        )
     }
 }

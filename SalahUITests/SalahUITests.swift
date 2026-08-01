@@ -174,4 +174,37 @@ final class SalahUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Open settings"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'currently denied'")).firstMatch.exists)
     }
+
+    func testCharityTrackerOpensDatedReminderControls() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing", "-reset-state", "-reset-tracker", "-onboarding-complete", "-notification-authorized"]
+        app.launch()
+
+        app.tabBars.buttons["Tracker"].tap()
+        app.segmentedControls.buttons["Charity"].tap()
+        XCTAssertTrue(app.buttons["charity.add-giving"].waitForExistence(timeout: 3))
+
+        let reminderLink = app.buttons["charity.reminder.link"]
+        XCTAssertTrue(reminderLink.waitForExistence(timeout: 3))
+        reminderLink.tap()
+
+        XCTAssertTrue(app.navigationBars["Reminders"].waitForExistence(timeout: 3))
+        let reminderToggle = app.switches["charity.reminder.toggle"]
+        XCTAssertTrue(reminderToggle.waitForExistence(timeout: 3))
+        XCTAssertTrue(reminderToggle.isHittable)
+        let nativeSwitch = reminderToggle.descendants(matching: .switch).firstMatch
+        XCTAssertTrue(nativeSwitch.waitForExistence(timeout: 3))
+        nativeSwitch.tap()
+        XCTAssertTrue(app.staticTexts["First reminder"].waitForExistence(timeout: 3))
+
+        let repeatPicker = app.segmentedControls["charity.reminder.repeat"]
+        XCTAssertTrue(repeatPicker.waitForExistence(timeout: 3))
+        let monthly = repeatPicker.buttons["Monthly"]
+        XCTAssertTrue(monthly.exists)
+        XCTAssertTrue(monthly.isSelected)
+
+        let weekly = repeatPicker.buttons["Weekly"]
+        weekly.tap()
+        XCTAssertTrue(weekly.isSelected)
+    }
 }

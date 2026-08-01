@@ -179,6 +179,101 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertEqual(plan.first?.triggerDate, first.sahri.addingTimeInterval(-600))
     }
 
+    func testCharityLedgerPersistsEntriesAndCalculatesMonthTotal() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+        let julyDate = try XCTUnwrap(day.date(in: zone, hour: 12))
+        let augustDate = try XCTUnwrap(day.adding(days: 20, in: zone).date(in: zone, hour: 12))
+        let entries = [
+            CharityEntry(amount: 25, date: julyDate, category: .sadaqah, recipient: "Food bank"),
+            CharityEntry(amount: 40, date: julyDate, category: .education),
+            CharityEntry(amount: 100, date: augustDate, category: .emergency)
+        ]
+
+        let restored = CharityLedger.decode(CharityLedger.encode(entries))
+
+        XCTAssertEqual(restored, entries)
+        XCTAssertEqual(CharityLedger.entries(restored, inMonthContaining: julyDate, calendar: calendar).count, 2)
+        XCTAssertEqual(CharityLedger.total(restored, inMonthContaining: julyDate, calendar: calendar), 65)
+    }
+
+    func testCharityReminderDefaultsMonthlyAndMigratesLegacyPreferenceAsOnce() throws {
+        struct LegacyPreference: Encodable {
+            let enabled: Bool
+            let date: Date
+        }
+
+        XCTAssertEqual(CharityReminderPreference().repeatCycle, .monthly)
+
+        let date = Date(timeIntervalSince1970: 1_800_000_000)
+        let data = try JSONEncoder().encode(LegacyPreference(enabled: true, date: date))
+        let restored = try JSONDecoder().decode(CharityReminderPreference.self, from: data)
+
+        XCTAssertTrue(restored.enabled)
+        XCTAssertEqual(restored.date, date)
+        XCTAssertEqual(restored.repeatCycle, .once)
+    }
+
+    func testCharityReminderPlanCalculatesWeeklyAndMonthEndDates() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = zone
+
+        let weeklyAnchor = try XCTUnwrap(LocalDay(year: 2026, month: 7, day: 20).date(in: zone, hour: 9))
+        let weeklyNow = try XCTUnwrap(LocalDay(year: 2026, month: 7, day: 21).date(in: zone, hour: 12))
+        let weekly = CharityReminderPlan.make(
+            preference: CharityReminderPreference(enabled: true, date: weeklyAnchor, repeatCycle: .weekly),
+            now: weeklyNow,
+            limit: 2,
+            calendar: calendar
+        )
+        XCTAssertEqual(weekly, [
+            try XCTUnwrap(LocalDay(year: 2026, month: 7, day: 27).date(in: zone, hour: 9)),
+            try XCTUnwrap(LocalDay(year: 2026, month: 8, day: 3).date(in: zone, hour: 9))
+        ])
+
+        let monthEndAnchor = try XCTUnwrap(LocalDay(year: 2028, month: 1, day: 31).date(in: zone, hour: 9))
+        let monthEndNow = try XCTUnwrap(LocalDay(year: 2028, month: 1, day: 31).date(in: zone, hour: 10))
+        let monthly = CharityReminderPlan.make(
+            preference: CharityReminderPreference(enabled: true, date: monthEndAnchor, repeatCycle: .monthly),
+            now: monthEndNow,
+            limit: 2,
+            calendar: calendar
+        )
+        XCTAssertEqual(monthly, [
+            try XCTUnwrap(LocalDay(year: 2028, month: 2, day: 29).date(in: zone, hour: 9)),
+            try XCTUnwrap(LocalDay(year: 2028, month: 3, day: 31).date(in: zone, hour: 9))
+        ])
+    }
+
+    func testCharityCurrencyUsesRegionAndLegacyEntriesReceiveCurrentCurrency() throws {
+        struct LegacyEntry: Encodable {
+            let id: UUID
+            let amount: Double
+            let date: Date
+            let category: CharityCategory
+            let recipient: String
+            let note: String
+        }
+
+        XCTAssertEqual(CharityCurrency.code(for: Locale(identifier: "bn_BD")), "BDT")
+        XCTAssertEqual(CharityCurrency.code(for: Locale(identifier: "en_US")), "USD")
+
+        let legacy = LegacyEntry(
+            id: UUID(),
+            amount: 50,
+            date: .now,
+            category: .sadaqah,
+            recipient: "",
+            note: ""
+        )
+        let legacyData = try JSONEncoder().encode([legacy])
+        XCTAssertTrue(CharityLedger.needsCurrencyMigration(legacyData))
+
+        let restored = CharityLedger.decode(legacyData)
+        XCTAssertEqual(restored.first?.currencyCode, CharityCurrency.code())
+        XCTAssertFalse(CharityLedger.needsCurrencyMigration(CharityLedger.encode(restored)))
+    }
+
     func testQiblaGeometryFromDhaka() {
         let bearing = QiblaGeometry.bearing(from: .dhaka)
         let distance = QiblaGeometry.distance(from: .dhaka).value
@@ -202,11 +297,13 @@ final class SalahDomainTests: XCTestCase {
         initial.appearance = .dark
         initial.theme = .custom
         initial.customThemeColor = .dustyRose
+        initial.charityReminder = CharityReminderPreference(enabled: true, date: Date(timeIntervalSince1970: 1_800_000_000))
 
         let restored = AppSettings(defaults: defaults)
         XCTAssertEqual(restored.appearance, .dark)
         XCTAssertEqual(restored.theme, .custom)
         XCTAssertEqual(restored.customThemeColor, .dustyRose)
+        XCTAssertEqual(restored.charityReminder, initial.charityReminder)
     }
 
     @MainActor

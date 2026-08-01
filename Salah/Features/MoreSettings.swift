@@ -61,6 +61,11 @@ enum ReminderCoordinator {
             days.append(contentsOf: next.map(\.value))
         }
         await container.notificationScheduler.reconcile(days: days, preferences: container.settings.reminders)
+        if container.settings.charityReminder.enabled {
+            await container.notificationScheduler.scheduleCharityReminder(container.settings.charityReminder)
+        } else {
+            await container.notificationScheduler.cancelCharityReminder()
+        }
     }
 }
 
@@ -83,7 +88,7 @@ struct MoreView: View {
                 NavigationLink { AppearanceView(container: container) } label: {
                     settingsLabel("Appearances & Theme", subtitle: "Display mode and colors", symbol: "paintpalette.fill", tint: palette.accent)
                 }
-                NavigationLink { CharityView() } label: {
+                NavigationLink { CharityHistoryView(container: container) } label: {
                     settingsLabel("Ṣadaqah", subtitle: "A private giving intention", symbol: "heart.fill", tint: .pink)
                 }
             }
@@ -152,64 +157,36 @@ struct MoreView: View {
     }
 }
 
-struct CharityView: View {
-    @AppStorage("salah.deeds.charity-total") private var charityTotal = 0
-    @AppStorage("salah.deeds.charity-goal") private var charityGoal = 100
-    @AppStorage("salah.deeds.charity-month") private var charityMonth = ""
-
-    private var currencyCode: String {
-        Locale.current.currency?.identifier ?? "USD"
-    }
-
-    var body: some View {
-        Form {
-            Section("This Month") {
-                LabeledContent("Recorded", value: charityTotal.formatted(.currency(code: currencyCode)))
-                ProgressView(value: Double(charityTotal), total: Double(max(1, charityGoal)))
-                    .accessibilityLabel("Monthly charity intention")
-                    .accessibilityValue("\(charityTotal) of \(charityGoal)")
-                Stepper(
-                    "Monthly intention: \(charityGoal.formatted(.currency(code: currencyCode)))",
-                    value: $charityGoal,
-                    in: 10...10_000,
-                    step: 10
-                )
-                Button("Record 5", systemImage: "heart.fill") { charityTotal += 5 }
-                    .buttonStyle(.borderedProminent)
-            }
-
-            Section("About Giving") {
-                Label("Give quietly and consistently", systemImage: "heart.text.square.fill")
-                Text("Salah does not collect or process donations. This optional total stays on your device and helps you reflect on charity given through organizations you trust.")
-                    .foregroundStyle(.secondary)
-            }
-
-            Section {
-                Button("Reset Monthly Total", role: .destructive) { charityTotal = 0 }
-            }
-        }
-        .navigationTitle("Ṣadaqah")
-        .task { prepareCurrentMonth() }
-    }
-
-    private func prepareCurrentMonth() {
-        let components = Calendar.current.dateComponents([.year, .month], from: .now)
-        let month = String(format: "%04d-%02d", components.year ?? 1970, components.month ?? 1)
-        if charityMonth != month {
-            charityMonth = month
-            charityTotal = 0
-        }
-    }
-}
-
 struct ReminderEducationSheet: View {
-    let event: PrayerEvent
+    private enum Target {
+        case prayer(PrayerEvent)
+        case charity
+
+        var title: String {
+            switch self {
+            case .prayer(let event): event.title
+            case .charity: String(localized: "Charity")
+            }
+        }
+    }
+
+    private let target: Target
     @Bindable var container: AppContainer
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.salahPalette) private var palette
     @Environment(\.settingsOpener) private var settingsOpener
     @State private var status: NotificationAuthorization = .notDetermined
+
+    init(event: PrayerEvent, container: AppContainer) {
+        target = .prayer(event)
+        self.container = container
+    }
+
+    init(charity container: AppContainer) {
+        target = .charity
+        self.container = container
+    }
 
     var body: some View {
         NavigationStack {
@@ -231,7 +208,7 @@ struct ReminderEducationSheet: View {
                             .font(.system(size: 28, weight: .regular))
                             .foregroundStyle(palette.warm)
                             .accessibilityHidden(true)
-                        Text("Enable \(event.title) reminder?")
+                        Text("Enable \(target.title) reminder?")
                             .font(.title3.bold())
                             .multilineTextAlignment(.center)
                     }
@@ -331,9 +308,19 @@ struct ReminderEducationSheet: View {
         let newStatus = await container.notificationScheduler.requestAuthorization()
         status = newStatus
         if newStatus == .authorized {
-            var preference = container.settings.reminder(for: event)
-            preference.enabled = true
-            container.settings.setReminder(preference, for: event)
+            switch target {
+            case .prayer(let event):
+                var preference = container.settings.reminder(for: event)
+                preference.enabled = true
+                container.settings.setReminder(preference, for: event)
+            case .charity:
+                var preference = container.settings.charityReminder
+                if preference.date <= .now {
+                    preference.date = CharityReminderPreference.suggestedDate()
+                }
+                preference.enabled = true
+                container.settings.charityReminder = preference
+            }
             await ReminderCoordinator.reconcile(container: container)
             dismiss()
         }
@@ -345,8 +332,19 @@ struct RemindersView: View {
     @State private var status: NotificationAuthorization = .notDetermined
     @State private var educationEvent: PrayerEvent = .fajr
     @State private var showingEducation = false
+    @State private var showingCharityEducation = false
+    @State private var charityReminderEnabled: Bool
+    @State private var charityReminderDate: Date
+    @State private var charityReminderRepeat: CharityReminderRepeat
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.settingsOpener) private var settingsOpener
+
+    init(container: AppContainer) {
+        self.container = container
+        _charityReminderEnabled = State(initialValue: container.settings.charityReminder.enabled)
+        _charityReminderDate = State(initialValue: container.settings.charityReminder.date)
+        _charityReminderRepeat = State(initialValue: container.settings.charityReminder.repeatCycle)
+    }
 
     var body: some View {
         Form {
@@ -357,6 +355,14 @@ struct RemindersView: View {
                 }
             } footer: {
                 Text("Notification permission is managed in iPhone Settings.")
+            }
+
+            Section {
+                charityReminderControls
+            } header: {
+                Text("Charity")
+            } footer: {
+                Text("Choose when to begin and whether to remind once, weekly, or monthly. Notifications stay on this device and do not make a donation.")
             }
 
             Section("Daily Prayers") {
@@ -371,7 +377,10 @@ struct RemindersView: View {
             }
         }
         .navigationTitle("Reminders")
-        .task { await refreshStatus() }
+        .task {
+            syncCharityPreference()
+            await refreshStatus()
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 Task { await refreshStatus() }
@@ -381,6 +390,89 @@ struct RemindersView: View {
             ReminderEducationSheet(event: educationEvent, container: container)
                 .presentationDetents([.medium])
                 .onDisappear { Task { await refreshStatus() } }
+        }
+        .sheet(isPresented: $showingCharityEducation) {
+            ReminderEducationSheet(charity: container)
+                .presentationDetents([.medium])
+                .onDisappear {
+                    syncCharityPreference()
+                    Task { await refreshStatus() }
+                }
+        }
+    }
+
+    @ViewBuilder
+    private var charityReminderControls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if !charityReminderEnabled, status != .authorized {
+                Button {
+                    showingCharityEducation = true
+                } label: {
+                    HStack {
+                        Label("Charity reminder", systemImage: "heart.fill")
+                        Spacer()
+                        Image(systemName: "circle").foregroundStyle(.secondary)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .frame(minHeight: 44)
+                .accessibilityLabel("Charity reminder, off")
+                .accessibilityHint("Opens reminder settings and permission options")
+            } else {
+                Toggle(isOn: $charityReminderEnabled) {
+                    Label("Charity reminder", systemImage: "heart.fill")
+                }
+                .frame(minHeight: 44)
+                .accessibilityIdentifier("charity.reminder.toggle")
+                .onChange(of: charityReminderEnabled) { _, enabled in
+                    persistCharityEnabled(enabled)
+                }
+            }
+
+            if charityReminderEnabled {
+                Picker("Repeat", selection: $charityReminderRepeat) {
+                    ForEach(CharityReminderRepeat.allCases) { repeatCycle in
+                        Text(repeatCycle.title).tag(repeatCycle)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("charity.reminder.repeat")
+                .onChange(of: charityReminderRepeat) { _, repeatCycle in
+                    persistCharityRepeat(repeatCycle)
+                }
+
+                charityDatePicker
+
+                LabeledContent("Schedule", value: charityScheduleSummary)
+                    .font(.subheadline)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var charityDatePicker: some View {
+        if charityReminderRepeat == .once {
+            DatePicker(
+                "Reminder date",
+                selection: $charityReminderDate,
+                in: Date.now...,
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .accessibilityIdentifier("charity.reminder.date")
+            .onChange(of: charityReminderDate) { _, date in
+                persistCharityDate(date)
+            }
+        } else {
+            DatePicker(
+                "First reminder",
+                selection: $charityReminderDate,
+                displayedComponents: [.date, .hourAndMinute]
+            )
+            .accessibilityIdentifier("charity.reminder.date")
+            .onChange(of: charityReminderDate) { _, date in
+                persistCharityDate(date)
+            }
         }
     }
 
@@ -452,6 +544,71 @@ struct RemindersView: View {
         preference.offsetMinutes = offset
         container.settings.setReminder(preference, for: event)
         Task { await ReminderCoordinator.reconcile(container: container) }
+    }
+
+    private func persistCharityEnabled(_ enabled: Bool) {
+        var preference = container.settings.charityReminder
+        preference.enabled = enabled
+        if enabled, preference.date <= .now {
+            preference.date = CharityReminderPreference.suggestedDate()
+        }
+        charityReminderDate = preference.date
+        container.settings.charityReminder = preference
+        Task {
+            if enabled {
+                await container.notificationScheduler.scheduleCharityReminder(preference)
+            } else {
+                await container.notificationScheduler.cancelCharityReminder()
+            }
+        }
+    }
+
+    private func persistCharityDate(_ date: Date) {
+        var preference = container.settings.charityReminder
+        preference.date = date
+        container.settings.charityReminder = preference
+        if preference.enabled {
+            Task { await container.notificationScheduler.scheduleCharityReminder(preference) }
+        }
+    }
+
+    private func persistCharityRepeat(_ repeatCycle: CharityReminderRepeat) {
+        var preference = container.settings.charityReminder
+        preference.repeatCycle = repeatCycle
+        if repeatCycle == .once, preference.date <= .now {
+            preference.date = CharityReminderPreference.suggestedDate()
+            charityReminderDate = preference.date
+        }
+        container.settings.charityReminder = preference
+        if preference.enabled {
+            Task { await container.notificationScheduler.scheduleCharityReminder(preference) }
+        }
+    }
+
+    private func syncCharityPreference() {
+        let preference = container.settings.charityReminder
+        charityReminderEnabled = preference.enabled
+        charityReminderDate = preference.date
+        charityReminderRepeat = preference.repeatCycle
+    }
+
+    private var charityScheduleSummary: String {
+        switch charityReminderRepeat {
+        case .once:
+            charityReminderDate.formatted(date: .abbreviated, time: .shortened)
+        case .weekly:
+            String(
+                format: String(localized: "Every %@ at %@"),
+                charityReminderDate.formatted(.dateTime.weekday(.wide)),
+                charityReminderDate.formatted(date: .omitted, time: .shortened)
+            )
+        case .monthly:
+            String(
+                format: String(localized: "Monthly on day %lld at %@"),
+                Int64(Calendar.current.component(.day, from: charityReminderDate)),
+                charityReminderDate.formatted(date: .omitted, time: .shortened)
+            )
+        }
     }
 
     private var permissionText: String {
@@ -806,11 +963,16 @@ struct PrivacyView: View {
         .confirmationDialog("Clear all tracker data?", isPresented: $showingClearConfirmation, titleVisibility: .visible) {
             Button("Clear Tracker Data", role: .destructive) {
                 try? container.trackingRepository.clearAll()
+                UserDefaults.standard.set(0, forKey: "salah.deeds.istighfar-count")
+                UserDefaults.standard.set(0, forKey: "salah.deeds.tasbih-goal")
+                UserDefaults.standard.set(0, forKey: "salah.deeds.good-deeds-mask")
+                UserDefaults.standard.set(0, forKey: "salah.deeds.charity-total")
+                UserDefaults.standard.removeObject(forKey: CharityLedger.storageKey)
                 cleared = true
             }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("This permanently removes prayer completion history stored on this device.")
+            Text("This permanently removes prayer, Tasbih, good deeds, and charity history stored on this device.")
         }
     }
 
