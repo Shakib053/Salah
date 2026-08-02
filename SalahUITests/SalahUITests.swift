@@ -79,6 +79,69 @@ final class SalahUITests: XCTestCase {
         fajr.tap()
     }
 
+    func testTrackerShowsOnlyRequestedNaflItemsWithoutToolbarActions() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing", "-reset-tracker", "-onboarding-complete"]
+        app.launch()
+        app.tabBars.buttons["Tracker"].tap()
+
+        XCTAssertFalse(app.buttons["Choose date"].exists)
+        XCTAssertFalse(app.buttons["Prayer history"].exists)
+
+        app.segmentedControls.buttons["Nafl"].tap()
+
+        let expectedItems = [
+            "Prayed Tahajjud",
+            "Prayed Ishrak",
+            "Morning Adhkar",
+            "Evening Adhkar",
+            "Read Quran"
+        ]
+        for item in expectedItems {
+            XCTAssertTrue(app.buttons[item].waitForExistence(timeout: 2))
+        }
+
+        XCTAssertFalse(app.buttons["Read the Qurʾān"].exists)
+        XCTAssertFalse(app.buttons["Morning and evening adhkār"].exists)
+        XCTAssertFalse(app.buttons["Gave ṣadaqah"].exists)
+    }
+
+    func testInsightsIsASeparateTrackerDestination() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing", "-reset-tracker", "-onboarding-complete"]
+        app.launch()
+        app.tabBars.buttons["Tracker"].tap()
+
+        XCTAssertFalse(app.segmentedControls.buttons["Insights"].exists)
+        let fajr = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Fajr'")).firstMatch
+        XCTAssertTrue(fajr.waitForExistence(timeout: 2))
+        fajr.tap()
+
+        let insights = app.buttons["tracker.insights"]
+        XCTAssertTrue(insights.waitForExistence(timeout: 2))
+        insights.tap()
+
+        XCTAssertTrue(app.navigationBars["Insights"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Ṣalāh"].exists)
+        XCTAssertTrue(app.staticTexts["Tasbih"].exists)
+        XCTAssertTrue(app.staticTexts["Nafl"].exists)
+        XCTAssertTrue(app.staticTexts["Charity"].exists)
+
+        let chart = app.otherElements["insights.chart"].firstMatch
+        XCTAssertTrue(chart.waitForExistence(timeout: 2))
+        let recordedBar = chart.otherElements.matching(NSPredicate(format: "value == '1 prayers'")).firstMatch
+        XCTAssertTrue(recordedBar.waitForExistence(timeout: 2))
+        recordedBar.tap()
+        let selectionDetail = app.staticTexts["insights.selection.detail"]
+        XCTAssertTrue(selectionDetail.waitForExistence(timeout: 2))
+        XCTAssertTrue(selectionDetail.label.contains("1 prayers"))
+
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = "Insights overview"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+    }
+
     func testTasbihCounterAndConfirmedReset() {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing", "-reset-tracker", "-onboarding-complete"]

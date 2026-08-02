@@ -197,6 +197,30 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertEqual(CharityLedger.total(restored, inMonthContaining: julyDate, calendar: calendar), 65)
     }
 
+    func testTasbihHistoryPreservesDailyTotalsAcrossCounterResets() {
+        var data = Data()
+        data = TasbihHistoryLedger.incrementing(goal: 33, on: day, in: data)
+        data = TasbihHistoryLedger.incrementing(goal: 33, on: day, in: data)
+        data = TasbihHistoryLedger.incrementing(goal: 33, on: day, in: data)
+
+        let record = TasbihHistoryLedger.decode(data).first
+        XCTAssertEqual(record?.day, day)
+        XCTAssertEqual(record?.count, 3)
+        XCTAssertEqual(record?.goal, 33)
+    }
+
+    func testNaflHistoryUpdatesOneStableRecordPerDay() {
+        var data = NaflHistoryLedger.recording(mask: 0b00001, on: day, in: Data())
+        data = NaflHistoryLedger.recording(mask: 0b10101, on: day, in: data)
+
+        let records = NaflHistoryLedger.decode(data)
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.completedCount, 3)
+        XCTAssertTrue(records.first?.contains(.tahajjud) == true)
+        XCTAssertTrue(records.first?.contains(.morningAdhkar) == true)
+        XCTAssertTrue(records.first?.contains(.quran) == true)
+    }
+
     func testCharityReminderDefaultsMonthlyAndMigratesLegacyPreferenceAsOnce() throws {
         struct LegacyPreference: Encodable {
             let enabled: Bool

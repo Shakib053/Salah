@@ -60,7 +60,7 @@ final class TrackerViewModel {
 }
 
 private enum TrackerSection: String, CaseIterable, Identifiable {
-    case prayers, tasbih, deeds, charity, insights
+    case prayers, tasbih, deeds, charity
 
     var id: Self { self }
 
@@ -68,17 +68,10 @@ private enum TrackerSection: String, CaseIterable, Identifiable {
         switch self {
         case .prayers: String(localized: "Ṣalāh")
         case .tasbih: String(localized: "Tasbih")
-        case .deeds: String(localized: "Deeds")
+        case .deeds: String(localized: "Nafl")
         case .charity: String(localized: "Charity")
-        case .insights: String(localized: "Insights")
         }
     }
-}
-
-private struct GoodDeedDefinition: Identifiable {
-    let id: Int
-    let title: String
-    let symbol: String
 }
 
 struct TrackerView: View {
@@ -86,24 +79,19 @@ struct TrackerView: View {
     @Environment(\.salahPalette) private var palette
     @State private var viewModel: TrackerViewModel
     @State private var selection = TrackerSection.prayers
-    @State private var showingDatePicker = false
-    @State private var records: [PrayerRecordSnapshot] = []
     @AppStorage("salah.deeds.istighfar-count") private var tasbihCount = 0
     @AppStorage("salah.deeds.tasbih-goal") private var tasbihGoal = 0
+    @AppStorage("salah.deeds.tasbih-day") private var tasbihDay = ""
+    @AppStorage(TasbihHistoryLedger.storageKey) private var tasbihHistoryData = Data()
     @AppStorage("salah.deeds.good-deeds-mask") private var goodDeedsMask = 0
     @AppStorage("salah.deeds.good-deeds-day") private var goodDeedsDay = ""
+    @AppStorage(NaflHistoryLedger.storageKey) private var naflHistoryData = Data()
     @AppStorage("salah.deeds.charity-total") private var charityTotal = 0
     @AppStorage("salah.deeds.charity-goal") private var charityGoal = 100
     @AppStorage("salah.deeds.charity-month") private var charityMonth = ""
     @AppStorage(CharityLedger.storageKey) private var charityEntriesData = Data()
     @State private var showingAddCharity = false
     @State private var showingCharityGoal = false
-
-    private let goodDeeds = [
-        GoodDeedDefinition(id: 0, title: "Read the Qurʾān", symbol: "book.closed.fill"),
-        GoodDeedDefinition(id: 1, title: "Morning and evening adhkār", symbol: "sun.horizon.fill"),
-        GoodDeedDefinition(id: 2, title: "Gave ṣadaqah", symbol: "heart.fill")
-    ]
 
     init(container: AppContainer) {
         self.container = container
@@ -127,7 +115,6 @@ struct TrackerView: View {
                         case .tasbih: EmptyView()
                         case .deeds: goodDeedsTracker
                         case .charity: charityTracker
-                        case .insights: insightsTracker
                         }
                     }
                     .padding()
@@ -137,44 +124,17 @@ struct TrackerView: View {
         .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle("Tracker")
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if selection == .prayers {
-                    Button { showingDatePicker = true } label: { Label("Choose date", systemImage: "calendar") }
-                }
+            ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
-                    HistoryView(container: container)
+                    InsightsView(container: container)
                 } label: {
-                    Label("Prayer history", systemImage: "chart.bar.fill")
+                    Label("Insights", systemImage: "chart.bar.xaxis")
                 }
+                .accessibilityIdentifier("tracker.insights")
             }
-        }
-        .sheet(isPresented: $showingDatePicker) {
-            NavigationStack {
-                DatePicker(
-                    "Tracker date",
-                    selection: Binding(
-                        get: { viewModel.selectedDay.date(in: container.settings.location.timeZone) ?? .now },
-                        set: {
-                            viewModel.selectedDay = LocalDay($0, timeZone: container.settings.location.timeZone)
-                            viewModel.refresh()
-                        }
-                    ),
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.graphical)
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .navigationTitle("Choose Date")
-                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showingDatePicker = false } } }
-            }
-            .presentationDetents([.fraction(0.70)])
         }
         .task {
             prepareLocalTrackers()
-            refreshRecords()
-        }
-        .onChange(of: selection) { _, newValue in
-            if newValue == .insights { refreshRecords() }
         }
     }
 
@@ -229,21 +189,23 @@ struct TrackerView: View {
     }
 
     private var tasbihTracker: some View {
-        TasbihCounterPad(count: $tasbihCount, goal: $tasbihGoal)
+        TasbihCounterPad(count: $tasbihCount, goal: $tasbihGoal) {
+            tasbihHistoryData = TasbihHistoryLedger.incrementing(goal: tasbihGoal, on: today, in: tasbihHistoryData)
+        }
     }
 
     @ViewBuilder
     private var goodDeedsTracker: some View {
         HStack {
-            Text("Good deeds today").font(.title3.bold())
+            Text("Nafl today").font(.title3.bold())
             Spacer()
-            Text("\(goodDeedsCount) of \(goodDeeds.count)")
+            Text("\(goodDeedsCount) of \(NaflPractice.allCases.count)")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
 
         VStack(spacing: 12) {
-            ForEach(goodDeeds) { deed in
+            ForEach(NaflPractice.allCases) { deed in
                 SalahCard {
                     GoodDeedRow(
                         title: deed.title,
@@ -379,70 +341,12 @@ struct TrackerView: View {
         }
     }
 
-    @ViewBuilder
-    private var insightsTracker: some View {
-        if records.filter(\.completed).isEmpty {
-            ContentUnavailableView {
-                Label("No insights yet", systemImage: "chart.bar")
-            } description: {
-                Text("Completed prayers will create a private history here.")
-            }
-            .frame(minHeight: 300)
-        } else {
-            HStack(spacing: 12) {
-                insightCard("Current streak", value: "\(insights.currentStreak)", detail: "full days")
-                insightCard("Best streak", value: "\(insights.bestStreak)", detail: "full days")
-            }
-
-            SalahCard {
-                HStack {
-                    Text("Last 7 Days").font(.headline)
-                    Spacer()
-                    Text(insights.completionPercentage, format: .percent.precision(.fractionLength(0)))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                Chart(chartValues) { value in
-                    BarMark(
-                        x: .value("Day", value.day.key),
-                        y: .value("Completed", value.count)
-                    )
-                    .foregroundStyle(value.day == today ? palette.heroStart : palette.accent)
-                    .cornerRadius(5)
-                }
-                .chartYScale(domain: 0...5)
-                .frame(height: 190)
-                .accessibilityChartDescriptor(PrayerHistoryChartDescriptor(values: chartValues))
-            }
-
-            NavigationLink {
-                HistoryView(container: container)
-            } label: {
-                Label("Open Full Prayer History", systemImage: "clock.arrow.circlepath")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
-        }
-    }
-
     private var today: LocalDay {
         LocalDay(.now, timeZone: container.settings.location.timeZone)
     }
 
-    private var insights: TrackerInsights {
-        TrackerInsightCalculator.calculate(records: records, today: today, timeZone: container.settings.location.timeZone)
-    }
-
-    private var chartValues: [DailyChartValue] {
-        (0..<7).reversed().map { offset in
-            let day = today.adding(days: -offset, in: container.settings.location.timeZone)
-            return DailyChartValue(day: day, count: Set(records.filter { $0.localDay == day && $0.completed }.map(\.prayer)).count)
-        }
-    }
-
     private var goodDeedsCount: Int {
-        goodDeeds.filter { goodDeedsMask & (1 << $0.id) != 0 }.count
+        NaflPractice.allCases.filter { goodDeedsMask & (1 << $0.id) != 0 }.count
     }
 
     private func isGoodDeedCompleted(_ id: Int) -> Bool {
@@ -455,16 +359,34 @@ struct TrackerView: View {
         } else {
             goodDeedsMask |= (1 << id)
         }
-    }
-
-    private func refreshRecords() {
-        records = (try? container.trackingRepository.allRecords()) ?? []
+        naflHistoryData = NaflHistoryLedger.recording(mask: goodDeedsMask, on: today, in: naflHistoryData)
     }
 
     private func prepareLocalTrackers() {
+        if tasbihDay.isEmpty {
+            tasbihDay = today.key
+            if tasbihCount > 0, !TasbihHistoryLedger.decode(tasbihHistoryData).contains(where: { $0.day == today }) {
+                tasbihHistoryData = TasbihHistoryLedger.recording(count: tasbihCount, goal: tasbihGoal, on: today, in: tasbihHistoryData)
+            }
+        } else if tasbihDay != today.key {
+            if let priorDay = LocalDay(stableKey: tasbihDay),
+               tasbihCount > 0,
+               !TasbihHistoryLedger.decode(tasbihHistoryData).contains(where: { $0.day == priorDay }) {
+                tasbihHistoryData = TasbihHistoryLedger.recording(count: tasbihCount, goal: tasbihGoal, on: priorDay, in: tasbihHistoryData)
+            }
+            tasbihDay = today.key
+            tasbihCount = 0
+        }
+
         if goodDeedsDay != today.key {
+            if let priorDay = LocalDay(stableKey: goodDeedsDay), goodDeedsMask > 0 {
+                naflHistoryData = NaflHistoryLedger.recording(mask: goodDeedsMask, on: priorDay, in: naflHistoryData)
+            }
             goodDeedsDay = today.key
             goodDeedsMask = 0
+            naflHistoryData = NaflHistoryLedger.recording(mask: 0, on: today, in: naflHistoryData)
+        } else if !NaflHistoryLedger.decode(naflHistoryData).contains(where: { $0.day == today }) {
+            naflHistoryData = NaflHistoryLedger.recording(mask: goodDeedsMask, on: today, in: naflHistoryData)
         }
         let month = String(format: "%04d-%02d", today.year, today.month)
         var entries = charityEntries
@@ -538,14 +460,6 @@ struct TrackerView: View {
                 inMonthContaining: .now
             ).rounded()
         )
-    }
-
-    private func insightCard(_ title: String, value: String, detail: String) -> some View {
-        SalahCard {
-            Text(title).font(.caption).foregroundStyle(.secondary)
-            Text(value).font(.largeTitle.bold().monospacedDigit())
-            Text(detail).font(.caption).foregroundStyle(.secondary)
-        }
     }
 
     private var isToday: Bool {
@@ -819,6 +733,7 @@ private struct CharityGoalEditor: View {
 private struct TasbihCounterPad: View {
     @Binding var count: Int
     @Binding var goal: Int
+    let onIncrement: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.salahPalette) private var palette
@@ -1088,6 +1003,7 @@ private struct TasbihCounterPad: View {
     private func increment() {
         let nextCount = count + 1
         count = nextCount
+        onIncrement()
 
         if goal > 0, nextCount == goal {
             completedGoal = goal

@@ -20,8 +20,11 @@ struct DebugDrawerView: View {
     // Mirror the same AppStorage keys used by TrackerView in TrackerHistory.swift.
     @AppStorage("salah.deeds.istighfar-count") private var tasbihCount = 0
     @AppStorage("salah.deeds.tasbih-goal") private var tasbihGoal = 0
+    @AppStorage("salah.deeds.tasbih-day") private var tasbihDay = ""
+    @AppStorage(TasbihHistoryLedger.storageKey) private var tasbihHistoryData = Data()
     @AppStorage("salah.deeds.good-deeds-mask") private var goodDeedsMask = 0
     @AppStorage("salah.deeds.good-deeds-day")  private var goodDeedsDay = ""
+    @AppStorage(NaflHistoryLedger.storageKey) private var naflHistoryData = Data()
     @AppStorage("salah.deeds.charity-total")   private var charityTotal = 0
     @AppStorage("salah.deeds.charity-goal")    private var charityGoal = 100
     @AppStorage("salah.deeds.charity-month")   private var charityMonth = ""
@@ -114,14 +117,28 @@ struct DebugDrawerView: View {
             }
         }
 
-        // ── Tasbih: set counter to a random value 40–99 ──
+        // ── Tasbih: seed daily totals and keep today's live counter in sync ──
         tasbihCount = Int.random(in: 40...99)
         tasbihGoal = 100
+        tasbihDay = today.key
+        var tasbihData = Data()
+        for offset in 0..<30 {
+            let day = today.adding(days: -offset, in: timeZone)
+            let count = offset == 0 ? tasbihCount : Int.random(in: 0...180)
+            tasbihData = TasbihHistoryLedger.recording(count: count, goal: 100, on: day, in: tasbihData)
+        }
+        tasbihHistoryData = tasbihData
 
-        // ── Good Deeds: mark all 3 deeds as done for today ──
-        //    Bits 0, 1, 2 map to the three GoodDeedDefinitions in TrackerView
+        // ── Nafl: seed 30 days and mark all five items for today ──
         goodDeedsDay = today.key
-        goodDeedsMask = 0b111
+        goodDeedsMask = 0b1_1111
+        var naflData = Data()
+        for offset in 0..<30 {
+            let day = today.adding(days: -offset, in: timeZone)
+            let mask = offset == 0 ? goodDeedsMask : Int.random(in: 0...0b1_1111)
+            naflData = NaflHistoryLedger.recording(mask: mask, on: day, in: naflData)
+        }
+        naflHistoryData = naflData
 
         // ── Charity: plausible amount for the current month ──
         let components = Calendar.current.dateComponents([.year, .month], from: .now)
@@ -152,10 +169,13 @@ struct DebugDrawerView: View {
         // ── Tasbih ──
         tasbihCount = 0
         tasbihGoal = 0
+        tasbihDay = ""
+        tasbihHistoryData = Data()
 
         // ── Good Deeds ──
         goodDeedsMask = 0
         goodDeedsDay = ""
+        naflHistoryData = Data()
 
         // ── Charity ──
         charityTotal = 0

@@ -263,6 +263,11 @@ final class AppContainer {
             try? self.trackingRepository.clearAll()
             UserDefaults.standard.set(0, forKey: "salah.deeds.istighfar-count")
             UserDefaults.standard.set(0, forKey: "salah.deeds.tasbih-goal")
+            UserDefaults.standard.removeObject(forKey: "salah.deeds.tasbih-day")
+            UserDefaults.standard.removeObject(forKey: TasbihHistoryLedger.storageKey)
+            UserDefaults.standard.set(0, forKey: "salah.deeds.good-deeds-mask")
+            UserDefaults.standard.removeObject(forKey: "salah.deeds.good-deeds-day")
+            UserDefaults.standard.removeObject(forKey: NaflHistoryLedger.storageKey)
             UserDefaults.standard.set(0, forKey: "salah.deeds.charity-total")
             UserDefaults.standard.removeObject(forKey: CharityLedger.storageKey)
         }
