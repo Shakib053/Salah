@@ -169,7 +169,6 @@ struct TrackerView: View {
             }
             .presentationDetents([.fraction(0.70)])
         }
-//        .safeAreaInset(edge: .bottom)
         .task {
             prepareLocalTrackers()
             refreshRecords()
