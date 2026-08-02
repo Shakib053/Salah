@@ -151,12 +151,6 @@ struct PrayerReminderSettingsView: View {
             .opacity(mode == .exact ? 0.55 : 1)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Notify me \(selectedOffset) minutes before")
-
-            Text("You will receive a notification \(selectedOffset) minutes before each prayer.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
         }
     }
 
@@ -322,10 +316,9 @@ struct PrayerReminderSettingsView: View {
     private func save() {
         let offset = mode == .exact ? 0 : selectedOffset
         container.settings.setReminder(ReminderPreference(enabled: true, offsetMinutes: offset), for: event)
+        dismiss()
         Task {
             await ReminderCoordinator.reconcile(container: container)
-            print("Save button dismissed")
-            dismiss()
         }
     }
 
