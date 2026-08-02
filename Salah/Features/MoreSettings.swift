@@ -331,6 +331,7 @@ struct RemindersView: View {
     @Bindable var container: AppContainer
     @State private var status: NotificationAuthorization = .notDetermined
     @State private var educationEvent: PrayerEvent = .fajr
+    @State private var editingReminderEvent: PrayerEvent?
     @State private var showingEducation = false
     @State private var showingCharityEducation = false
     @State private var charityReminderEnabled: Bool
@@ -377,6 +378,9 @@ struct RemindersView: View {
             }
         }
         .navigationTitle("Reminders")
+        .navigationDestination(item: $editingReminderEvent) { event in
+            PrayerReminderSettingsView(container: container, event: event)
+        }
         .task {
             syncCharityPreference()
             await refreshStatus()
@@ -497,39 +501,58 @@ struct RemindersView: View {
                 .accessibilityLabel("\(event.title) reminder, off")
                 .accessibilityHint("Opens reminder settings and permission options")
             } else {
-                Toggle(isOn: Binding(
-                    get: { container.settings.reminder(for: event).enabled },
-                    set: { newValue in updateEnabled(newValue, event: event) }
-                )) {
-                    Label(event.title, systemImage: event.symbol)
+                HStack(spacing: 12) {
+                    Button {
+                        if preference.enabled {
+                            editingReminderEvent = event
+                        } else {
+                            updateEnabled(true, event: event, opensDetail: true)
+                        }
+                    } label: {
+                        HStack(spacing: 10) {
+                            Label(event.title, systemImage: event.symbol)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            if preference.enabled {
+                                Text(reminderSummary(for: preference))
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(preference.enabled ? "\(event.title) reminder, \(reminderSummary(for: preference))" : "\(event.title) reminder, off")
+                    .accessibilityHint(preference.enabled ? "Opens reminder timing settings" : "Turns on this reminder and opens timing settings")
+
+                    Toggle(isOn: Binding(
+                        get: { container.settings.reminder(for: event).enabled },
+                        set: { newValue in updateEnabled(newValue, event: event, opensDetail: newValue) }
+                    )) {
+                        Text(event.title)
+                    }
+                    .labelsHidden()
+                    .accessibilityLabel(event.title)
+                    .accessibilityHint(preference.enabled ? "Turns off and cancels scheduled reminders" : "Turns on this reminder")
                 }
                 .frame(minHeight: 44)
-                .accessibilityHint(preference.enabled ? "Turns off and cancels scheduled reminders" : "Turns on this reminder")
-            }
-
-            if preference.enabled {
-                Picker("Notification time", selection: Binding(
-                    get: { container.settings.reminder(for: event).offsetMinutes },
-                    set: { updateOffset($0, event: event) }
-                )) {
-                    Text("At event time").tag(0)
-                    Text("5 minutes before").tag(5)
-                    Text("10 minutes before").tag(10)
-                    Text("15 minutes before").tag(15)
-                    Text("30 minutes before").tag(30)
-                }
-                .pickerStyle(.menu)
             }
         }
     }
 
-    private func updateEnabled(_ enabled: Bool, event: PrayerEvent) {
+    private func updateEnabled(_ enabled: Bool, event: PrayerEvent, opensDetail: Bool = false) {
         if enabled {
             if status == .authorized {
                 var preference = container.settings.reminder(for: event)
                 preference.enabled = true
                 container.settings.setReminder(preference, for: event)
                 Task { await ReminderCoordinator.reconcile(container: container) }
+                if opensDetail {
+                    editingReminderEvent = event
+                }
             }
         } else {
             var preference = container.settings.reminder(for: event)
@@ -537,13 +560,6 @@ struct RemindersView: View {
             container.settings.setReminder(preference, for: event)
             Task { await container.notificationScheduler.cancel(event: event) }
         }
-    }
-
-    private func updateOffset(_ offset: Int, event: PrayerEvent) {
-        var preference = container.settings.reminder(for: event)
-        preference.offsetMinutes = offset
-        container.settings.setReminder(preference, for: event)
-        Task { await ReminderCoordinator.reconcile(container: container) }
     }
 
     private func persistCharityEnabled(_ enabled: Bool) {
@@ -617,6 +633,12 @@ struct RemindersView: View {
         case .authorized: String(localized: "Allowed")
         case .denied: String(localized: "Denied")
         }
+    }
+
+    private func reminderSummary(for preference: ReminderPreference) -> String {
+        preference.offsetMinutes == 0
+            ? String(localized: "Exact time")
+            : String(localized: "\(preference.offsetMinutes) min before")
     }
 
     private func refreshStatus() async {

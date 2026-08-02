@@ -273,7 +273,13 @@ struct TodayView: View {
     }
 
     private func isActive(_ window: PrayerWindow, day: PrayerDay) -> Bool {
-        day.localDay == LocalDay(.now, timeZone: day.timeZone) && window.contains(.now)
+        guard day.localDay == LocalDay(.now, timeZone: day.timeZone) else { return false }
+        let moment = PrayerTimeline.moment(
+            now: .now,
+            today: day,
+            previous: viewModel.previousDay
+        )
+        return moment.current?.prayer == window.prayer
     }
 
     private func eventCard(title: String, date: Date, symbol: String, day: PrayerDay) -> some View {

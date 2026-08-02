@@ -169,20 +169,6 @@ struct TrackerView: View {
             }
             .presentationDetents([.fraction(0.70)])
         }
-        .safeAreaInset(edge: .bottom) {
-            if selection == .prayers, viewModel.lastChanged != nil {
-                HStack {
-                    Text("Prayer tracking updated")
-                    Spacer()
-                    Button("Undo") { viewModel.undo() }.bold()
-                }
-                .padding()
-                .background(.regularMaterial, in: Capsule())
-                .padding(.horizontal)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .accessibilityElement(children: .contain)
-            }
-        }
         .task {
             prepareLocalTrackers()
             refreshRecords()
