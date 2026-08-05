@@ -24,14 +24,14 @@
 		D20000000000000000000008 /* TodayCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000008 /* TodayCalendar.swift */; };
 		D20000000000000000000009 /* TrackerHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000009 /* TrackerHistory.swift */; };
 		D2000000000000000000000A /* MoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* MoreSettings.swift */; };
-		D20000000000000000000011 /* PrayerReminderSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000011 /* PrayerReminderSettingsView.swift */; };
-		D20000000000000000000012 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000012 /* InsightsView.swift */; };
 		D2000000000000000000000B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
 		D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000C /* PrivacyInfo.xcprivacy */; };
 		D2000000000000000000000D /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* UITestSupport.swift */; };
 		D2000000000000000000000E /* WidgetSharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000E /* WidgetSharedData.swift */; };
 		D2000000000000000000000F /* WidgetDataPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000F /* WidgetDataPublisher.swift */; };
 		D20000000000000000000010 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
+		D20000000000000000000011 /* PrayerReminderSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000011 /* PrayerReminderSettingsView.swift */; };
+		D20000000000000000000012 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000012 /* InsightsView.swift */; };
 		D50000000000000000000001 /* SalahDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000001 /* SalahDomainTests.swift */; };
 		D50000000000000000000002 /* SalahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000002 /* SalahUITests.swift */; };
 		E10000000000000000000001 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = E30000000000000000000001 /* Adhan */; };
@@ -97,13 +97,13 @@
 		D10000000000000000000008 /* TodayCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayCalendar.swift; sourceTree = "<group>"; };
 		D10000000000000000000009 /* TrackerHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerHistory.swift; sourceTree = "<group>"; };
 		D1000000000000000000000A /* MoreSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreSettings.swift; sourceTree = "<group>"; };
-		D10000000000000000000011 /* PrayerReminderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerReminderSettingsView.swift; sourceTree = "<group>"; };
-		D10000000000000000000012 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		D1000000000000000000000B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		D1000000000000000000000C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D1000000000000000000000D /* UITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
 		D1000000000000000000000E /* WidgetSharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WidgetSharedData.swift; path = SalahWidgets/WidgetSharedData.swift; sourceTree = "<group>"; };
 		D1000000000000000000000F /* WidgetDataPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataPublisher.swift; sourceTree = "<group>"; };
+		D10000000000000000000011 /* PrayerReminderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerReminderSettingsView.swift; sourceTree = "<group>"; };
+		D10000000000000000000012 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		D40000000000000000000001 /* SalahDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahDomainTests.swift; sourceTree = "<group>"; };
 		D40000000000000000000002 /* SalahUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahUITests.swift; sourceTree = "<group>"; };
 		D40000000000000000000003 /* SalahTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalahTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -563,7 +563,7 @@
 				CODE_SIGN_ENTITLEMENTS = SalahWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = MSD82B6S3K;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SalahWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
@@ -575,7 +575,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prayer.salah.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -595,7 +595,7 @@
 				CODE_SIGN_ENTITLEMENTS = SalahWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = MSD82B6S3K;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SalahWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SalahWidgets;
@@ -607,7 +607,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.widgets;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prayer.salah.widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -746,7 +746,7 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = MSD82B6S3K;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -762,7 +762,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prayer.salah;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -780,7 +780,7 @@
 				CODE_SIGN_ENTITLEMENTS = Salah/Salah.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = MSD82B6S3K;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -796,7 +796,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prayer.salah;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -811,10 +811,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = MSD82B6S3K;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prayer.salah.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -827,10 +827,10 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = MSD82B6S3K;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prayer.salah.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -842,10 +842,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = MSD82B6S3K;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prayer.salah.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -857,10 +857,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = PXF7DUQPQ9;
+				DEVELOPMENT_TEAM = MSD82B6S3K;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mahialjawad.salah.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prayer.salah.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
