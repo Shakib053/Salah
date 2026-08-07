@@ -170,6 +170,12 @@ struct TodayView: View {
         .task(id: queryIdentity) {
             await viewModel.load(day: container.router.selectedDay)
         }
+        .task {
+            while !Task.isCancelled {
+                container.router.syncSelectedDayToNow(timeZone: container.settings.location.timeZone)
+                try? await Task.sleep(for: .seconds(30))
+            }
+        }
     }
 
     @ViewBuilder
@@ -503,6 +509,7 @@ final class CalendarViewModel {
     var state: FeatureLoadState<[PrayerDay]> = .idle
     var selectedDay: LocalDay
     var monthAnchor: LocalDay
+    var anchoredToToday = true
     var trackerDays: Set<LocalDay> = []
     var selectedPrayer: PrayerType?
 
@@ -546,6 +553,15 @@ final class CalendarViewModel {
         let local = LocalDay(moved, timeZone: settings.location.timeZone)
         monthAnchor = LocalDay(year: local.year, month: local.month, day: 1)
         selectedDay = monthAnchor
+        anchoredToToday = false
+    }
+
+    /// Rolls selectedDay to the current day if still anchored.
+    func syncDayToNow() {
+        guard anchoredToToday else { return }
+        let today = LocalDay(.now, timeZone: settings.location.timeZone)
+        guard selectedDay != today else { return }
+        selectedDay = today
     }
 }
 
@@ -578,6 +594,12 @@ struct PrayerCalendarView: View {
         .navigationTitle("Calendar")
         .task(id: "\(viewModel.monthAnchor.key)|\(container.settings.location.name)|\(container.settings.calculation)") {
             await viewModel.load()
+        }
+        .task {
+            while !Task.isCancelled {
+                viewModel.syncDayToNow()
+                try? await Task.sleep(for: .seconds(30))
+            }
         }
     }
 
@@ -647,6 +669,7 @@ struct PrayerCalendarView: View {
         let selected = day.localDay == viewModel.selectedDay
         return Button {
             viewModel.selectedDay = day.localDay
+            viewModel.anchoredToToday = (day.localDay == today)
         } label: {
             ZStack(alignment: .bottom) {
                 Text("\(day.localDay.day)")
