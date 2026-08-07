@@ -382,14 +382,16 @@ struct PrayerScheduleRow: View {
                 HStack {
                     Text(window.prayer.title).font(.headline)
                     Spacer()
-                    if isActive { currentBadge }
+                   // if isActive { currentBadge }
                 }
                 Text("Ends \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))")
                     .font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
-            Text(PrayerDateFormatting.time(window.start, preference: preference, timeZone: day.timeZone))
+            Text("\(PrayerDateFormatting.time(window.start, preference: preference, timeZone: day.timeZone)) - \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))")
                 .font(.headline.monospacedDigit())
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
             if isCompleted {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title3)
