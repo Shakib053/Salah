@@ -57,6 +57,13 @@ final class TrackerViewModel {
         toggle(lastChanged)
         self.lastChanged = nil
     }
+
+    func syncDayToNow() {
+        let today = LocalDay(.now, timeZone: settings.location.timeZone)
+        guard selectedDay != today else { return }
+        selectedDay = today
+        refresh()
+    }
 }
 
 private enum TrackerSection: String, CaseIterable, Identifiable {
@@ -135,6 +142,12 @@ struct TrackerView: View {
         }
         .task {
             prepareLocalTrackers()
+        }
+        .task {
+            while !Task.isCancelled {
+                viewModel.syncDayToNow()
+                try? await Task.sleep(for: .seconds(30))
+            }
         }
     }
 

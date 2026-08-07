@@ -354,6 +354,34 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(nearest).name, "Chattogram")
     }
 
+    @MainActor
+    func testAppRouterSyncSelectedDayToNow() {
+        let router = AppRouter(timeZone: zone)
+        let yesterday = LocalDay(.now, timeZone: zone).adding(days: -1, in: zone)
+        router.selectedDay = yesterday
+        XCTAssertEqual(router.selectedDay, yesterday)
+
+        router.syncSelectedDayToNow(timeZone: zone)
+        let today = LocalDay(.now, timeZone: zone)
+        XCTAssertEqual(router.selectedDay, today)
+
+        // A second call when already on today must not produce a redundant change.
+        router.syncSelectedDayToNow(timeZone: zone)
+        XCTAssertEqual(router.selectedDay, today)
+    }
+
+    func testPrayerMomentAt0012() throws {
+        let tomorrow = day.adding(days: 1, in: zone)
+        let today = try fixture(day: tomorrow)
+        let previous = try fixture(day: day)
+
+        let afterMidnight = try XCTUnwrap(tomorrow.date(in: zone, hour: 0, minute: 12))
+        let moment = PrayerTimeline.moment(now: afterMidnight, today: today, previous: previous)
+
+        XCTAssertEqual(moment.current?.prayer, .isha)
+        XCTAssertEqual(moment.next?.prayer, .fajr)
+    }
+
     private func fixture(day: LocalDay) throws -> PrayerDay {
         func date(_ hour: Int, _ minute: Int) throws -> Date {
             try XCTUnwrap(day.date(in: zone, hour: hour, minute: minute))

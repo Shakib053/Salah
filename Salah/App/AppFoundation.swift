@@ -43,6 +43,12 @@ final class AppRouter {
         selectedDay = LocalDay(.now, timeZone: timeZone)
         selectedTab = .today
     }
+
+    /// Sets selectedDay to the current local day if it differs.
+    func syncSelectedDayToNow(timeZone: TimeZone) {
+        let today = LocalDay(.now, timeZone: timeZone)
+        if selectedDay != today { selectedDay = today }
+    }
 }
 
 private struct StoredSettings: Codable {
