@@ -376,22 +376,23 @@ struct PrayerScheduleRow: View {
     @Environment(\.salahPalette) private var palette
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             PrayerIcon(prayer: window.prayer, active: isActive)
-            VStack(alignment: .leading, spacing: 3) {
-                HStack {
-                    Text(window.prayer.title).font(.headline)
-                    Spacer()
-                   // if isActive { currentBadge }
-                }
-                Text("Ends \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))")
-                    .font(.caption).foregroundStyle(.secondary)
+
+            HStack(spacing: 6) {
+                Text(window.prayer.title)
+                    .font(.headline)
+                    .lineLimit(1)
+                if isActive { currentBadge }
             }
-            Spacer()
+
+            Spacer(minLength: 6)
+
             Text("\(PrayerDateFormatting.time(window.start, preference: preference, timeZone: day.timeZone)) - \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))")
-                .font(.headline.monospacedDigit())
+                .font(.system(size: 14, weight: .semibold).monospacedDigit())
                 .lineLimit(1)
-                .minimumScaleFactor(0.75)
+                .minimumScaleFactor(0.8)
+                .layoutPriority(1)
             if isCompleted {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title3)
@@ -417,7 +418,7 @@ struct PrayerScheduleRow: View {
     }
 
     private var currentBadge: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 3) {
             Image(systemName: "clock.fill")
                 .font(.caption2.weight(.semibold))
             Text("Current")
@@ -426,8 +427,7 @@ struct PrayerScheduleRow: View {
                 .fixedSize(horizontal: true, vertical: false)
         }
         .font(.caption2.weight(.semibold))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.vertical, 3)
         .foregroundStyle(palette.accent)
         .background(palette.accentSoft, in: Capsule())
         .accessibilityLabel("Current prayer")
