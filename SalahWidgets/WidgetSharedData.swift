@@ -52,7 +52,7 @@ extension WidgetSnapshot {
 }
 
 enum WidgetDataStore {
-    static let groupID = "group.com.mahialjawad.salah"
+    static let groupID = "group.com.prayer.salah"
     private static let snapshotKey = "salah.widget.snapshot"
 
     static func save(_ snapshot: WidgetSnapshot) {
