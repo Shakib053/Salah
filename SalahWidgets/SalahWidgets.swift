@@ -66,7 +66,7 @@ struct SalahWidgetsEntryView : View {
             case .systemLarge:
                 LargeWidgetView(snapshot: entry.snapshot)
             default:
-                SmallWidgetView(snapshot: entry.snapshot)
+                SmallWidgetView(date: entry.date, snapshot: entry.snapshot)
             }
         }
         .containerBackground(for: .widget) {
@@ -125,64 +125,59 @@ private extension WidgetPrayer {
 }
 
 private struct SmallWidgetView: View {
+    let date: Date
     let snapshot: WidgetSnapshot?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 0) {
+            // Top row: crescent icon (left) + current time (right)
             HStack {
                 Image(systemName: "moon.stars.fill")
                     .font(.title3)
                     .foregroundStyle(WidgetTheme.accent)
                 Spacer()
-                Image(systemName: "sparkles")
-                    .font(.caption)
-                    .foregroundStyle(WidgetTheme.muted)
+                Text(WidgetTimeFormatter.time(
+                    date,
+                    timezoneIdentifier: snapshot?.timeZoneIdentifier ?? TimeZone.current.identifier
+                ))
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(WidgetTheme.accent)
+                .monospacedDigit()
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: 6)
 
             if let snapshot, let featured = snapshot.currentPrayer ?? snapshot.nextPrayer {
                 let isCurrent = snapshot.currentPrayer != nil
                 let countdownDate = isCurrent ? featured.end : featured.time
 
-                Text(isCurrent ? "CURRENT PRAYER" : "NEXT PRAYER")
-                    .font(.caption2.weight(.semibold))
-                    .tracking(1.1)
-                    .foregroundStyle(WidgetTheme.accent)
+                // Centered prayer block: name, label, large countdown
+                VStack(spacing: 4) {
+                    Text(featured.name)
+                        .font(.system(size: 28, weight: .medium, design: .serif))
+                        .foregroundStyle(WidgetTheme.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
 
-                Text(featured.name)
-                    .font(.system(size: 27, weight: .medium, design: .serif))
-                    .foregroundStyle(WidgetTheme.primary)
-                    .lineLimit(1)
-
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(isCurrent ? "ends in" : "in")
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(WidgetTheme.accent)
+
                     Text(countdownDate, style: .timer)
+                        .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(WidgetTheme.accent)
                         .monospacedDigit()
                 }
-                .font(.subheadline.weight(.semibold))
-
-                Spacer(minLength: 8)
-                Rectangle()
-                    .fill(WidgetTheme.divider)
-                    .frame(height: 1)
-                HStack(spacing: 5) {
-                    Image(systemName: "clock")
-                    Text(WidgetTimeFormatter.time(featured.time, timezoneIdentifier: snapshot.timeZoneIdentifier))
-                }
-                .font(.caption)
-                .foregroundStyle(WidgetTheme.secondary)
-                .padding(.top, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 Text("Open Salah to load prayer times")
                     .font(.caption)
                     .foregroundStyle(WidgetTheme.secondary)
-                    .multilineTextAlignment(.leading)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .padding(16)
+        .padding(14)
     }
 }
 
