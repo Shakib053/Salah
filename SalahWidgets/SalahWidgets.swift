@@ -64,6 +64,7 @@ struct SalahWidgetsEntryView : View {
                 SmallWidgetView(date: entry.date, snapshot: entry.snapshot)
             }
         }
+        .environment(\.locale, WidgetLocalization.locale)
         .containerBackground(for: .widget) {
             WidgetTheme.background
         }
@@ -87,7 +88,7 @@ private enum WidgetTheme {
 private enum WidgetTimeFormatter {
     static func time(_ date: Date, timezoneIdentifier: String) -> String {
         let formatter = DateFormatter()
-        formatter.locale = .current
+        formatter.locale = WidgetLocalization.locale
         formatter.timeZone = TimeZone(identifier: timezoneIdentifier) ?? .current
         formatter.timeStyle = .short
         return formatter.string(from: date)
@@ -388,9 +389,9 @@ private struct LargeWidgetView: View {
 
 private func featuredHeading(_ prayer: WidgetPrayer, isCurrent: Bool) -> String {
     if prayer.isNafl {
-        return isCurrent ? String(localized: "CURRENT NAFL PRAYER") : String(localized: "NEXT NAFL PRAYER")
+        return isCurrent ? WidgetLocalization.string("CURRENT NAFL PRAYER") : WidgetLocalization.string("NEXT NAFL PRAYER")
     }
-    return isCurrent ? String(localized: "CURRENT PRAYER") : String(localized: "NEXT PRAYER")
+    return isCurrent ? WidgetLocalization.string("CURRENT PRAYER") : WidgetLocalization.string("NEXT PRAYER")
 }
 
 struct SalahWidgets: Widget {

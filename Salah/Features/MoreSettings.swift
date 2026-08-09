@@ -83,13 +83,16 @@ struct MoreView: View {
                     settingsLabel("Prayer Reminders", subtitle: "Optional local notifications", symbol: "bell.fill", tint: .orange)
                 }
                 NavigationLink { LocationCalculationView(container: container) } label: {
-                    settingsLabel("Location & Calculation", subtitle: container.settings.location.name, symbol: "location.fill", tint: .blue)
+                    settingsLabel("Location & Calculation", subtitle: container.localizedLocationName, symbol: "location.fill", tint: .blue)
                 }
                 NavigationLink { AppearanceView(container: container) } label: {
                     settingsLabel("Appearances & Theme", subtitle: "Display mode and colors", symbol: "paintpalette.fill", tint: palette.accent)
                 }
+                NavigationLink { LanguageSettingsView(container: container) } label: {
+                    settingsLabel("Language", subtitle: container.settings.language.selectorTitle, symbol: "character.bubble.fill", tint: .indigo)
+                }
                 NavigationLink { CharityHistoryView(container: container) } label: {
-                    settingsLabel("Ṣadaqah", subtitle: "A private giving intention", symbol: "heart.fill", tint: .pink)
+                    settingsLabel("Sadaqah", subtitle: "A private giving intention", symbol: "heart.fill", tint: .pink)
                 }
             }
 
@@ -138,8 +141,8 @@ struct MoreView: View {
     private func settingsLabel(_ title: String, subtitle: String, symbol: String, tint: Color) -> some View {
         Label {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).foregroundStyle(.primary)
-                Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                Text(LocalizedStringKey(title)).foregroundStyle(.primary)
+                Text(LocalizedStringKey(subtitle)).font(.caption).foregroundStyle(.secondary)
             }
         } icon: {
             Image(systemName: symbol)
@@ -157,6 +160,29 @@ struct MoreView: View {
     }
 }
 
+struct LanguageSettingsView: View {
+    @Bindable var container: AppContainer
+
+    var body: some View {
+        @Bindable var settings = container.settings
+        Form {
+            Section {
+                Picker("Language", selection: $settings.language) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(verbatim: language.selectorTitle).tag(language)
+                    }
+                }
+                .pickerStyle(.inline)
+                .labelsHidden()
+                .accessibilityIdentifier("settings.language.picker")
+            } footer: {
+                Text("System follows your iPhone language. English and Bangla override it only inside Salah.")
+            }
+        }
+        .navigationTitle("Language")
+    }
+}
+
 struct ReminderEducationSheet: View {
     private enum Target {
         case prayer(PrayerEvent)
@@ -165,7 +191,7 @@ struct ReminderEducationSheet: View {
         var title: String {
             switch self {
             case .prayer(let event): event.title
-            case .charity: String(localized: "Charity")
+            case .charity: L10n.string("Charity")
             }
         }
     }
@@ -614,13 +640,13 @@ struct RemindersView: View {
             charityReminderDate.formatted(date: .abbreviated, time: .shortened)
         case .weekly:
             String(
-                format: String(localized: "Every %@ at %@"),
+                format: L10n.string("Every %@ at %@"),
                 charityReminderDate.formatted(.dateTime.weekday(.wide)),
                 charityReminderDate.formatted(date: .omitted, time: .shortened)
             )
         case .monthly:
             String(
-                format: String(localized: "Monthly on day %lld at %@"),
+                format: L10n.string("Monthly on day %lld at %@"),
                 Int64(Calendar.current.component(.day, from: charityReminderDate)),
                 charityReminderDate.formatted(date: .omitted, time: .shortened)
             )
@@ -629,16 +655,16 @@ struct RemindersView: View {
 
     private var permissionText: String {
         switch status {
-        case .notDetermined: String(localized: "Not requested")
-        case .authorized: String(localized: "Allowed")
-        case .denied: String(localized: "Denied")
+        case .notDetermined: L10n.string("Not requested")
+        case .authorized: L10n.string("Allowed")
+        case .denied: L10n.string("Denied")
         }
     }
 
     private func reminderSummary(for preference: ReminderPreference) -> String {
         preference.offsetMinutes == 0
-            ? String(localized: "Exact time")
-            : String(localized: "\(preference.offsetMinutes) min before")
+            ? L10n.string("Exact time")
+            : L10n.string("\(preference.offsetMinutes) min before")
     }
 
     private func refreshStatus() async {
@@ -658,7 +684,7 @@ struct LocationCalculationView: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("Current", value: container.settings.location.name)
+                LabeledContent("Current", value: container.localizedLocationName)
                 LabeledContent("Source", value: container.settings.location.source.title)
                 LabeledContent("Permission", value: container.locationProvider.authorization.title)
                 Button("Use Current Location") { showingLocationEducation = true }

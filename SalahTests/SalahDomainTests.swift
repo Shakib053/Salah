@@ -540,6 +540,34 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertEqual(router.calendarPrayerTarget?.prayer, .isha)
     }
 
+    @MainActor
+    func testLanguagePreferencePersistsAndControlsLocalizedModelText() {
+        let previousLanguage = LanguagePreferences.current
+        defer { LanguagePreferences.current = previousLanguage }
+
+        let suiteName = "SalahDomainTests.language.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let settings = AppSettings(defaults: defaults)
+        settings.language = .bangla
+
+        let district = District(
+            id: "47",
+            name: "Dhaka",
+            banglaName: "ঢাকা",
+            latitude: 23.7115253,
+            longitude: 90.4111451
+        )
+        XCTAssertEqual(district.localizedName, "ঢাকা")
+        XCTAssertEqual(AppSettings(defaults: defaults).language, .bangla)
+
+        settings.language = .english
+        XCTAssertEqual(district.localizedName, "Dhaka")
+        XCTAssertEqual(CharityCategory.sadaqah.title, "Sadaqah")
+        XCTAssertEqual(CharityCategory.zakat.title, "Zakat")
+    }
+
     private func fixture(day: LocalDay) throws -> PrayerDay {
         func date(_ hour: Int, _ minute: Int) throws -> Date {
             try XCTUnwrap(day.date(in: zone, hour: hour, minute: minute))

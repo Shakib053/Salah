@@ -22,6 +22,7 @@ struct AppRootView: View {
             }
         }
         .environment(\.salahPalette, container.settings.palette)
+        .environment(\.locale, container.settings.language.locale)
         .tint(container.settings.palette.accent)
         .preferredColorScheme(preferredScheme)
         .onChange(of: scenePhase) { _, phase in
@@ -222,9 +223,9 @@ struct OnboardingFlow: View {
 
     private var pages: [OnboardingPage] {
         [
-            OnboardingPage(id: 0, symbol: "clock.badge.checkmark", title: String(localized: "Prayer times at a glance"), body: String(localized: "See today’s prayer windows, the next prayer, and a calm live countdown.")),
-            OnboardingPage(id: 1, symbol: "checklist", title: String(localized: "Track privately"), body: String(localized: "Record daily prayers and view supportive history. Your tracker stays on this device.")),
-            OnboardingPage(id: 2, symbol: "moon.stars", title: String(localized: "Fasting and optional reminders"), body: String(localized: "See Sahri and Iftar times. Enable only the reminders that are useful to you."))
+            OnboardingPage(id: 0, symbol: "clock.badge.checkmark", title: L10n.string("Prayer times at a glance"), body: L10n.string("See today’s prayer windows, the next prayer, and a calm live countdown.")),
+            OnboardingPage(id: 1, symbol: "checklist", title: L10n.string("Track privately"), body: L10n.string("Record daily prayers and view supportive history. Your tracker stays on this device.")),
+            OnboardingPage(id: 2, symbol: "moon.stars", title: L10n.string("Fasting and optional reminders"), body: L10n.string("See Sahri and Iftar times. Enable only the reminders that are useful to you."))
         ]
     }
 
@@ -394,8 +395,10 @@ struct DistrictPickerView: View {
                 onSelect(district)
             } label: {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(district.name).foregroundStyle(.primary)
-                    Text(district.banglaName).font(.subheadline).foregroundStyle(.secondary)
+                    Text(district.localizedName).foregroundStyle(.primary)
+                    if L10n.usesBangla {
+                        Text(district.name).font(.subheadline).foregroundStyle(.secondary)
+                    }
                 }
                 .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
             }

@@ -131,7 +131,7 @@ struct TodayView: View {
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: "location.fill")
-                        Text(container.settings.location.name)
+                        Text(container.localizedLocationName)
                             .lineLimit(1)
                             .truncationMode(.tail)
                             .layoutPriority(1)
@@ -140,7 +140,7 @@ struct TodayView: View {
                     }
                     .font(.subheadline.weight(.semibold))
                 }
-                .accessibilityLabel("Prayer location, \(container.settings.location.name)")
+                .accessibilityLabel("Prayer location, \(container.localizedLocationName)")
                 .accessibilityHint("Shows options to change the prayer location")
                 .accessibilityIdentifier("today.location.menu")
             }
@@ -376,21 +376,21 @@ struct CurrentPrayerCard: View {
     }
 
     private func cardHeading(for event: PrayerCardEvent?) -> String {
-        guard let event else { return String(localized: "Current prayer") }
+        guard let event else { return L10n.string("Current prayer") }
         if moment.isCurrent {
-            return event.isNafl ? String(localized: "Current nafl prayer") : String(localized: "Current prayer")
+            return event.isNafl ? L10n.string("Current nafl prayer") : L10n.string("Current prayer")
         }
         return event.isNafl
-            ? String(localized: "Next nafl prayer · \(event.title)")
-            : String(localized: "Next prayer · \(event.title)")
+            ? L10n.string("Next nafl prayer · \(event.title)")
+            : L10n.string("Next prayer · \(event.title)")
     }
 
     private func countdownCaption(for event: PrayerCardEvent?) -> String {
-        guard let event else { return String(localized: "Waqt ends in") }
+        guard let event else { return L10n.string("Waqt ends in") }
         if moment.isCurrent {
-            return event.isNafl ? String(localized: "Nafl time ends in") : String(localized: "Waqt ends in")
+            return event.isNafl ? L10n.string("Nafl time ends in") : L10n.string("Waqt ends in")
         }
-        return String(localized: "until \(event.title) begins")
+        return L10n.string("until \(event.title) begins")
     }
 }
 

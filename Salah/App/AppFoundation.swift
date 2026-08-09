@@ -3,6 +3,68 @@ import Foundation
 import Observation
 import SwiftData
 
+enum AppLanguage: String, CaseIterable, Codable, Identifiable, Sendable {
+    case system
+    case english
+    case bangla
+
+    var id: Self { self }
+
+    var locale: Locale {
+        switch self {
+        case .system: .autoupdatingCurrent
+        case .english: Locale(identifier: "en")
+        case .bangla: Locale(identifier: "bn")
+        }
+    }
+
+    var selectorTitle: String {
+        switch self {
+        case .system: L10n.string("System")
+        case .english: "English"
+        case .bangla: "বাংলা"
+        }
+    }
+
+    var usesBangla: Bool {
+        switch self {
+        case .bangla: true
+        case .english: false
+        case .system: Locale.autoupdatingCurrent.language.languageCode?.identifier == "bn"
+        }
+    }
+}
+
+enum LanguagePreferences {
+    private static let key = "salah.app-language"
+
+    static var current: AppLanguage {
+        get {
+            guard let rawValue = UserDefaults.standard.string(forKey: key),
+                  let language = AppLanguage(rawValue: rawValue) else { return .system }
+            return language
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: key)
+            UserDefaults(suiteName: WidgetDataStore.groupID)?.set(newValue.rawValue, forKey: key)
+        }
+    }
+}
+
+enum L10n {
+    static var locale: Locale { LanguagePreferences.current.locale }
+    static var usesBangla: Bool { LanguagePreferences.current.usesBangla }
+
+    static func string(
+        _ key: String.LocalizationValue,
+        table: String? = nil,
+        bundle: Bundle = .main,
+        comment: StaticString? = nil
+    ) -> String {
+        String(localized: key, table: table, bundle: bundle, locale: locale, comment: comment)
+    }
+}
+
 enum AppTab: Hashable, CaseIterable, Identifiable {
     case today, calendar, tracker, qibla, more
 
@@ -10,11 +72,11 @@ enum AppTab: Hashable, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .today: String(localized: "Today")
-        case .calendar: String(localized: "Calendar")
-        case .tracker: String(localized: "Tracker")
-        case .qibla: String(localized: "Qibla")
-        case .more: String(localized: "More")
+        case .today: L10n.string("Today")
+        case .calendar: L10n.string("Calendar")
+        case .tracker: L10n.string("Tracker")
+        case .qibla: L10n.string("Qibla")
+        case .more: L10n.string("More")
         }
     }
 
@@ -68,6 +130,7 @@ private struct StoredSettings: Codable {
     var locationEducationSeen = false
     var location = PrayerLocation.dhaka
     var calculation = CalculationSettings()
+    var language: AppLanguage?
     var appearance = AppearancePreference.system
     var theme: ThemePreference?
     var customThemeColor: CustomThemeColor?
@@ -85,6 +148,12 @@ final class AppSettings {
     var locationEducationSeen: Bool { didSet { save() } }
     var location: PrayerLocation { didSet { save() } }
     var calculation: CalculationSettings { didSet { save() } }
+    var language: AppLanguage {
+        didSet {
+            LanguagePreferences.current = language
+            save()
+        }
+    }
     var appearance: AppearancePreference { didSet { save() } }
     var theme: ThemePreference { didSet { save() } }
     var customThemeColor: CustomThemeColor { didSet { save() } }
@@ -112,10 +181,13 @@ final class AppSettings {
             initialLocation.name = "\(nearestDistrict.name), Bangladesh"
         }
 
+        let initialLanguage = stored.language ?? .system
+        LanguagePreferences.current = initialLanguage
         onboardingComplete = arguments.contains("-ui-testing") && arguments.contains("-onboarding-complete") ? true : stored.onboardingComplete
         locationEducationSeen = stored.locationEducationSeen
         location = initialLocation
         calculation = stored.calculation
+        language = initialLanguage
         appearance = stored.appearance
         theme = stored.theme ?? .greyishBlue
         customThemeColor = stored.customThemeColor ?? .oceanBlue
@@ -146,6 +218,7 @@ final class AppSettings {
             locationEducationSeen: locationEducationSeen,
             location: location,
             calculation: calculation,
+            language: language,
             appearance: appearance,
             theme: theme,
             customThemeColor: customThemeColor,
@@ -211,6 +284,16 @@ final class AppContainer {
     let syncCoordinator: any TrackerSyncCoordinating
     let modelContainer: ModelContainer?
     let districts: [District]
+
+    var localizedLocationName: String {
+        let location = settings.location
+        guard location.countryCode?.uppercased() == "BD",
+              let district = DistrictLoader.nearest(
+                  to: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude),
+                  districts: districts
+              ) else { return location.name }
+        return "\(district.localizedName), \(L10n.string("Bangladesh"))"
+    }
 
     init(
         settings: AppSettings? = nil,

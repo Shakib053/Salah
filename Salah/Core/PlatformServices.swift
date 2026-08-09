@@ -8,10 +8,10 @@ enum LocationAuthorization: String, Sendable {
 
     var title: String {
         switch self {
-        case .notDetermined: String(localized: "Not requested")
-        case .authorized: String(localized: "Allowed")
-        case .denied: String(localized: "Denied")
-        case .restricted: String(localized: "Restricted")
+        case .notDetermined: L10n.string("Not requested")
+        case .authorized: L10n.string("Allowed")
+        case .denied: L10n.string("Denied")
+        case .restricted: L10n.string("Restricted")
         }
     }
 }
@@ -21,10 +21,10 @@ enum LocationServiceError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .denied: String(localized: "Location access is denied. Choose a district manually or enable access in Settings.")
-        case .restricted: String(localized: "Location access is restricted on this device. Choose a district manually.")
-        case .unavailable: String(localized: "Your current location is unavailable.")
-        case .failed: String(localized: "The location request failed.")
+        case .denied: L10n.string("Location access is denied. Choose a district manually or enable access in Settings.")
+        case .restricted: L10n.string("Location access is restricted on this device. Choose a district manually.")
+        case .unavailable: L10n.string("Your current location is unavailable.")
+        case .failed: L10n.string("The location request failed.")
         }
     }
 }
@@ -91,7 +91,7 @@ final class CoreLocationProvider: NSObject, LocationProviding, @preconcurrency C
         let continuation = locationContinuation
         locationContinuation = nil
         Task {
-            let placemark = try? await CLGeocoder().reverseGeocodeLocation(value).first
+            let placemark = try? await CLGeocoder().reverseGeocodeLocation(value, preferredLocale: L10n.locale).first
             continuation?.resume(returning: PrayerLocation(
                 name: Self.displayName(for: value, placemark: placemark),
                 latitude: value.coordinate.latitude,
@@ -124,7 +124,7 @@ final class CoreLocationProvider: NSObject, LocationProviding, @preconcurrency C
             return administrativeArea
         }
 
-        return String(localized: "Nearby Location")
+        return L10n.string("Nearby Location")
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -181,7 +181,7 @@ struct District: Codable, Identifiable, Hashable, Sendable {
 
     var prayerLocation: PrayerLocation {
         PrayerLocation(
-            name: "\(localizedName), \(String(localized: "Bangladesh"))",
+            name: "\(localizedName), \(L10n.string("Bangladesh"))",
             latitude: latitude,
             longitude: longitude,
             timeZoneIdentifier: "Asia/Dhaka",
@@ -191,7 +191,7 @@ struct District: Codable, Identifiable, Hashable, Sendable {
     }
 
     var localizedName: String {
-        Locale.current.language.languageCode?.identifier == "bn" ? banglaName : name
+        L10n.usesBangla ? banglaName : name
     }
 }
 
@@ -242,9 +242,9 @@ enum CharityReminderRepeat: String, Codable, CaseIterable, Identifiable, Sendabl
 
     var title: String {
         switch self {
-        case .once: String(localized: "Once")
-        case .weekly: String(localized: "Weekly")
-        case .monthly: String(localized: "Monthly")
+        case .once: L10n.string("Once")
+        case .weekly: L10n.string("Weekly")
+        case .monthly: L10n.string("Monthly")
         }
     }
 }
@@ -427,11 +427,11 @@ final class LocalNotificationScheduler: NotificationScheduling {
             let content = UNMutableNotificationContent()
             content.title = candidate.event.title
             content.body = candidate.event == .sahri
-                ? String(localized: "Sahri time is approaching.")
+                ? L10n.string("Sahri time is approaching.")
                 : candidate.event == .iftar
-                    ? String(localized: "Iftar time is approaching.")
+                    ? L10n.string("Iftar time is approaching.")
                     : String(
-                        format: String(localized: "It is time for %@."),
+                        format: L10n.string("It is time for %@."),
                         candidate.event.title
                     )
             content.sound = .default
@@ -458,8 +458,8 @@ final class LocalNotificationScheduler: NotificationScheduling {
         await cancelCharityReminder()
 
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "Charity reminder")
-        content.body = String(localized: "A gentle reminder for the charity you intended to give.")
+        content.title = L10n.string("Charity reminder")
+        content.body = L10n.string("A gentle reminder for the charity you intended to give.")
         content.sound = .default
 
         let calendar = Calendar.current

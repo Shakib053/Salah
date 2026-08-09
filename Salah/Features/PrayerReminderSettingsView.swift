@@ -288,18 +288,18 @@ struct PrayerReminderSettingsView: View {
     private var previewBadge: String {
         switch mode {
         case .exact:
-            String(localized: "Exact time")
+            L10n.string("Exact time")
         case .before:
-            String(localized: "\(selectedOffset) min before")
+            L10n.string("\(selectedOffset) min before")
         }
     }
 
     private var previewBody: String {
         switch mode {
         case .exact:
-            String(localized: "You'll receive a notification at the time of each prayer.")
+            L10n.string("You'll receive a notification at the time of each prayer.")
         case .before:
-            String(localized: "You'll receive a notification \(selectedOffset) minutes before each prayer.")
+            L10n.string("You'll receive a notification \(selectedOffset) minutes before each prayer.")
         }
     }
 

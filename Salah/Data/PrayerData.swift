@@ -97,7 +97,7 @@ struct AdhanPrayerTimesCalculator: PrayerTimesCalculating {
         guard let date = day.date(in: timeZone, hour: 12) else { return day.key }
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = .current
+        formatter.locale = L10n.locale
         formatter.timeZone = timeZone
         formatter.setLocalizedDateFormatFromTemplate("EEEE d MMMM")
         return formatter.string(from: date)
@@ -114,7 +114,7 @@ struct AdhanPrayerTimesCalculator: PrayerTimesCalculating {
         }
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .islamicUmmAlQura)
-        formatter.locale = .current
+        formatter.locale = L10n.locale
         formatter.timeZone = timeZone
         formatter.setLocalizedDateFormatFromTemplate("d MMMM y")
         return formatter.string(from: adjustedDate)

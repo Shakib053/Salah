@@ -102,7 +102,7 @@ struct DebugDrawerView: View {
         let timeZone = container.settings.location.timeZone
         let today = LocalDay(.now, timeZone: timeZone)
 
-        // ── Ṣalāh: 30 past days, 3–5 random prayers completed each day ──
+        // ── Salah: 30 past days, 3–5 random prayers completed each day ──
         let prayers = PrayerType.allCases
         for offset in 1...30 {
             let day = today.adding(days: -offset, in: timeZone)

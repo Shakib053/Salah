@@ -11,10 +11,10 @@ private enum InsightCategory: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .salah: String(localized: "Ṣalāh")
-        case .tasbih: String(localized: "Tasbih")
-        case .nafl: String(localized: "Nafl")
-        case .charity: String(localized: "Charity")
+        case .salah: L10n.string("Salah")
+        case .tasbih: L10n.string("Tasbih")
+        case .nafl: L10n.string("Nafl")
+        case .charity: L10n.string("Charity")
         }
     }
 
@@ -40,12 +40,12 @@ private enum InsightDatePreset: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .week: String(localized: "Last 7 Days")
-        case .month: String(localized: "This Month")
-        case .threeMonths: String(localized: "Last 3 Months")
-        case .sixMonths: String(localized: "Last 6 Months")
-        case .year: String(localized: "This Year")
-        case .custom: String(localized: "Custom Range")
+        case .week: L10n.string("Last 7 Days")
+        case .month: L10n.string("This Month")
+        case .threeMonths: L10n.string("Last 3 Months")
+        case .sixMonths: L10n.string("Last 6 Months")
+        case .year: L10n.string("This Year")
+        case .custom: L10n.string("Custom Range")
         }
     }
 }
@@ -134,21 +134,21 @@ private struct InsightsDataSet {
         return aggregateDaily(days(in: selection).map { day in
             let count = Set(completed.filter { $0.localDay == day }.map(\.prayer)).count
             return (day, Double(count))
-        }, unit: String(localized: "prayers"))
+        }, unit: L10n.string("prayers"))
     }
 
     func tasbihValues(in selection: InsightDateSelection) -> [InsightPlotValue] {
         aggregateDaily(days(in: selection).map { day in
             let count = tasbihRecords.first(where: { $0.day == day })?.count ?? 0
             return (day, Double(count))
-        }, unit: String(localized: "counts"))
+        }, unit: L10n.string("counts"))
     }
 
     func naflValues(in selection: InsightDateSelection) -> [InsightPlotValue] {
         aggregateDaily(days(in: selection).map { day in
             let count = naflRecords.first(where: { $0.day == day })?.completedCount ?? 0
             return (day, Double(count))
-        }, unit: String(localized: "practices"))
+        }, unit: L10n.string("practices"))
     }
 
     func charityValues(in selection: InsightDateSelection) -> [InsightPlotValue] {
@@ -272,19 +272,19 @@ struct InsightsView: View {
                 today: LocalDay(.now, timeZone: data.timeZone),
                 timeZone: data.timeZone
             ).currentStreak
-            return (percentage.formatted(.percent.precision(.fractionLength(0))), String(localized: "recorded"), "\(streak)", String(localized: "day full streak"))
+            return (percentage.formatted(.percent.precision(.fractionLength(0))), L10n.string("recorded"), "\(streak)", L10n.string("day full streak"))
         case .tasbih:
             let records = data.tasbihRecords.filter { bounds.contains($0.day) }
-            return (records.reduce(0) { $0 + $1.count }.formatted(), String(localized: "counts"), "\(records.filter { $0.count > 0 }.count)", String(localized: "active days"))
+            return (records.reduce(0) { $0 + $1.count }.formatted(), L10n.string("counts"), "\(records.filter { $0.count > 0 }.count)", L10n.string("active days"))
         case .nafl:
             let records = data.naflRecords.filter { bounds.contains($0.day) }
-            return (records.reduce(0) { $0 + $1.completedCount }.formatted(), String(localized: "practices recorded"), "\(records.filter { $0.completedCount > 0 }.count)", String(localized: "active days"))
+            return (records.reduce(0) { $0 + $1.completedCount }.formatted(), L10n.string("practices recorded"), "\(records.filter { $0.completedCount > 0 }.count)", L10n.string("active days"))
         case .charity:
             let entries = data.charityEntries.filter {
                 $0.currencyCode == data.currencyCode && bounds.contains(LocalDay($0.date, timeZone: data.timeZone))
             }
             let total = entries.reduce(0) { $0 + $1.amount }
-            return (total.formatted(.currency(code: data.currencyCode)), String(localized: "given"), "\(entries.count)", String(localized: "gifts"))
+            return (total.formatted(.currency(code: data.currencyCode)), L10n.string("given"), "\(entries.count)", L10n.string("gifts"))
         }
     }
 
@@ -616,10 +616,10 @@ private struct InsightDetailView: View {
 
     private var chartTitle: String {
         switch category {
-        case .salah: String(localized: "Prayers recorded over time")
-        case .tasbih: String(localized: "Counts over time")
-        case .nafl: String(localized: "Practices over time")
-        case .charity: String(localized: "Monthly giving")
+        case .salah: L10n.string("Prayers recorded over time")
+        case .tasbih: L10n.string("Counts over time")
+        case .nafl: L10n.string("Practices over time")
+        case .charity: L10n.string("Monthly giving")
         }
     }
 
@@ -630,10 +630,10 @@ private struct InsightDetailView: View {
             let records = data.prayerRecords.filter { $0.completed && bounds.contains($0.localDay) }
             let fullDays = Dictionary(grouping: records, by: \.localDay).values.filter { Set($0.map(\.prayer)).count == 5 }.count
             return [
-                (records.count.formatted(), String(localized: "prayers recorded")),
-                (fullDays.formatted(), String(localized: "full days")),
-                (Set(records.map(\.localDay)).count.formatted(), String(localized: "active days")),
-                (TrackerInsightCalculator.calculate(records: data.prayerRecords, today: LocalDay(.now, timeZone: data.timeZone), timeZone: data.timeZone).bestStreak.formatted(), String(localized: "best full streak"))
+                (records.count.formatted(), L10n.string("prayers recorded")),
+                (fullDays.formatted(), L10n.string("full days")),
+                (Set(records.map(\.localDay)).count.formatted(), L10n.string("active days")),
+                (TrackerInsightCalculator.calculate(records: data.prayerRecords, today: LocalDay(.now, timeZone: data.timeZone), timeZone: data.timeZone).bestStreak.formatted(), L10n.string("best full streak"))
             ]
         case .tasbih:
             let records = data.tasbihRecords.filter { bounds.contains($0.day) }
@@ -642,10 +642,10 @@ private struct InsightDetailView: View {
             let average = active.isEmpty ? 0 : total / active.count
             let goals = records.filter { $0.goal > 0 && $0.count >= $0.goal }.count
             return [
-                (total.formatted(), String(localized: "total counts")),
-                (active.count.formatted(), String(localized: "active days")),
-                (average.formatted(), String(localized: "average per active day")),
-                (goals.formatted(), String(localized: "daily goals reached"))
+                (total.formatted(), L10n.string("total counts")),
+                (active.count.formatted(), L10n.string("active days")),
+                (average.formatted(), L10n.string("average per active day")),
+                (goals.formatted(), L10n.string("daily goals reached"))
             ]
         case .nafl:
             let records = data.naflRecords.filter { bounds.contains($0.day) }
@@ -662,20 +662,20 @@ private struct InsightDetailView: View {
                 mostFrequentTitle = "—"
             }
             return [
-                (total.formatted(), String(localized: "practices recorded")),
-                (active.count.formatted(), String(localized: "active days")),
-                (average.formatted(.number.precision(.fractionLength(1))), String(localized: "average on active days")),
-                (mostFrequentTitle, String(localized: "most recorded"))
+                (total.formatted(), L10n.string("practices recorded")),
+                (active.count.formatted(), L10n.string("active days")),
+                (average.formatted(.number.precision(.fractionLength(1))), L10n.string("average on active days")),
+                (mostFrequentTitle, L10n.string("most recorded"))
             ]
         case .charity:
             let entries = filteredCharityEntries
             let total = entries.reduce(0) { $0 + $1.amount }
             let categories = Set(entries.map(\.category)).count
             return [
-                (total.formatted(.currency(code: data.currencyCode)), String(localized: "given")),
-                (entries.count.formatted(), String(localized: "gifts")),
-                (Double(data.charityGoal).formatted(.currency(code: data.currencyCode)), String(localized: "monthly intention")),
-                (categories.formatted(), String(localized: "purposes"))
+                (total.formatted(.currency(code: data.currencyCode)), L10n.string("given")),
+                (entries.count.formatted(), L10n.string("gifts")),
+                (Double(data.charityGoal).formatted(.currency(code: data.currencyCode)), L10n.string("monthly intention")),
+                (categories.formatted(), L10n.string("purposes"))
             ]
         }
     }

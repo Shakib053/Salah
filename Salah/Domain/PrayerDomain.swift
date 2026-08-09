@@ -7,11 +7,11 @@ enum PrayerType: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .fajr: String(localized: "Fajr")
-        case .dhuhr: String(localized: "Dhuhr")
-        case .asr: String(localized: "Asr")
-        case .maghrib: String(localized: "Maghrib")
-        case .isha: String(localized: "Isha")
+        case .fajr: L10n.string("Fajr")
+        case .dhuhr: L10n.string("Dhuhr")
+        case .asr: L10n.string("Asr")
+        case .maghrib: L10n.string("Maghrib")
+        case .isha: L10n.string("Isha")
         }
     }
 
@@ -33,13 +33,13 @@ enum PrayerEvent: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .fajr: String(localized: "Fajr")
-        case .dhuhr: String(localized: "Dhuhr")
-        case .asr: String(localized: "Asr")
-        case .maghrib: String(localized: "Maghrib")
-        case .isha: String(localized: "Isha")
-        case .sahri: String(localized: "Sahri")
-        case .iftar: String(localized: "Iftar")
+        case .fajr: L10n.string("Fajr")
+        case .dhuhr: L10n.string("Dhuhr")
+        case .asr: L10n.string("Asr")
+        case .maghrib: L10n.string("Maghrib")
+        case .isha: L10n.string("Isha")
+        case .sahri: L10n.string("Sahri")
+        case .iftar: L10n.string("Iftar")
         }
     }
 
@@ -61,23 +61,23 @@ enum CalculationMethod: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .automatic: String(localized: "Automatic by location")
-        case .karachi: String(localized: "UIS Karachi")
-        case .muslimWorldLeague: String(localized: "Muslim World League")
-        case .ummAlQura: String(localized: "Umm al-Qura")
-        case .egyptian: String(localized: "Egyptian Authority")
-        case .isna: String(localized: "ISNA")
+        case .automatic: L10n.string("Automatic by location")
+        case .karachi: L10n.string("UIS Karachi")
+        case .muslimWorldLeague: L10n.string("Muslim World League")
+        case .ummAlQura: L10n.string("Umm al-Qura")
+        case .egyptian: L10n.string("Egyptian Authority")
+        case .isna: L10n.string("ISNA")
         }
     }
 
     var fullTitle: String {
         switch self {
-        case .automatic: String(localized: "Automatic by location")
-        case .karachi: String(localized: "University of Islamic Sciences, Karachi")
-        case .muslimWorldLeague: String(localized: "Muslim World League")
-        case .ummAlQura: String(localized: "Umm al-Qura University, Makkah")
-        case .egyptian: String(localized: "Egyptian General Authority of Survey")
-        case .isna: String(localized: "Islamic Society of North America (ISNA)")
+        case .automatic: L10n.string("Automatic by location")
+        case .karachi: L10n.string("University of Islamic Sciences, Karachi")
+        case .muslimWorldLeague: L10n.string("Muslim World League")
+        case .ummAlQura: L10n.string("Umm al-Qura University, Makkah")
+        case .egyptian: L10n.string("Egyptian General Authority of Survey")
+        case .isna: L10n.string("Islamic Society of North America (ISNA)")
         }
     }
 }
@@ -88,8 +88,8 @@ enum Madhab: String, CaseIterable, Codable, Identifiable, Sendable {
     var id: String { rawValue }
     var title: String {
         self == .hanafi
-            ? String(localized: "Hanafi")
-            : String(localized: "Standard (Shafi, Maliki, Hanbali)")
+            ? L10n.string("Hanafi")
+            : L10n.string("Standard (Shafi, Maliki, Hanbali)")
     }
 }
 
@@ -99,9 +99,9 @@ enum TimeFormatPreference: String, CaseIterable, Codable, Identifiable, Sendable
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .system: String(localized: "System")
-        case .twelveHour: String(localized: "12-hour")
-        case .twentyFourHour: String(localized: "24-hour")
+        case .system: L10n.string("System")
+        case .twelveHour: L10n.string("12-hour")
+        case .twentyFourHour: L10n.string("24-hour")
         }
     }
 }
@@ -112,9 +112,9 @@ enum AppearancePreference: String, CaseIterable, Codable, Identifiable, Sendable
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .system: String(localized: "System")
-        case .light: String(localized: "Light")
-        case .dark: String(localized: "Dark")
+        case .system: L10n.string("System")
+        case .light: L10n.string("Light")
+        case .dark: L10n.string("Dark")
         }
     }
 }
@@ -129,19 +129,19 @@ enum ThemePreference: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .greyishBlue: String(localized: "Greyish Blue")
-        case .greenishDark: String(localized: "Greenish Dark")
-        case .slateInkNavy: String(localized: "Slate to Ink Navy")
-        case .custom: String(localized: "Custom Color")
+        case .greyishBlue: L10n.string("Greyish Blue")
+        case .greenishDark: L10n.string("Greenish Dark")
+        case .slateInkNavy: L10n.string("Slate to Ink Navy")
+        case .custom: L10n.string("Custom Color")
         }
     }
 
     var subtitle: String {
         switch self {
-        case .greyishBlue: String(localized: "The original calm blue palette")
-        case .greenishDark: String(localized: "Deep green with a mint accent")
-        case .slateInkNavy: String(localized: "Layered slate and navy with a crisp blue accent")
-        case .custom: String(localized: "Choose from seven curated colors")
+        case .greyishBlue: L10n.string("The original calm blue palette")
+        case .greenishDark: L10n.string("Deep green with a mint accent")
+        case .slateInkNavy: L10n.string("Layered slate and navy with a crisp blue accent")
+        case .custom: L10n.string("Choose from seven curated colors")
         }
     }
 }
@@ -159,13 +159,13 @@ enum CustomThemeColor: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .oceanBlue: String(localized: "Ocean")
-        case .deepTeal: String(localized: "Teal")
-        case .emerald: String(localized: "Emerald")
-        case .indigo: String(localized: "Indigo")
-        case .mutedPurple: String(localized: "Purple")
-        case .dustyRose: String(localized: "Rose")
-        case .terracotta: String(localized: "Terracotta")
+        case .oceanBlue: L10n.string("Ocean")
+        case .deepTeal: L10n.string("Teal")
+        case .emerald: L10n.string("Emerald")
+        case .indigo: L10n.string("Indigo")
+        case .mutedPurple: L10n.string("Purple")
+        case .dustyRose: L10n.string("Rose")
+        case .terracotta: L10n.string("Terracotta")
         }
     }
 }
@@ -175,9 +175,9 @@ enum LocationSource: String, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .automatic: String(localized: "Automatic")
-        case .district: String(localized: "District")
-        case .fallback: String(localized: "Default")
+        case .automatic: L10n.string("Automatic")
+        case .district: L10n.string("District")
+        case .fallback: L10n.string("Default")
         }
     }
 }
@@ -352,8 +352,8 @@ enum PrayerCardEvent: Equatable, Sendable {
             window.prayer.title
         case .nafl(let practice, _, _):
             switch practice {
-            case .tahajjud: String(localized: "Tahajjud")
-            case .ishrak: String(localized: "Ishrak")
+            case .tahajjud: L10n.string("Tahajjud")
+            case .ishrak: L10n.string("Ishrak")
             case .morningAdhkar, .eveningAdhkar, .quran: practice.title
             }
         }
@@ -488,7 +488,7 @@ enum PrayerTimeline {
 enum PrayerDateFormatting {
     static func time(_ date: Date, preference: TimeFormatPreference, timeZone: TimeZone) -> String {
         let formatter = DateFormatter()
-        formatter.locale = preference == .system ? .current : Locale(identifier: "en_US_POSIX")
+        formatter.locale = preference == .system ? L10n.locale : Locale(identifier: "en_US_POSIX")
         formatter.timeZone = timeZone
         switch preference {
         case .system: formatter.timeStyle = .short
@@ -501,7 +501,7 @@ enum PrayerDateFormatting {
     static func fullDate(_ day: LocalDay, timeZone: TimeZone) -> String {
         guard let date = day.date(in: timeZone) else { return day.key }
         let formatter = DateFormatter()
-        formatter.locale = .current
+        formatter.locale = L10n.locale
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.timeZone = timeZone
         formatter.setLocalizedDateFormatFromTemplate("EEEE d MMMM yyyy")
@@ -539,15 +539,15 @@ enum PrayerDataError: Error, Equatable, LocalizedError, Sendable {
 
     var errorDescription: String? {
         switch self {
-        case .invalidURL: String(localized: "The prayer-time calculation could not be created.")
-        case .transport: String(localized: "Prayer times could not be calculated.")
+        case .invalidURL: L10n.string("The prayer-time calculation could not be created.")
+        case .transport: L10n.string("Prayer times could not be calculated.")
         case .httpStatus(let code): String(
-            format: String(localized: "The prayer-time calculation returned error %@."),
+            format: L10n.string("The prayer-time calculation returned error %@."),
             String(code)
         )
-        case .decoding, .invalidData: String(localized: "Prayer times could not be calculated for this date.")
-        case .unavailableOffline: String(localized: "Prayer times are unavailable for this date.")
-        case .cancelled: String(localized: "The request was cancelled.")
+        case .decoding, .invalidData: L10n.string("Prayer times could not be calculated for this date.")
+        case .unavailableOffline: L10n.string("Prayer times are unavailable for this date.")
+        case .cancelled: L10n.string("The request was cancelled.")
         }
     }
 }
@@ -600,12 +600,12 @@ enum CharityCategory: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .sadaqah: String(localized: "Ṣadaqah")
-        case .zakat: String(localized: "Zakāt")
-        case .food: String(localized: "Food")
-        case .education: String(localized: "Education")
-        case .emergency: String(localized: "Emergency relief")
-        case .other: String(localized: "Other")
+        case .sadaqah: L10n.string("Sadaqah")
+        case .zakat: L10n.string("Zakat")
+        case .food: L10n.string("Food")
+        case .education: L10n.string("Education")
+        case .emergency: L10n.string("Emergency relief")
+        case .other: L10n.string("Other")
         }
     }
 
@@ -737,11 +737,11 @@ enum NaflPractice: Int, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .tahajjud: String(localized: "Prayed Tahajjud")
-        case .ishrak: String(localized: "Prayed Ishrak")
-        case .morningAdhkar: String(localized: "Morning Adhkar")
-        case .eveningAdhkar: String(localized: "Evening Adhkar")
-        case .quran: String(localized: "Read Quran")
+        case .tahajjud: L10n.string("Prayed Tahajjud")
+        case .ishrak: L10n.string("Prayed Ishrak")
+        case .morningAdhkar: L10n.string("Morning Adhkar")
+        case .eveningAdhkar: L10n.string("Evening Adhkar")
+        case .quran: L10n.string("Read Quran")
         }
     }
 

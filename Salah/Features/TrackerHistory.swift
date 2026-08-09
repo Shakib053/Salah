@@ -73,10 +73,10 @@ private enum TrackerSection: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .prayers: String(localized: "Ṣalāh")
-        case .tasbih: String(localized: "Tasbih")
-        case .deeds: String(localized: "Nafl")
-        case .charity: String(localized: "Charity")
+        case .prayers: L10n.string("Salah")
+        case .tasbih: L10n.string("Tasbih")
+        case .deeds: L10n.string("Nafl")
+        case .charity: L10n.string("Charity")
         }
     }
 }
@@ -167,7 +167,7 @@ struct TrackerView: View {
         SalahCard(isTransparent: true) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(isToday ? "Today’s Ṣalāh" : PrayerDateFormatting.fullDate(viewModel.selectedDay, timeZone: container.settings.location.timeZone))
+                    Text(isToday ? "Today’s Salah" : PrayerDateFormatting.fullDate(viewModel.selectedDay, timeZone: container.settings.location.timeZone))
                         .font(.title3.bold())
                     Text("Private and stored on this device")
                         .font(.caption).foregroundStyle(.white.opacity(0.82))
@@ -412,7 +412,7 @@ struct TrackerView: View {
                     amount: Double(charityTotal),
                     date: .now,
                     category: .other,
-                    note: String(localized: "Imported monthly total")
+                    note: L10n.string("Imported monthly total")
                 )
             ]
             charityEntriesData = CharityLedger.encode(entries)
@@ -458,7 +458,7 @@ struct TrackerView: View {
         let preference = container.settings.charityReminder
         guard preference.enabled,
               let nextDate = CharityReminderPlan.make(preference: preference, now: .now, limit: 1).first else {
-            return String(localized: "Choose a date and time")
+            return L10n.string("Choose a date and time")
         }
         return "\(preference.repeatCycle.title) • \(nextDate.formatted(date: .abbreviated, time: .shortened))"
     }
@@ -538,7 +538,7 @@ struct CharityHistoryView: View {
                 Text("Entries stay on this device. Swipe an entry to delete it.")
             }
         }
-        .navigationTitle("Ṣadaqah")
+        .navigationTitle("Sadaqah")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Add Giving", systemImage: "plus") { showingAddEntry = true }
@@ -624,7 +624,7 @@ private struct AddCharityEntryView: View {
     @State private var note = ""
 
     private var amount: Double? {
-        let separator = Locale.current.decimalSeparator ?? "."
+        let separator = L10n.locale.decimalSeparator ?? "."
         let normalized = amountText.replacingOccurrences(of: separator, with: ".")
         guard let value = Double(normalized), value > 0 else { return nil }
         return value
@@ -1433,14 +1433,14 @@ struct QiblaView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 22) {
-                Label(container.settings.location.name, systemImage: "location.fill")
+                Label(container.localizedLocationName, systemImage: "location.fill")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
                 if headingProvider.isAvailable {
                     compass
                     Label(
-                        isAligned ? "Aligned — facing the Kaʿbah" : "Turn until the marker points up",
+                        isAligned ? "Aligned — facing the Ka'bah" : "Turn until the marker points up",
                         systemImage: isAligned ? "checkmark.circle.fill" : "location.north.line.fill"
                     )
                     .font(.headline)

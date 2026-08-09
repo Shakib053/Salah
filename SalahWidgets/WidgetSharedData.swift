@@ -1,6 +1,22 @@
 import Foundation
 import WidgetKit
 
+enum WidgetLocalization {
+    private static let languageKey = "salah.app-language"
+
+    static var locale: Locale {
+        switch UserDefaults(suiteName: WidgetDataStore.groupID)?.string(forKey: languageKey) {
+        case "english": Locale(identifier: "en")
+        case "bangla": Locale(identifier: "bn")
+        default: .autoupdatingCurrent
+        }
+    }
+
+    static func string(_ key: String.LocalizationValue) -> String {
+        String(localized: key, locale: locale)
+    }
+}
+
 enum WidgetPrayerKind: String, Codable, Sendable {
     case fajr, dhuhr, asr, maghrib, isha, sunrise, ishrak, tahajjud
 
@@ -78,7 +94,7 @@ struct WidgetPrayer: Codable, Identifiable, Sendable {
     }
 
     private static func inferredKind(name: String, symbolName: String) -> WidgetPrayerKind {
-        if name == String(localized: "Sunrise") { return .sunrise }
+        if name == WidgetLocalization.string("Sunrise") { return .sunrise }
         switch symbolName {
         case "sun.max.fill": return .dhuhr
         case "sun.min.fill": return .asr
@@ -148,7 +164,7 @@ extension WidgetSnapshot {
             let midnight = calendar.startOfDay(for: fajr.time)
             if date >= midnight, date < fajr.time {
                 let tahajjud = WidgetPrayer(
-                    name: String(localized: "Tahajjud"),
+                    name: WidgetLocalization.string("Tahajjud"),
                     time: midnight,
                     end: fajr.time,
                     symbolName: "moon.stars.fill",
@@ -167,7 +183,7 @@ extension WidgetSnapshot {
             let end = dhuhr.time.addingTimeInterval(-ishrakDhuhrBuffer)
             if start < end {
                 let ishrak = WidgetPrayer(
-                    name: String(localized: "Ishrak"),
+                    name: WidgetLocalization.string("Ishrak"),
                     time: start,
                     end: end,
                     symbolName: "sunrise.fill",
