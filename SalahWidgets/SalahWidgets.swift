@@ -20,14 +20,18 @@ struct Provider: AppIntentTimelineProvider {
             snapshot: WidgetDataStore.load()?.snapshot(at: .now)
         )
     }
-    
+
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let now = Date()
         let snapshot = WidgetDataStore.load()?.snapshot(at: now)
         let periodicRefresh = now.addingTimeInterval(15 * 60)
-        let prayerTransition = snapshot?.nextPrayer?.time.addingTimeInterval(1)
+        // Refresh at the current waqt's end (so it flips to the next prayer)
+        // and/or the next prayer's start, whichever comes first.
+        let currentEnd = snapshot?.currentPrayer?.end
+        let nextStart = snapshot?.nextPrayer?.time
+        let transition = min(currentEnd ?? .distantFuture, nextStart ?? .distantFuture)
         let refreshDate = min(
-            prayerTransition ?? periodicRefresh,
+            transition.addingTimeInterval(1),
             periodicRefresh
         )
         let entry = SimpleEntry(
@@ -95,6 +99,31 @@ private enum WidgetTimeFormatter {
     }
 }
 
+/// Row highlighting helpers. The current waqt is the strongest; the next waqt
+/// is secondary; everything else uses the view's baseline color.
+private extension WidgetPrayer {
+    var mediumRowColor: Color {
+        if isCurrent { return WidgetTheme.accent }
+        if isNext { return WidgetTheme.accent.opacity(0.6) }
+        return WidgetTheme.secondary
+    }
+    var largeRowColor: Color {
+        if isCurrent { return WidgetTheme.accent }
+        if isNext { return WidgetTheme.accent.opacity(0.6) }
+        return WidgetTheme.primary
+    }
+    var largeIconColor: Color {
+        if isCurrent { return WidgetTheme.accent }
+        if isNext { return WidgetTheme.accent.opacity(0.6) }
+        return WidgetTheme.secondary
+    }
+    var rowWeight: Font.Weight {
+        if isCurrent { return .semibold }
+        if isNext { return .medium }
+        return .regular
+    }
+}
+
 private struct SmallWidgetView: View {
     let snapshot: WidgetSnapshot?
 
@@ -112,21 +141,24 @@ private struct SmallWidgetView: View {
 
             Spacer(minLength: 8)
 
-            if let snapshot, let next = snapshot.nextPrayer {
-                Text("NEXT PRAYER")
+            if let snapshot, let featured = snapshot.currentPrayer ?? snapshot.nextPrayer {
+                let isCurrent = snapshot.currentPrayer != nil
+                let countdownDate = isCurrent ? featured.end : featured.time
+
+                Text(isCurrent ? "CURRENT PRAYER" : "NEXT PRAYER")
                     .font(.caption2.weight(.semibold))
                     .tracking(1.1)
                     .foregroundStyle(WidgetTheme.accent)
 
-                Text(next.name)
+                Text(featured.name)
                     .font(.system(size: 27, weight: .medium, design: .serif))
                     .foregroundStyle(WidgetTheme.primary)
                     .lineLimit(1)
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("in")
+                    Text(isCurrent ? "ends in" : "in")
                         .foregroundStyle(WidgetTheme.accent)
-                    Text(next.time, style: .timer)
+                    Text(countdownDate, style: .timer)
                         .foregroundStyle(WidgetTheme.accent)
                         .monospacedDigit()
                 }
@@ -138,7 +170,7 @@ private struct SmallWidgetView: View {
                     .frame(height: 1)
                 HStack(spacing: 5) {
                     Image(systemName: "clock")
-                    Text(WidgetTimeFormatter.time(next.time, timezoneIdentifier: snapshot.timeZoneIdentifier))
+                    Text(WidgetTimeFormatter.time(featured.time, timezoneIdentifier: snapshot.timeZoneIdentifier))
                 }
                 .font(.caption)
                 .foregroundStyle(WidgetTheme.secondary)
@@ -159,7 +191,10 @@ private struct MediumWidgetView: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            if let snapshot, let next = snapshot.nextPrayer {
+            if let snapshot, let featured = snapshot.currentPrayer ?? snapshot.nextPrayer {
+                let isCurrent = snapshot.currentPrayer != nil
+                let countdownDate = isCurrent ? featured.end : featured.time
+
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 5) {
                         Image(systemName: "calendar")
@@ -178,17 +213,17 @@ private struct MediumWidgetView: View {
 
                     Spacer(minLength: 5)
 
-                    Text("NEXT PRAYER")
+                    Text(isCurrent ? "CURRENT PRAYER" : "NEXT PRAYER")
                         .font(.caption2.weight(.semibold))
                         .tracking(1.1)
                         .foregroundStyle(WidgetTheme.accent)
-                    Text(next.name)
+                    Text(featured.name)
                         .font(.system(size: 31, weight: .medium, design: .serif))
                         .foregroundStyle(WidgetTheme.primary)
                         .lineLimit(1)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("in")
-                        Text(next.time, style: .timer)
+                        Text(isCurrent ? "ends in" : "in")
+                        Text(countdownDate, style: .timer)
                             .monospacedDigit()
                     }
                     .font(.subheadline.weight(.semibold))
@@ -227,20 +262,20 @@ private struct MediumWidgetView: View {
                             Image(systemName: prayer.symbolName)
                                 .font(.system(size: 11))
                                 .frame(width: 15)
-                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.secondary)
+                                .foregroundStyle(prayer.mediumRowColor)
                             Text(prayer.name)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
-                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.secondary)
+                                .foregroundStyle(prayer.mediumRowColor)
                             Spacer(minLength: 4)
                             Text(WidgetTimeFormatter.time(prayer.time, timezoneIdentifier: snapshot.timeZoneIdentifier))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
-                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.secondary)
+                                .foregroundStyle(prayer.mediumRowColor)
                                 .monospacedDigit()
                         }
                         .font(.caption2)
-                        .fontWeight(prayer.isNext ? .semibold : .regular)
+                        .fontWeight(prayer.rowWeight)
                         .frame(maxWidth: .infinity)
                         .frame(height: 19)
 
@@ -268,7 +303,10 @@ private struct LargeWidgetView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if let snapshot, let next = snapshot.nextPrayer {
+            if let snapshot, let featured = snapshot.currentPrayer ?? snapshot.nextPrayer {
+                let isCurrent = snapshot.currentPrayer != nil
+                let countdownDate = isCurrent ? featured.end : featured.time
+
                 HStack(spacing: 8) {
                     Image(systemName: "calendar")
                         .font(.caption)
@@ -286,17 +324,17 @@ private struct LargeWidgetView: View {
 
                 Spacer(minLength: 14)
 
-                Text("NEXT PRAYER")
+                Text(isCurrent ? "CURRENT PRAYER" : "NEXT PRAYER")
                     .font(.caption2.weight(.semibold))
                     .tracking(1.1)
                     .foregroundStyle(WidgetTheme.accent)
-                Text(next.name)
+                Text(featured.name)
                     .font(.system(size: 36, weight: .medium, design: .serif))
                     .foregroundStyle(WidgetTheme.primary)
                     .lineLimit(1)
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("in")
-                    Text(next.time, style: .timer)
+                    Text(isCurrent ? "ends in" : "in")
+                    Text(countdownDate, style: .timer)
                         .monospacedDigit()
                 }
                 .font(.headline.weight(.semibold))
@@ -315,16 +353,16 @@ private struct LargeWidgetView: View {
                             Image(systemName: prayer.symbolName)
                                 .font(.caption)
                                 .frame(width: 17)
-                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.secondary)
+                                .foregroundStyle(prayer.largeIconColor)
                             Text(prayer.name)
-                                .fontWeight(prayer.isNext ? .semibold : .regular)
-                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.primary)
+                                .fontWeight(prayer.rowWeight)
+                                .foregroundStyle(prayer.largeRowColor)
                                 .lineLimit(1)
                             Spacer(minLength: 8)
                             Text(WidgetTimeFormatter.time(prayer.time, timezoneIdentifier: snapshot.timeZoneIdentifier))
                                 .font(.subheadline.monospacedDigit())
-                                .fontWeight(prayer.isNext ? .semibold : .regular)
-                                .foregroundStyle(prayer.isNext ? WidgetTheme.accent : WidgetTheme.primary)
+                                .fontWeight(prayer.rowWeight)
+                                .foregroundStyle(prayer.largeRowColor)
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 30)
@@ -358,7 +396,7 @@ extension ConfigurationAppIntent {
         intent.favoriteEmoji = "😀"
         return intent
     }
-    
+
     fileprivate static var starEyes: ConfigurationAppIntent {
         let intent = ConfigurationAppIntent()
         intent.favoriteEmoji = "🤩"
@@ -366,21 +404,46 @@ extension ConfigurationAppIntent {
     }
 }
 
+/// Sample snapshot whose Dhuhr window contains "now", so previews exercise the
+/// current-prayer UI (live countdown to the waqt's end).
+private func sampleSnapshot(now: Date = .now) -> WidgetSnapshot {
+    func minutes(_ value: Double) -> Date { now.addingTimeInterval(value * 60) }
+    let prayers = [
+        WidgetPrayer(name: "Fajr", time: minutes(-360), end: minutes(-240), symbolName: "moon.stars.fill", completed: true, isNext: false, isCurrent: false),
+        WidgetPrayer(name: "Sunrise", time: minutes(-240), end: minutes(-240), symbolName: "sunrise.fill", completed: false, isNext: false, isCurrent: false),
+        WidgetPrayer(name: "Dhuhr", time: minutes(-120), end: minutes(120), symbolName: "sun.max.fill", completed: false, isNext: false, isCurrent: false),
+        WidgetPrayer(name: "Asr", time: minutes(150), end: minutes(360), symbolName: "sun.min.fill", completed: false, isNext: false, isCurrent: false),
+        WidgetPrayer(name: "Maghrib", time: minutes(370), end: minutes(480), symbolName: "sun.horizon.fill", completed: false, isNext: false, isCurrent: false),
+        WidgetPrayer(name: "Isha", time: minutes(490), end: minutes(900), symbolName: "moon.fill", completed: false, isNext: false, isCurrent: false)
+    ]
+    let tomorrowFajr = WidgetPrayer(name: "Fajr", time: minutes(1440), end: minutes(1560), symbolName: "moon.stars.fill", completed: false, isNext: false, isCurrent: false)
+    return WidgetSnapshot(
+        updatedAt: now,
+        localDayKey: "sample",
+        gregorianSummary: "Saturday, 9 August",
+        hijriSummary: "15 Safar 1448",
+        timeZoneIdentifier: TimeZone.current.identifier,
+        prayers: prayers,
+        currentPrayer: nil,
+        nextPrayer: nil,
+        tomorrowFajr: tomorrowFajr
+    )
+}
+
 #Preview(as: .systemSmall) {
     SalahWidgets()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley, snapshot: nil)
-    SimpleEntry(date: .now, configuration: .starEyes, snapshot: nil)
+    SimpleEntry(date: .now, configuration: .smiley, snapshot: sampleSnapshot().snapshot(at: .now))
 }
 
 #Preview(as: .systemMedium) {
     SalahWidgets()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley, snapshot: nil)
+    SimpleEntry(date: .now, configuration: .smiley, snapshot: sampleSnapshot().snapshot(at: .now))
 }
 
 #Preview(as: .systemLarge) {
     SalahWidgets()
 } timeline: {
-    SimpleEntry(date: .now, configuration: .smiley, snapshot: nil)
+    SimpleEntry(date: .now, configuration: .smiley, snapshot: sampleSnapshot().snapshot(at: .now))
 }
