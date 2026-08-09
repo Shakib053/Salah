@@ -380,6 +380,164 @@ final class SalahDomainTests: XCTestCase {
 
         XCTAssertEqual(moment.current?.prayer, .isha)
         XCTAssertEqual(moment.next?.prayer, .fajr)
+        XCTAssertNotEqual(moment.current, today.window(for: .isha))
+    }
+
+    func testTodayCardShowsTahajjudFromMidnightUntilFajr() throws {
+        let tomorrow = day.adding(days: 1, in: zone)
+        let today = try fixture(day: tomorrow)
+        let previous = try fixture(day: day)
+        let afterMidnight = try XCTUnwrap(tomorrow.date(in: zone, hour: 0, minute: 12))
+
+        let moment = PrayerTimeline.cardMoment(now: afterMidnight, today: today, previous: previous)
+
+        guard case .nafl(let practice, let start, let end) = moment.event else {
+            return XCTFail("Expected the Tahajjud card window")
+        }
+        XCTAssertEqual(practice, .tahajjud)
+        XCTAssertEqual(start, try XCTUnwrap(tomorrow.date(in: zone, hour: 0)))
+        XCTAssertEqual(end, try XCTUnwrap(tomorrow.date(in: zone, hour: 5, minute: 5)))
+        XCTAssertTrue(moment.isCurrent)
+    }
+
+    func testTodayCardShowsIshrakAndThenUpcomingDhuhr() throws {
+        let today = try fixture(day: day)
+        let beforeIshrak = try XCTUnwrap(day.date(in: zone, hour: 6, minute: 25))
+        let duringIshrak = try XCTUnwrap(day.date(in: zone, hour: 6, minute: 40))
+        let afterIshrak = try XCTUnwrap(day.date(in: zone, hour: 12, minute: 3))
+
+        let upcoming = PrayerTimeline.cardMoment(now: beforeIshrak, today: today, previous: nil)
+        guard case .nafl(let upcomingPractice, let start, _) = upcoming.event else {
+            return XCTFail("Expected upcoming Ishrak")
+        }
+        XCTAssertEqual(upcomingPractice, .ishrak)
+        XCTAssertEqual(start, try XCTUnwrap(day.date(in: zone, hour: 6, minute: 35)))
+        XCTAssertFalse(upcoming.isCurrent)
+
+        let current = PrayerTimeline.cardMoment(now: duringIshrak, today: today, previous: nil)
+        guard case .nafl(let currentPractice, _, let end) = current.event else {
+            return XCTFail("Expected current Ishrak")
+        }
+        XCTAssertEqual(currentPractice, .ishrak)
+        XCTAssertEqual(end, try XCTUnwrap(day.date(in: zone, hour: 12)))
+        XCTAssertTrue(current.isCurrent)
+
+        let next = PrayerTimeline.cardMoment(now: afterIshrak, today: today, previous: nil)
+        guard case .obligatory(let window) = next.event else {
+            return XCTFail("Expected upcoming Dhuhr")
+        }
+        XCTAssertEqual(window.prayer, .dhuhr)
+        XCTAssertFalse(next.isCurrent)
+    }
+
+    func testPreviousDayIshaCarryoverOnlyAppliesBeforeFajr() throws {
+        let today = try fixture(day: day)
+        let beforeFajr = try XCTUnwrap(day.date(in: zone, hour: 4, minute: 30))
+        let atFajr = try XCTUnwrap(day.date(in: zone, hour: 5, minute: 5))
+
+        XCTAssertTrue(PrayerTimeline.isPreviousDayIshaCarryover(now: beforeFajr, today: today))
+        XCTAssertFalse(PrayerTimeline.isPreviousDayIshaCarryover(now: atFajr, today: today))
+    }
+
+    func testWidgetUsesExactPrayerEndInsteadOfFillingGapToNextPrayer() throws {
+        let prayerDay = try fixture(day: day)
+        let betweenAsrAndMaghrib = try XCTUnwrap(day.date(in: zone, hour: 18, minute: 31))
+
+        let moment = WidgetSnapshot.moment(
+            at: betweenAsrAndMaghrib,
+            prayers: widgetPrayers(from: prayerDay),
+            tomorrowFajr: nil,
+            timeZoneIdentifier: zone.identifier
+        )
+
+        XCTAssertNil(moment.current)
+        XCTAssertEqual(moment.next?.kind, .maghrib)
+    }
+
+    func testWidgetShowsIshrakAsUpcomingAndCurrentLikeTodayCard() throws {
+        let prayers = widgetPrayers(from: try fixture(day: day))
+        let beforeIshrak = try XCTUnwrap(day.date(in: zone, hour: 6, minute: 25))
+        let duringIshrak = try XCTUnwrap(day.date(in: zone, hour: 6, minute: 40))
+
+        let upcoming = WidgetSnapshot.moment(
+            at: beforeIshrak,
+            prayers: prayers,
+            tomorrowFajr: nil,
+            timeZoneIdentifier: zone.identifier
+        )
+        XCTAssertNil(upcoming.current)
+        XCTAssertEqual(upcoming.next?.kind, .ishrak)
+        XCTAssertEqual(upcoming.next?.time, try XCTUnwrap(day.date(in: zone, hour: 6, minute: 35)))
+
+        let current = WidgetSnapshot.moment(
+            at: duringIshrak,
+            prayers: prayers,
+            tomorrowFajr: nil,
+            timeZoneIdentifier: zone.identifier
+        )
+        XCTAssertEqual(current.current?.kind, .ishrak)
+        XCTAssertEqual(current.current?.end, try XCTUnwrap(day.date(in: zone, hour: 12)))
+        XCTAssertEqual(current.next?.kind, .dhuhr)
+    }
+
+    func testWidgetShowsTahajjudAfterMidnightUntilFajr() throws {
+        let tomorrow = day.adding(days: 1, in: zone)
+        let nextDay = try fixture(day: tomorrow)
+        let afterMidnight = try XCTUnwrap(tomorrow.date(in: zone, hour: 0, minute: 12))
+        let nextFajr = try XCTUnwrap(widgetPrayers(from: nextDay).first { $0.kind == .fajr })
+
+        let moment = WidgetSnapshot.moment(
+            at: afterMidnight,
+            prayers: widgetPrayers(from: try fixture(day: day)),
+            tomorrowFajr: nextFajr,
+            timeZoneIdentifier: zone.identifier
+        )
+
+        XCTAssertEqual(moment.current?.kind, .tahajjud)
+        XCTAssertEqual(moment.current?.time, try XCTUnwrap(tomorrow.date(in: zone, hour: 0)))
+        XCTAssertEqual(moment.current?.end, try XCTUnwrap(tomorrow.date(in: zone, hour: 5, minute: 5)))
+        XCTAssertEqual(moment.next?.kind, .fajr)
+    }
+
+    func testWidgetSnapshotHandsOffToNextDayScheduleAfterMidnight() throws {
+        let tomorrow = day.adding(days: 1, in: zone)
+        let today = try fixture(day: day)
+        let nextDay = try fixture(day: tomorrow)
+        let snapshot = WidgetSnapshot(
+            updatedAt: .now,
+            localDayKey: today.localDay.key,
+            gregorianSummary: today.gregorianSummary,
+            hijriSummary: today.hijriSummary,
+            timeZoneIdentifier: zone.identifier,
+            prayers: widgetPrayers(from: today),
+            currentPrayer: nil,
+            nextPrayer: nil,
+            tomorrowFajr: widgetPrayers(from: nextDay).first { $0.kind == .fajr },
+            nextDay: WidgetDaySchedule(
+                localDayKey: nextDay.localDay.key,
+                gregorianSummary: "Tuesday, 21 July",
+                hijriSummary: "6 Safar 1448",
+                prayers: widgetPrayers(from: nextDay)
+            )
+        )
+        let duringDhuhr = try XCTUnwrap(tomorrow.date(in: zone, hour: 13))
+
+        let updated = snapshot.snapshot(at: duringDhuhr)
+
+        XCTAssertEqual(updated.localDayKey, tomorrow.key)
+        XCTAssertEqual(updated.gregorianSummary, "Tuesday, 21 July")
+        XCTAssertEqual(updated.currentPrayer?.kind, .dhuhr)
+        XCTAssertTrue(updated.prayers.first(where: { $0.kind == .dhuhr })?.isCurrent == true)
+    }
+
+    @MainActor
+    func testRouterTargetsPreviousIshaInCalendar() {
+        let router = AppRouter(timeZone: zone)
+        router.showPrayerInCalendar(day: day, prayer: .isha)
+
+        XCTAssertEqual(router.selectedTab, .calendar)
+        XCTAssertEqual(router.calendarPrayerTarget?.day, day)
+        XCTAssertEqual(router.calendarPrayerTarget?.prayer, .isha)
     }
 
     private func fixture(day: LocalDay) throws -> PrayerDay {
@@ -410,5 +568,34 @@ final class SalahDomainTests: XCTestCase {
             methodName: CalculationMethod.karachi.fullTitle,
             fetchedAt: .now
         )
+    }
+
+    private func widgetPrayers(from day: PrayerDay) -> [WidgetPrayer] {
+        let prayers = day.windows.map { window in
+            WidgetPrayer(
+                name: window.prayer.title,
+                time: window.start,
+                end: window.end,
+                symbolName: window.prayer.symbol,
+                completed: false,
+                isNext: false,
+                isCurrent: false,
+                kind: WidgetPrayerKind(rawValue: window.prayer.rawValue)
+            )
+        }
+        let sunrise = WidgetPrayer(
+            name: String(localized: "Sunrise"),
+            time: day.sunrise,
+            end: day.sunrise,
+            symbolName: "sunrise.fill",
+            completed: false,
+            isNext: false,
+            isCurrent: false,
+            kind: .sunrise
+        )
+        return prayers.reduce(into: [WidgetPrayer]()) { result, prayer in
+            result.append(prayer)
+            if prayer.kind == .fajr { result.append(sunrise) }
+        }
     }
 }

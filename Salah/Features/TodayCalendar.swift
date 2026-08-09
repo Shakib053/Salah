@@ -52,7 +52,7 @@ final class TodayViewModel {
             WidgetDataPublisher.save(
                 prayerDay: loaded.value,
                 completed: completed,
-                tomorrowFajr: tomorrowLoaded?.value.window(for: .fajr)?.start
+                nextDay: tomorrowLoaded?.value
             )
             state = loaded.isStale
                 ? .offline(loaded.value, lastUpdated: loaded.value.fetchedAt)
@@ -199,12 +199,11 @@ struct TodayView: View {
                 if day.localDay == LocalDay(.now, timeZone: day.timeZone) {
                     TimelineView(.periodic(from: .now, by: 1)) { context in
                         CurrentPrayerCard(
-                            moment: PrayerTimeline.moment(
+                            moment: PrayerTimeline.cardMoment(
                                 now: context.date,
                                 today: day,
                                 previous: viewModel.previousDay
-                            ),
-                            now: context.date
+                            )
                         )
                     }
                 } else {
@@ -232,7 +231,7 @@ struct TodayView: View {
                 VStack(spacing: 0) {
                     ForEach(day.windows) { window in
                         Button {
-                            viewModel.toggle(window.prayer, on: day.localDay, timeZone: day.timeZone)
+                            handleScheduleTap(window, day: day)
                         } label: {
                             PrayerScheduleRow(
                                 window: window,
@@ -285,7 +284,19 @@ struct TodayView: View {
             today: day,
             previous: viewModel.previousDay
         )
-        return moment.current?.prayer == window.prayer
+        return moment.current == window
+    }
+
+    private func handleScheduleTap(_ window: PrayerWindow, day: PrayerDay, now: Date = .now) {
+        if window.prayer == .isha,
+           PrayerTimeline.isPreviousDayIshaCarryover(now: now, today: day) {
+            container.router.showPrayerInCalendar(
+                day: day.localDay.adding(days: -1, in: day.timeZone),
+                prayer: .isha
+            )
+            return
+        }
+        viewModel.toggle(window.prayer, on: day.localDay, timeZone: day.timeZone)
     }
 
     private func eventCard(title: String, date: Date, symbol: String, day: PrayerDay) -> some View {
@@ -316,13 +327,12 @@ struct TodayView: View {
 }
 
 struct CurrentPrayerCard: View {
-    let moment: PrayerMoment
-    let now: Date
+    let moment: PrayerCardMoment
     @Environment(\.salahPalette) private var palette
 
     var body: some View {
-        let displayed = moment.current ?? moment.next
-        let countdown = moment.current.map { max(0, $0.end.timeIntervalSince(now)) } ?? moment.next.map { max(0, $0.start.timeIntervalSince(now)) }
+        let displayed = moment.event
+        let countdown = moment.remaining
         SalahCard(isTransparent: true) {
             HStack(alignment: .center, spacing: 16) {
                 ZStack {
@@ -331,24 +341,24 @@ struct CurrentPrayerCard: View {
                         .trim(from: 0, to: moment.progress)
                         .stroke(.white, style: StrokeStyle(lineWidth: 7, lineCap: .round))
                         .rotationEffect(.degrees(-90))
-                    Image(systemName: moment.current?.prayer.symbol ?? "clock.fill")
+                    Image(systemName: displayed?.symbol ?? "clock.fill")
                         .font(.title2)
                 }
                 .frame(width: 92, height: 92)
                 .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(moment.current != nil ? "Current prayer" : (moment.next.map { "Next prayer · \($0.prayer.title)" } ?? "Current prayer"))
+                    Text(cardHeading(for: displayed))
                         .font(.caption.weight(.semibold))
                         .textCase(.uppercase)
                         .tracking(0.7)
                         .foregroundStyle(.white.opacity(0.8))
-                    Text(displayed?.prayer.title ?? "Schedule complete")
+                    Text(displayed?.title ?? "Schedule complete")
                         .font(.title.bold())
                     if let remaining = countdown {
                         Text(PrayerDateFormatting.countdown(remaining))
                             .font(.title2.bold().monospacedDigit())
-                        Text(moment.current != nil ? "Waqt ends in" : (moment.next.map { "until \($0.prayer.title) begins" } ?? "Waqt ends in"))
+                        Text(countdownCaption(for: displayed))
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.8))
                     }
@@ -363,6 +373,24 @@ struct CurrentPrayerCard: View {
         )
         .shadow(color: palette.heroEnd.opacity(0.28), radius: 12, y: 6)
         .accessibilityElement(children: .combine)
+    }
+
+    private func cardHeading(for event: PrayerCardEvent?) -> String {
+        guard let event else { return String(localized: "Current prayer") }
+        if moment.isCurrent {
+            return event.isNafl ? String(localized: "Current nafl prayer") : String(localized: "Current prayer")
+        }
+        return event.isNafl
+            ? String(localized: "Next nafl prayer · \(event.title)")
+            : String(localized: "Next prayer · \(event.title)")
+    }
+
+    private func countdownCaption(for event: PrayerCardEvent?) -> String {
+        guard let event else { return String(localized: "Waqt ends in") }
+        if moment.isCurrent {
+            return event.isNafl ? String(localized: "Nafl time ends in") : String(localized: "Waqt ends in")
+        }
+        return String(localized: "until \(event.title) begins")
     }
 }
 
@@ -565,12 +593,20 @@ final class CalendarViewModel {
         guard selectedDay != today else { return }
         selectedDay = today
     }
+
+    func navigate(to target: CalendarPrayerTarget) {
+        selectedDay = target.day
+        monthAnchor = LocalDay(year: target.day.year, month: target.day.month, day: 1)
+        anchoredToToday = false
+        selectedPrayer = target.prayer
+    }
 }
 
 struct PrayerCalendarView: View {
     @Bindable var container: AppContainer
     @Environment(\.salahPalette) private var palette
     @State private var viewModel: CalendarViewModel
+    @State private var appliedTargetID: UUID?
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
 
     init(container: AppContainer) {
@@ -602,6 +638,10 @@ struct PrayerCalendarView: View {
                 viewModel.syncDayToNow()
                 try? await Task.sleep(for: .seconds(30))
             }
+        }
+        .onAppear { applyCalendarTarget(container.router.calendarPrayerTarget) }
+        .onChange(of: container.router.calendarPrayerTarget) { _, target in
+            applyCalendarTarget(target)
         }
     }
 
@@ -703,5 +743,11 @@ struct PrayerCalendarView: View {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = container.settings.location.timeZone
         return max(0, calendar.component(.weekday, from: date) - 1)
+    }
+
+    private func applyCalendarTarget(_ target: CalendarPrayerTarget?) {
+        guard let target, appliedTargetID != target.id else { return }
+        appliedTargetID = target.id
+        viewModel.navigate(to: target)
     }
 }

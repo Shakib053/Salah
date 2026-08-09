@@ -342,7 +342,63 @@ struct PrayerMoment: Equatable, Sendable {
     var progress: Double
 }
 
+enum PrayerCardEvent: Equatable, Sendable {
+    case obligatory(PrayerWindow)
+    case nafl(practice: NaflPractice, start: Date, end: Date)
+
+    var title: String {
+        switch self {
+        case .obligatory(let window):
+            window.prayer.title
+        case .nafl(let practice, _, _):
+            switch practice {
+            case .tahajjud: String(localized: "Tahajjud")
+            case .ishrak: String(localized: "Ishrak")
+            case .morningAdhkar, .eveningAdhkar, .quran: practice.title
+            }
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .obligatory(let window): window.prayer.symbol
+        case .nafl(let practice, _, _): practice.symbol
+        }
+    }
+
+    var start: Date {
+        switch self {
+        case .obligatory(let window): window.start
+        case .nafl(_, let start, _): start
+        }
+    }
+
+    var end: Date {
+        switch self {
+        case .obligatory(let window): window.end
+        case .nafl(_, _, let end): end
+        }
+    }
+
+    var isNafl: Bool {
+        if case .nafl = self { return true }
+        return false
+    }
+}
+
+struct PrayerCardMoment: Equatable, Sendable {
+    var event: PrayerCardEvent?
+    var isCurrent: Bool
+    var remaining: TimeInterval?
+    var progress: Double
+}
+
 enum PrayerTimeline {
+    /// A conservative buffer after sunrise avoids the prohibited sunrise period.
+    static let ishrakSunriseBuffer: TimeInterval = 20 * 60
+    /// Ishrak/Duha ends shortly before Dhuhr rather than at the same instant.
+    static let ishrakDhuhrBuffer: TimeInterval = 10 * 60
+
     static func moment(now: Date, today: PrayerDay, previous: PrayerDay?) -> PrayerMoment {
         let candidates = (previous?.windows ?? []) + today.windows
         let current = candidates.last { $0.contains(now) }
@@ -357,6 +413,75 @@ enum PrayerTimeline {
             progress = 0
         }
         return PrayerMoment(current: current, next: next, remaining: remaining, progress: progress)
+    }
+
+    /// Builds the Today hero-card timeline. Nafl windows intentionally live here
+    /// instead of `PrayerDay.windows` so the five obligatory-prayer schedule and
+    /// completion model remain unchanged.
+    static func cardMoment(now: Date, today: PrayerDay, previous: PrayerDay?) -> PrayerCardMoment {
+        if let fajr = today.window(for: .fajr),
+           let midnight = today.localDay.date(in: today.timeZone, hour: 0),
+           midnight < fajr.start {
+            let tahajjud = PrayerCardEvent.nafl(practice: .tahajjud, start: midnight, end: fajr.start)
+            if now >= midnight, now < fajr.start {
+                return currentCardMoment(tahajjud, now: now)
+            }
+        }
+
+        if let dhuhr = today.window(for: .dhuhr) {
+            let start = today.sunrise.addingTimeInterval(ishrakSunriseBuffer)
+            let end = dhuhr.start.addingTimeInterval(-ishrakDhuhrBuffer)
+            if start < end {
+                let ishrak = PrayerCardEvent.nafl(practice: .ishrak, start: start, end: end)
+                if now >= today.sunrise, now < start {
+                    return upcomingCardMoment(ishrak, now: now)
+                }
+                if now >= start, now < end {
+                    return currentCardMoment(ishrak, now: now)
+                }
+            }
+        }
+
+        let obligatory = moment(now: now, today: today, previous: previous)
+        if let current = obligatory.current {
+            return currentCardMoment(.obligatory(current), now: now)
+        }
+        if let next = obligatory.next {
+            return upcomingCardMoment(.obligatory(next), now: now)
+        }
+        return PrayerCardMoment(event: nil, isCurrent: false, remaining: nil, progress: 0)
+    }
+
+    /// True only for the civil-midnight-to-Fajr exception where the current
+    /// day's Isha row actually represents the *next* Isha, not the one still
+    /// available from the previous day.
+    static func isPreviousDayIshaCarryover(now: Date, today: PrayerDay) -> Bool {
+        guard today.localDay == LocalDay(now, timeZone: today.timeZone),
+              let fajr = today.window(for: .fajr),
+              let midnight = today.localDay.date(in: today.timeZone, hour: 0) else { return false }
+        return now >= midnight && now < fajr.start
+    }
+
+    private static func currentCardMoment(_ event: PrayerCardEvent, now: Date) -> PrayerCardMoment {
+        let duration = event.end.timeIntervalSince(event.start)
+        let progress = duration > 0
+            ? min(1, max(0, now.timeIntervalSince(event.start) / duration))
+            : 0
+        return PrayerCardMoment(
+            event: event,
+            isCurrent: true,
+            remaining: max(0, event.end.timeIntervalSince(now)),
+            progress: progress
+        )
+    }
+
+    private static func upcomingCardMoment(_ event: PrayerCardEvent, now: Date) -> PrayerCardMoment {
+        PrayerCardMoment(
+            event: event,
+            isCurrent: false,
+            remaining: max(0, event.start.timeIntervalSince(now)),
+            progress: 0
+        )
     }
 }
 

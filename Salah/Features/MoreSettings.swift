@@ -837,7 +837,7 @@ struct AppearanceView: View {
             }
 
             Section("Dynamic Type Preview") {
-                CurrentPrayerCard(moment: Self.previewMoment, now: Self.previewDate)
+                CurrentPrayerCard(moment: Self.previewMoment)
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             }
@@ -846,17 +846,13 @@ struct AppearanceView: View {
     }
 
     private static let previewDate = Date(timeIntervalSinceReferenceDate: 0)
-    private static let previewMoment = PrayerMoment(
-        current: PrayerWindow(
+    private static let previewMoment = PrayerCardMoment(
+        event: .obligatory(PrayerWindow(
             prayer: .asr,
             start: previewDate.addingTimeInterval(-58 * 60),
             end: previewDate.addingTimeInterval(42 * 60)
-        ),
-        next: PrayerWindow(
-            prayer: .maghrib,
-            start: previewDate.addingTimeInterval(42 * 60),
-            end: previewDate.addingTimeInterval(102 * 60)
-        ),
+        )),
+        isCurrent: true,
         remaining: 42 * 60,
         progress: 0.58
     )

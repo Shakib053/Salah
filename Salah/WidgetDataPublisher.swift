@@ -4,54 +4,30 @@ enum WidgetDataPublisher {
     static func save(
         prayerDay: PrayerDay,
         completed: Set<PrayerType>,
-        tomorrowFajr: Date? = nil
+        nextDay: PrayerDay? = nil
     ) {
         let today = LocalDay(.now, timeZone: prayerDay.timeZone)
         guard prayerDay.localDay == today else { return }
 
         let now = Date()
 
-        let prayerItems = prayerDay.windows.map { window in
-            WidgetPrayer(
-                name: window.prayer.title,
-                time: window.start,
-                end: window.end,
-                symbolName: window.prayer.symbol,
-                completed: completed.contains(window.prayer),
-                isNext: false,
-                isCurrent: false
+        let scheduleItems = makeScheduleItems(day: prayerDay, completed: completed)
+        let nextDaySchedule = nextDay.map {
+            WidgetDaySchedule(
+                localDayKey: $0.localDay.key,
+                gregorianSummary: $0.gregorianSummary,
+                hijriSummary: $0.hijriSummary,
+                prayers: makeScheduleItems(day: $0, completed: [])
             )
         }
+        let tomorrowItem = nextDaySchedule?.prayers.first { $0.kind == .fajr }
 
-        let sunriseItem = WidgetPrayer(
-            name: String(localized: "Sunrise"),
-            time: prayerDay.sunrise,
-            end: prayerDay.sunrise,
-            symbolName: "sunrise.fill",
-            completed: false,
-            isNext: false,
-            isCurrent: false
+        let moment = WidgetSnapshot.moment(
+            at: now,
+            prayers: scheduleItems,
+            tomorrowFajr: tomorrowItem,
+            timeZoneIdentifier: prayerDay.timeZoneIdentifier
         )
-        let scheduleItems = prayerItems.reduce(into: [WidgetPrayer]()) { result, item in
-            result.append(item)
-            if item.name == PrayerType.fajr.title {
-                result.append(sunriseItem)
-            }
-        }
-
-        let tomorrowItem = tomorrowFajr.map {
-            WidgetPrayer(
-                name: PrayerType.fajr.title,
-                time: $0,
-                end: $0,
-                symbolName: PrayerType.fajr.symbol,
-                completed: false,
-                isNext: false,
-                isCurrent: false
-            )
-        }
-
-        let moment = WidgetSnapshot.moment(at: now, prayers: scheduleItems, tomorrowFajr: tomorrowItem)
         let flaggedItems = scheduleItems.map { item in
             WidgetPrayer(
                 name: item.name,
@@ -60,7 +36,8 @@ enum WidgetDataPublisher {
                 symbolName: item.symbolName,
                 completed: item.completed,
                 isNext: moment.next?.name == item.name && moment.next?.time == item.time,
-                isCurrent: moment.current?.name == item.name && moment.current?.time == item.time
+                isCurrent: moment.current?.name == item.name && moment.current?.time == item.time,
+                kind: item.kind
             )
         }
 
@@ -73,7 +50,8 @@ enum WidgetDataPublisher {
             prayers: flaggedItems,
             currentPrayer: moment.current,
             nextPrayer: moment.next,
-            tomorrowFajr: tomorrowItem
+            tomorrowFajr: tomorrowItem,
+            nextDay: nextDaySchedule
         )
 
         WidgetDataStore.save(snapshot)
@@ -95,7 +73,8 @@ enum WidgetDataPublisher {
                     symbolName: item.symbolName,
                     completed: completed,
                     isNext: item.isNext,
-                    isCurrent: item.isCurrent
+                    isCurrent: item.isCurrent,
+                    kind: item.kind
                 )
                 : item
         }
@@ -109,7 +88,8 @@ enum WidgetDataPublisher {
             prayers: updatedPrayers,
             currentPrayer: updating(snapshot.currentPrayer, prayer: prayer, completed: completed),
             nextPrayer: updating(snapshot.nextPrayer, prayer: prayer, completed: completed),
-            tomorrowFajr: snapshot.tomorrowFajr
+            tomorrowFajr: snapshot.tomorrowFajr,
+            nextDay: snapshot.nextDay
         )
 
         WidgetDataStore.save(updated)
@@ -131,9 +111,39 @@ enum WidgetDataPublisher {
                     symbolName: current.symbolName,
                     completed: completed,
                     isNext: current.isNext,
-                    isCurrent: current.isCurrent
+                    isCurrent: current.isCurrent,
+                    kind: current.kind
                 )
                 : current
+        }
+    }
+
+    private static func makeScheduleItems(day: PrayerDay, completed: Set<PrayerType>) -> [WidgetPrayer] {
+        let prayerItems = day.windows.map { window in
+            WidgetPrayer(
+                name: window.prayer.title,
+                time: window.start,
+                end: window.end,
+                symbolName: window.prayer.symbol,
+                completed: completed.contains(window.prayer),
+                isNext: false,
+                isCurrent: false,
+                kind: WidgetPrayerKind(rawValue: window.prayer.rawValue)
+            )
+        }
+        let sunriseItem = WidgetPrayer(
+            name: String(localized: "Sunrise"),
+            time: day.sunrise,
+            end: day.sunrise,
+            symbolName: "sunrise.fill",
+            completed: false,
+            isNext: false,
+            isCurrent: false,
+            kind: .sunrise
+        )
+        return prayerItems.reduce(into: [WidgetPrayer]()) { result, item in
+            result.append(item)
+            if item.kind == .fajr { result.append(sunriseItem) }
         }
     }
 }

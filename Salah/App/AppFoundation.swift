@@ -29,11 +29,18 @@ enum AppTab: Hashable, CaseIterable, Identifiable {
     }
 }
 
+struct CalendarPrayerTarget: Identifiable, Equatable {
+    let id = UUID()
+    var day: LocalDay
+    var prayer: PrayerType
+}
+
 @MainActor
 @Observable
 final class AppRouter {
     var selectedTab: AppTab = .today
     var selectedDay: LocalDay
+    var calendarPrayerTarget: CalendarPrayerTarget?
 
     init(timeZone: TimeZone = PrayerLocation.dhaka.timeZone) {
         selectedDay = LocalDay(.now, timeZone: timeZone)
@@ -48,6 +55,11 @@ final class AppRouter {
     func syncSelectedDayToNow(timeZone: TimeZone) {
         let today = LocalDay(.now, timeZone: timeZone)
         if selectedDay != today { selectedDay = today }
+    }
+
+    func showPrayerInCalendar(day: LocalDay, prayer: PrayerType) {
+        calendarPrayerTarget = CalendarPrayerTarget(day: day, prayer: prayer)
+        selectedTab = .calendar
     }
 }
 

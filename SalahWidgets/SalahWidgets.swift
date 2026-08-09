@@ -23,24 +23,19 @@ struct Provider: AppIntentTimelineProvider {
 
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
         let now = Date()
-        let snapshot = WidgetDataStore.load()?.snapshot(at: now)
-        let periodicRefresh = now.addingTimeInterval(15 * 60)
-        // Refresh at the current waqt's end (so it flips to the next prayer)
-        // and/or the next prayer's start, whichever comes first.
-        let currentEnd = snapshot?.currentPrayer?.end
-        let nextStart = snapshot?.nextPrayer?.time
-        let transition = min(currentEnd ?? .distantFuture, nextStart ?? .distantFuture)
-        let refreshDate = min(
-            transition.addingTimeInterval(1),
-            periodicRefresh
-        )
-        let entry = SimpleEntry(
-            date: now,
-            configuration: configuration,
-            snapshot: snapshot
-        )
+        let stored = WidgetDataStore.load()
+        let transitionDates = stored?.transitionDates(after: now) ?? []
+        let entryDates = [now] + transitionDates.map { $0.addingTimeInterval(1) }
+        let entries = entryDates.map { date in
+            SimpleEntry(
+                date: date,
+                configuration: configuration,
+                snapshot: stored?.snapshot(at: date)
+            )
+        }
 
-        return Timeline(entries: [entry], policy: .after(refreshDate))
+        // Future entries switch the card exactly at prayer and Nafl boundaries.
+        return Timeline(entries: entries, policy: .after(now.addingTimeInterval(6 * 60 * 60)))
     }
 
 //    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
@@ -225,7 +220,7 @@ private struct MediumWidgetView: View {
 
                     Spacer(minLength: 5)
 
-                    Text(isCurrent ? "CURRENT PRAYER" : "NEXT PRAYER")
+                    Text(featuredHeading(featured, isCurrent: isCurrent))
                         .font(.caption2.weight(.semibold))
                         .tracking(1.1)
                         .foregroundStyle(WidgetTheme.accent)
@@ -336,7 +331,7 @@ private struct LargeWidgetView: View {
 
                 Spacer(minLength: 14)
 
-                Text(isCurrent ? "CURRENT PRAYER" : "NEXT PRAYER")
+                Text(featuredHeading(featured, isCurrent: isCurrent))
                     .font(.caption2.weight(.semibold))
                     .tracking(1.1)
                     .foregroundStyle(WidgetTheme.accent)
@@ -391,6 +386,13 @@ private struct LargeWidgetView: View {
     }
 }
 
+private func featuredHeading(_ prayer: WidgetPrayer, isCurrent: Bool) -> String {
+    if prayer.isNafl {
+        return isCurrent ? String(localized: "CURRENT NAFL PRAYER") : String(localized: "NEXT NAFL PRAYER")
+    }
+    return isCurrent ? String(localized: "CURRENT PRAYER") : String(localized: "NEXT PRAYER")
+}
+
 struct SalahWidgets: Widget {
     let kind: String = "SalahWidgets"
 
@@ -438,7 +440,8 @@ private func sampleSnapshot(now: Date = .now) -> WidgetSnapshot {
         prayers: prayers,
         currentPrayer: nil,
         nextPrayer: nil,
-        tomorrowFajr: tomorrowFajr
+        tomorrowFajr: tomorrowFajr,
+        nextDay: nil
     )
 }
 
