@@ -144,31 +144,48 @@ private struct SmallWidgetView: View {
                 .foregroundStyle(WidgetTheme.accent)
                 .monospacedDigit()
             }
+            .padding(.top, 4)
 
-            Spacer(minLength: 6)
+            Spacer(minLength: 4)
 
             if let snapshot, let featured = snapshot.currentPrayer ?? snapshot.nextPrayer {
                 let isCurrent = snapshot.currentPrayer != nil
                 let countdownDate = isCurrent ? featured.end : featured.time
 
-                // Centered prayer block: name, label, large countdown
-                VStack(spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(featured.name)
-                        .font(.system(size: 28, weight: .medium, design: .serif))
+                        .font(.system(size: 32, weight: .bold))
                         .foregroundStyle(WidgetTheme.primary)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                        .minimumScaleFactor(0.8)
 
                     Text(isCurrent ? "ends in" : "in")
-                        .font(.caption2.weight(.semibold))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(WidgetTheme.accent)
 
                     Text(countdownDate, style: .timer)
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(size: 36, weight: .bold))
                         .foregroundStyle(WidgetTheme.accent)
                         .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 8)
+
+                Spacer(minLength: 0)
+
+                HStack(spacing: 24) {
+                    Image(systemName: "clock")
+                        .font(.title3)
+                    Image(systemName: "building.columns")
+                        .font(.title3)
+                    Image(systemName: "star")
+                        .font(.title3)
+                }
+                .foregroundStyle(WidgetTheme.primary.opacity(0.35))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, 10)
             } else {
                 Text("Open Salah to load prayer times")
                     .font(.caption)
