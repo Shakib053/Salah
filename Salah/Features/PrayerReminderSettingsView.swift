@@ -52,6 +52,7 @@ struct PrayerReminderSettingsView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 
     private var topBar: some View {
