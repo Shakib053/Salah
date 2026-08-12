@@ -82,6 +82,7 @@ struct TodayView: View {
     @State private var viewModel: TodayViewModel
     @State private var showingDistricts = false
     @State private var showingCurrentLocation = false
+    @State private var showingFutureSalahAlert = false
 
     init(container: AppContainer) {
         self.container = container
@@ -166,6 +167,9 @@ struct TodayView: View {
                 updateLocation(location)
             }
             .presentationDetents([.medium, .large])
+        }
+        .alert("Future Salah is not trackable", isPresented: $showingFutureSalahAlert) {
+            Button("OK", role: .cancel) { }
         }
         .task(id: queryIdentity) {
             await viewModel.load(day: container.router.selectedDay)
@@ -288,6 +292,11 @@ struct TodayView: View {
     }
 
     private func handleScheduleTap(_ window: PrayerWindow, day: PrayerDay, now: Date = .now) {
+        if PrayerTimeline.isMidnightToFajrWindow(now: now, today: day) {
+            showingFutureSalahAlert = true
+            return
+        }
+
         if window.prayer == .isha,
            PrayerTimeline.isPreviousDayIshaCarryover(now: now, today: day) {
             container.router.showPrayerInCalendar(

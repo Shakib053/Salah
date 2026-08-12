@@ -439,6 +439,19 @@ final class SalahDomainTests: XCTestCase {
         XCTAssertFalse(PrayerTimeline.isPreviousDayIshaCarryover(now: atFajr, today: today))
     }
 
+    func testMidnightToFajrWindowOnlyAppliesBeforeFajrOnCurrentLocalDay() throws {
+        let today = try fixture(day: day)
+        let yesterday = try fixture(day: day.adding(days: -1, in: zone))
+        let afterMidnight = try XCTUnwrap(day.date(in: zone, hour: 0, minute: 12))
+        let atFajr = try XCTUnwrap(day.date(in: zone, hour: 5, minute: 5))
+        let beforeMidnight = try XCTUnwrap(day.adding(days: -1, in: zone).date(in: zone, hour: 23, minute: 59))
+
+        XCTAssertTrue(PrayerTimeline.isMidnightToFajrWindow(now: afterMidnight, today: today))
+        XCTAssertFalse(PrayerTimeline.isMidnightToFajrWindow(now: atFajr, today: today))
+        XCTAssertFalse(PrayerTimeline.isMidnightToFajrWindow(now: beforeMidnight, today: today))
+        XCTAssertFalse(PrayerTimeline.isMidnightToFajrWindow(now: afterMidnight, today: yesterday))
+    }
+
     func testWidgetUsesExactPrayerEndInsteadOfFillingGapToNextPrayer() throws {
         let prayerDay = try fixture(day: day)
         let betweenAsrAndMaghrib = try XCTUnwrap(day.date(in: zone, hour: 18, minute: 31))
