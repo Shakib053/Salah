@@ -220,6 +220,7 @@ struct InsightsView: View {
         }
         .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle("Insights")
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 InsightDateFilterButton(selection: $selection, timeZone: container.settings.location.timeZone)
@@ -493,6 +494,7 @@ private struct InsightDetailView: View {
         }
         .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle(category.title)
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 InsightDateFilterButton(selection: $selection, timeZone: data.timeZone)

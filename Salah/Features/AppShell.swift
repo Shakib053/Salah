@@ -43,17 +43,7 @@ struct RootTabView: View {
     @Bindable var container: AppContainer
 
     var body: some View {
-        GeometryReader { proxy in
-            if shouldUseSidebar(size: proxy.size) {
-                PadSidebarRootView(container: container)
-            } else {
-                SystemTabRootView(container: container)
-            }
-        }
-    }
-
-    private func shouldUseSidebar(size: CGSize) -> Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        SystemTabRootView(container: container)
     }
 }
 

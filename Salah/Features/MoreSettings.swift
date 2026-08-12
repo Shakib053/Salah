@@ -180,6 +180,7 @@ struct LanguageSettingsView: View {
             }
         }
         .navigationTitle("Language")
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -404,6 +405,7 @@ struct RemindersView: View {
             }
         }
         .navigationTitle("Reminders")
+        .toolbar(.hidden, for: .tabBar)
         .navigationDestination(item: $editingReminderEvent) { event in
             PrayerReminderSettingsView(container: container, event: event)
         }
@@ -714,6 +716,7 @@ struct LocationCalculationView: View {
             }
         }
         .navigationTitle("Location & Calculation")
+        .toolbar(.hidden, for: .tabBar)
         .sheet(isPresented: $showingDistricts) {
             NavigationStack {
                 DistrictPickerView(districts: container.districts) { district in
@@ -869,6 +872,7 @@ struct AppearanceView: View {
             }
         }
         .navigationTitle("Appearances & Theme")
+        .toolbar(.hidden, for: .tabBar)
     }
 
     private static let previewDate = Date(timeIntervalSinceReferenceDate: 0)
@@ -1004,6 +1008,7 @@ struct PrivacyView: View {
             }
         }
         .navigationTitle("Privacy & Data")
+        .toolbar(.hidden, for: .tabBar)
         .confirmationDialog("Clear all tracker data?", isPresented: $showingClearConfirmation, titleVisibility: .visible) {
             Button("Clear Tracker Data", role: .destructive) {
                 try? container.trackingRepository.clearAll()
@@ -1061,6 +1066,7 @@ struct AboutView: View {
             }
         }
         .navigationTitle("About Salah")
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -1086,6 +1092,7 @@ struct OpenSourceView: View {
             }
         }
         .navigationTitle("Open Source")
+        .toolbar(.hidden, for: .tabBar)
     }
 
     private static let adhanSwiftLicenseNotice = """

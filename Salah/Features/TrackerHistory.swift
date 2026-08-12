@@ -539,6 +539,7 @@ struct CharityHistoryView: View {
             }
         }
         .navigationTitle("Sadaqah")
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Add Giving", systemImage: "plus") { showingAddEntry = true }
@@ -1637,6 +1638,7 @@ struct HistoryView: View {
         }
         .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle("History")
+        .toolbar(.hidden, for: .tabBar)
         .task { records = (try? container.trackingRepository.allRecords()) ?? [] }
     }
 
