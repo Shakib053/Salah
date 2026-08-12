@@ -452,14 +452,19 @@ enum PrayerTimeline {
         return PrayerCardMoment(event: nil, isCurrent: false, remaining: nil, progress: 0)
     }
 
-    /// True only for the civil-midnight-to-Fajr exception where the current
-    /// day's Isha row actually represents the *next* Isha, not the one still
-    /// available from the previous day.
-    static func isPreviousDayIshaCarryover(now: Date, today: PrayerDay) -> Bool {
+    /// True from local civil midnight until Fajr for the current prayer day.
+    static func isMidnightToFajrWindow(now: Date, today: PrayerDay) -> Bool {
         guard today.localDay == LocalDay(now, timeZone: today.timeZone),
               let fajr = today.window(for: .fajr),
               let midnight = today.localDay.date(in: today.timeZone, hour: 0) else { return false }
         return now >= midnight && now < fajr.start
+    }
+
+    /// True only for the civil-midnight-to-Fajr exception where the current
+    /// day's Isha row actually represents the *next* Isha, not the one still
+    /// available from the previous day.
+    static func isPreviousDayIshaCarryover(now: Date, today: PrayerDay) -> Bool {
+        isMidnightToFajrWindow(now: now, today: today)
     }
 
     private static func currentCardMoment(_ event: PrayerCardEvent, now: Date) -> PrayerCardMoment {
