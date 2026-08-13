@@ -114,11 +114,6 @@ struct MoreView: View {
             }
 
             Section {
-                if let repositoryURL = ExternalLinks.repository {
-                    ShareLink(item: repositoryURL) {
-                        Label("Share Salah", systemImage: "square.and.arrow.up")
-                    }
-                }
                 #if DEBUG
                 LabeledContent("Version", value: versionText)
                     .onTapGesture(count: 5) { showingDebugDrawer = true }

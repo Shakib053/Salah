@@ -4135,6 +4135,7 @@
       }
     },
     "Share Salah" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
