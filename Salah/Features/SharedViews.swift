@@ -269,3 +269,31 @@ struct TrackerSymbolIcon: View {
 extension ShapeStyle where Self == Color {
     static var separator: Color { Color(uiColor: .separator) }
 }
+
+// MARK: - iPad Flicker Fix
+
+extension View {
+    /// Hides the tab bar only on iPhone (compact width).
+    ///
+    /// On iPad, `TabView` with `.sidebarAdaptable` renders navigation in a sidebar,
+    /// not a bottom tab bar. Calling `.toolbar(.hidden, for: .tabBar)` on iPad
+    /// triggers an unwanted animate-out / animate-in flicker every time a detail
+    /// view is pushed or popped. This modifier suppresses that call on iPad while
+    /// keeping the correct behaviour on iPhone.
+    @ViewBuilder
+    func phoneOnlyHideTabBar() -> some View {
+        self.modifier(PhoneOnlyHideTabBarModifier())
+    }
+}
+
+private struct PhoneOnlyHideTabBarModifier: ViewModifier {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    func body(content: Content) -> some View {
+        if horizontalSizeClass == .compact {
+            content.toolbar(.hidden, for: .tabBar)
+        } else {
+            content
+        }
+    }
+}

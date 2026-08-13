@@ -49,42 +49,55 @@ struct RootTabView: View {
 
 private struct SystemTabRootView: View {
     @Bindable var container: AppContainer
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         @Bindable var router = container.router
-        TabView(selection: $router.selectedTab) {
-            NavigationStack {
-                TodayView(container: container)
+        if #available(iOS 18.0, *), horizontalSizeClass == .regular {
+            TabView(selection: $router.selectedTab) {
+                Tab(AppTab.today.title, systemImage: AppTab.today.systemImage, value: AppTab.today) {
+                    NavigationStack { TodayView(container: container) }
+                }
+                Tab(AppTab.calendar.title, systemImage: AppTab.calendar.systemImage, value: AppTab.calendar) {
+                    NavigationStack { PrayerCalendarView(container: container) }
+                }
+                Tab(AppTab.tracker.title, systemImage: AppTab.tracker.systemImage, value: AppTab.tracker) {
+                    NavigationStack { TrackerView(container: container) }
+                }
+                Tab(AppTab.qibla.title, systemImage: AppTab.qibla.systemImage, value: AppTab.qibla) {
+                    NavigationStack { QiblaView(container: container) }
+                }
+                Tab(AppTab.more.title, systemImage: AppTab.more.systemImage, value: AppTab.more) {
+                    NavigationStack { MoreView(container: container) }
+                }
             }
-            .tabItem { Label(AppTab.today.title, systemImage: AppTab.today.systemImage) }
-            .tag(AppTab.today)
+            .tabViewStyle(.sidebarAdaptable)
+        } else {
+            TabView(selection: $router.selectedTab) {
+                NavigationStack { TodayView(container: container) }
+                    .tabItem { Label(AppTab.today.title, systemImage: AppTab.today.systemImage) }
+                    .tag(AppTab.today)
 
-            NavigationStack {
-                PrayerCalendarView(container: container)
-            }
-            .tabItem { Label(AppTab.calendar.title, systemImage: AppTab.calendar.systemImage) }
-            .tag(AppTab.calendar)
+                NavigationStack { PrayerCalendarView(container: container) }
+                    .tabItem { Label(AppTab.calendar.title, systemImage: AppTab.calendar.systemImage) }
+                    .tag(AppTab.calendar)
 
-            NavigationStack {
-                TrackerView(container: container)
-            }
-            .tabItem { Label(AppTab.tracker.title, systemImage: AppTab.tracker.systemImage) }
-            .tag(AppTab.tracker)
+                NavigationStack { TrackerView(container: container) }
+                    .tabItem { Label(AppTab.tracker.title, systemImage: AppTab.tracker.systemImage) }
+                    .tag(AppTab.tracker)
 
-            NavigationStack {
-                QiblaView(container: container)
-            }
-            .tabItem { Label(AppTab.qibla.title, systemImage: AppTab.qibla.systemImage) }
-            .tag(AppTab.qibla)
+                NavigationStack { QiblaView(container: container) }
+                    .tabItem { Label(AppTab.qibla.title, systemImage: AppTab.qibla.systemImage) }
+                    .tag(AppTab.qibla)
 
-            NavigationStack {
-                MoreView(container: container)
+                NavigationStack { MoreView(container: container) }
+                    .tabItem { Label(AppTab.more.title, systemImage: AppTab.more.systemImage) }
+                    .tag(AppTab.more)
             }
-            .tabItem { Label(AppTab.more.title, systemImage: AppTab.more.systemImage) }
-            .tag(AppTab.more)
         }
     }
 }
+
 
 private struct PadSidebarRootView: View {
     @Bindable var container: AppContainer
