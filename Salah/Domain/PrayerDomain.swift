@@ -256,7 +256,7 @@ struct LocalDay: Hashable, Codable, Comparable, Identifiable, Sendable {
 }
 
 struct PrayerTimesQuery: Hashable, Codable, Sendable {
-    static let schemaVersion = 3
+    static let schemaVersion = 4
 
     var day: LocalDay
     var latitude: Double
@@ -265,6 +265,7 @@ struct PrayerTimesQuery: Hashable, Codable, Sendable {
     var madhab: Madhab
     var hijriAdjustment: Int
     var cautionMinutes: Int
+    var languageIdentifier: String
     var schemaVersion: Int = Self.schemaVersion
 
     init(day: LocalDay, location: PrayerLocation, settings: CalculationSettings) {
@@ -275,6 +276,7 @@ struct PrayerTimesQuery: Hashable, Codable, Sendable {
         madhab = settings.madhab
         hijriAdjustment = settings.hijriAdjustment
         cautionMinutes = settings.cautionMinutes
+        languageIdentifier = L10n.locale.identifier
     }
 
     var signature: String {
@@ -285,7 +287,8 @@ struct PrayerTimesQuery: Hashable, Codable, Sendable {
             method.rawValue,
             madhab.rawValue,
             "h\(hijriAdjustment)",
-            "c\(cautionMinutes)"
+            "c\(cautionMinutes)",
+            "l\(languageIdentifier)"
         ].joined(separator: "|")
     }
 
@@ -493,7 +496,7 @@ enum PrayerTimeline {
 enum PrayerDateFormatting {
     static func time(_ date: Date, preference: TimeFormatPreference, timeZone: TimeZone) -> String {
         let formatter = DateFormatter()
-        formatter.locale = preference == .system ? L10n.locale : Locale(identifier: "en_US_POSIX")
+        formatter.locale = L10n.locale
         formatter.timeZone = timeZone
         switch preference {
         case .system: formatter.timeStyle = .short
@@ -515,7 +518,13 @@ enum PrayerDateFormatting {
 
     static func countdown(_ interval: TimeInterval) -> String {
         let seconds = max(0, Int(interval))
-        return String(format: "%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, seconds % 60)
+        let formatter = NumberFormatter()
+        formatter.locale = L10n.locale
+        formatter.minimumIntegerDigits = 2
+        formatter.maximumFractionDigits = 0
+        let values = [seconds / 3600, (seconds % 3600) / 60, seconds % 60]
+        return values.map { formatter.string(from: NSNumber(value: $0)) ?? String(format: "%02d", $0) }
+            .joined(separator: ":")
     }
 }
 

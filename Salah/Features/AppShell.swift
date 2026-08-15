@@ -23,6 +23,7 @@ struct AppRootView: View {
         }
         .environment(\.salahPalette, container.settings.palette)
         .environment(\.locale, container.settings.language.locale)
+        .id(container.settings.language)
         .tint(container.settings.palette.accent)
         .preferredColorScheme(preferredScheme)
         .onChange(of: scenePhase) { _, phase in
@@ -269,7 +270,7 @@ struct OnboardingFlow: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .always))
 
-                Button(page == pages.count - 1 ? "Choose Prayer Location" : "Continue") {
+                Button(L10n.dynamic(page == pages.count - 1 ? "Choose Prayer Location" : "Continue")) {
                     if page < pages.count - 1 {
                         withAnimation { page += 1 }
                     } else {

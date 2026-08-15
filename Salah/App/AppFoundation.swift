@@ -55,13 +55,31 @@ enum L10n {
     static var locale: Locale { LanguagePreferences.current.locale }
     static var usesBangla: Bool { LanguagePreferences.current.usesBangla }
 
+    /// `String(localized:bundle:locale:)` still resolves the strings table
+    /// using the process language. For an in-app override, load the selected
+    /// `.lproj` bundle explicitly.
+    private static var selectedBundle: Bundle {
+        guard usesBangla,
+              let path = Bundle.main.path(forResource: "bn", ofType: "lproj"),
+              let bundle = Bundle(path: path) else { return .main }
+        return bundle
+    }
+
     static func string(
         _ key: String.LocalizationValue,
         table: String? = nil,
         bundle: Bundle = .main,
         comment: StaticString? = nil
     ) -> String {
-        String(localized: key, table: table, bundle: bundle, locale: locale, comment: comment)
+        let lookupBundle = bundle.bundleURL == Bundle.main.bundleURL ? selectedBundle : bundle
+        return String(localized: key, table: table, bundle: lookupBundle, locale: locale, comment: comment)
+    }
+
+    /// Localizes keys that have already passed through a `String`-typed view
+    /// model or helper. SwiftUI otherwise renders these values verbatim.
+    static func dynamic(_ key: String, table: String? = nil, bundle: Bundle = .main) -> String {
+        let lookupBundle = bundle.bundleURL == Bundle.main.bundleURL ? selectedBundle : bundle
+        return String(localized: String.LocalizationValue(key), table: table, bundle: lookupBundle, locale: locale)
     }
 }
 
@@ -181,7 +199,11 @@ final class AppSettings {
             initialLocation.name = "\(nearestDistrict.name), Bangladesh"
         }
 
-        let initialLanguage = stored.language ?? .system
+        let initialLanguage: AppLanguage = if arguments.contains("-ui-testing"), arguments.contains("-bangla-language") {
+            .bangla
+        } else {
+            stored.language ?? .system
+        }
         LanguagePreferences.current = initialLanguage
         onboardingComplete = arguments.contains("-ui-testing") && arguments.contains("-onboarding-complete") ? true : stored.onboardingComplete
         locationEducationSeen = stored.locationEducationSeen

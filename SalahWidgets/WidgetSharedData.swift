@@ -12,8 +12,19 @@ enum WidgetLocalization {
         }
     }
 
+    private static var selectedBundle: Bundle {
+        guard locale.language.languageCode?.identifier == "bn",
+              let path = Bundle.main.path(forResource: "bn", ofType: "lproj"),
+              let bundle = Bundle(path: path) else { return .main }
+        return bundle
+    }
+
     static func string(_ key: String.LocalizationValue) -> String {
-        String(localized: key, locale: locale)
+        String(localized: key, bundle: selectedBundle, locale: locale)
+    }
+
+    static func dynamic(_ key: String) -> String {
+        String(localized: String.LocalizationValue(key), bundle: selectedBundle, locale: locale)
     }
 }
 

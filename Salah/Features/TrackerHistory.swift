@@ -167,7 +167,7 @@ struct TrackerView: View {
         SalahCard(isTransparent: true) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(isToday ? "Today’s Salah" : PrayerDateFormatting.fullDate(viewModel.selectedDay, timeZone: container.settings.location.timeZone))
+                    Text(isToday ? L10n.string("Today’s Salah") : PrayerDateFormatting.fullDate(viewModel.selectedDay, timeZone: container.settings.location.timeZone))
                         .font(.title3.bold())
                     Text("Private and stored on this device")
                         .font(.caption).foregroundStyle(.white.opacity(0.82))
@@ -262,7 +262,7 @@ struct TrackerView: View {
 
             ProgressView(value: min(monthlyCharityTotal, Double(charityGoal)), total: Double(max(1, charityGoal)))
                 .accessibilityLabel("Monthly charity intention")
-                .accessibilityValue("\(monthlyCharityTotal.formatted(.currency(code: charityCurrencyCode))) of \(charityGoal.formatted(.currency(code: charityCurrencyCode)))")
+                .accessibilityValue("\(monthlyCharityTotal.formatted(.currency(code: charityCurrencyCode).locale(L10n.locale))) of \(charityGoal.formatted(.currency(code: charityCurrencyCode).locale(L10n.locale)))")
 
             HStack {
                 Label("\(monthlyCharityEntries.count) gifts", systemImage: "heart.circle.fill")
@@ -460,7 +460,7 @@ struct TrackerView: View {
               let nextDate = CharityReminderPlan.make(preference: preference, now: .now, limit: 1).first else {
             return L10n.string("Choose a date and time")
         }
-        return "\(preference.repeatCycle.title) • \(nextDate.formatted(date: .abbreviated, time: .shortened))"
+        return "\(preference.repeatCycle.title) • \(nextDate.formatted(.dateTime.year().month(.abbreviated).day().hour().minute().locale(L10n.locale)))"
     }
 
     private func addCharityEntry(_ entry: CharityEntry) {
@@ -649,7 +649,7 @@ private struct AddCharityEntryView: View {
 
                     HStack {
                         ForEach(presets, id: \.self) { preset in
-                            Button(preset.formatted()) { amountText = String(preset) }
+                            Button(preset.formatted(.number.locale(L10n.locale))) { amountText = String(preset) }
                                 .buttonStyle(.bordered)
                                 .frame(maxWidth: .infinity)
                         }
@@ -939,7 +939,7 @@ private struct TasbihCounterPad: View {
 
     private var resetButton: some View {
         Button(action: handleReset) {
-            Label(resetArmed ? "Tap again" : "Reset", systemImage: "arrow.counterclockwise")
+            Label(L10n.dynamic(resetArmed ? "Tap again" : "Reset"), systemImage: "arrow.counterclockwise")
                 .font(.subheadline.weight(.medium))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 11)
@@ -947,7 +947,7 @@ private struct TasbihCounterPad: View {
                 .background(resetArmed ? Color.red.opacity(0.13) : palette.accentSoft, in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(resetArmed ? "Confirm reset counter" : "Reset counter")
+        .accessibilityLabel(L10n.dynamic(resetArmed ? "Confirm reset counter" : "Reset counter"))
         .accessibilityIdentifier("tasbih.reset")
         .animation(.easeInOut(duration: 0.18), value: resetArmed)
     }
@@ -987,7 +987,7 @@ private struct TasbihCounterPad: View {
         } label: {
             HStack(spacing: 7) {
                 Image(systemName: "target")
-                Text(goal > 0 ? "Goal: \(goal)" : "Set Goal")
+                Text(goal > 0 ? L10n.string("Goal: \(goal)") : L10n.string("Set Goal"))
                 Image(systemName: "chevron.down")
                     .font(.caption2.weight(.bold))
             }
@@ -998,7 +998,7 @@ private struct TasbihCounterPad: View {
             .background(palette.accentSoft, in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(goal > 0 ? "Tasbih goal, \(goal)" : "Tasbih goal, none")
+        .accessibilityLabel(goal > 0 ? L10n.string("Tasbih goal, \(goal)") : L10n.string("Tasbih goal, none"))
         .accessibilityIdentifier("tasbih.goal.menu")
         .alert("Custom Tasbih Goal", isPresented: $showingCustomGoal) {
             TextField("Goal count", text: $customGoalText)
@@ -1291,8 +1291,8 @@ struct TrackerPrayerRow: View {
             .background(palette.groupedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(prayer.title), \(completed ? "completed" : "not completed")")
-        .accessibilityHint(completed ? "Double tap to mark as not completed" : "Double tap to mark as completed")
+        .accessibilityLabel(L10n.string("\(prayer.title), \(completed ? L10n.string("completed") : L10n.string("not completed"))"))
+        .accessibilityHint(L10n.dynamic(completed ? "Double tap to mark as not completed" : "Double tap to mark as completed"))
     }
 }
 
@@ -1319,8 +1319,8 @@ private struct GoodDeedRow: View {
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityLabel(title)
-        .accessibilityValue(completed ? "completed" : "not completed")
-        .accessibilityHint(completed ? "Double tap to mark as not completed" : "Double tap to mark as completed")
+        .accessibilityValue(L10n.dynamic(completed ? "completed" : "not completed"))
+        .accessibilityHint(L10n.dynamic(completed ? "Double tap to mark as not completed" : "Double tap to mark as completed"))
     }
 }
 
@@ -1335,8 +1335,8 @@ private struct TrackerStatusRowContent<Leading: View>: View {
         HStack(spacing: 12) {
             leading
             VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.headline)
-                Text(subtitle)
+                Text(L10n.dynamic(title)).font(.headline)
+                Text(L10n.dynamic(subtitle))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -1458,9 +1458,9 @@ struct QiblaView: View {
                 }
 
                 HStack(spacing: 12) {
-                    qiblaMetric("Heading", value: headingProvider.heading.map { "\(Int($0.rounded()))°" } ?? "—")
-                    qiblaMetric("Qibla", value: "\(Int(qiblaBearing.rounded()))°")
-                    qiblaMetric("To Makkah", value: QiblaGeometry.distance(from: container.settings.location).formatted(.measurement(width: .abbreviated, usage: .road)))
+                    qiblaMetric("Heading", value: headingProvider.heading.map { "\(Int($0.rounded()).formatted(.number.locale(L10n.locale)))°" } ?? "—")
+                    qiblaMetric("Qibla", value: "\(Int(qiblaBearing.rounded()).formatted(.number.locale(L10n.locale)))°")
+                    qiblaMetric("To Makkah", value: QiblaGeometry.distance(from: container.settings.location).formatted(.measurement(width: .abbreviated, usage: .road).locale(L10n.locale)))
                 }
 
                 SalahCard {
@@ -1537,7 +1537,7 @@ struct QiblaView: View {
 
     private func qiblaMetric(_ title: String, value: String) -> some View {
         SalahCard {
-            Text(title)
+            Text(L10n.dynamic(title))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
@@ -1585,10 +1585,14 @@ struct HistoryView: View {
                     .frame(minHeight: 300)
                 } else {
                     HStack(spacing: 12) {
-                        metricCard("Current streak", value: "\(insights.currentStreak)", detail: "full days")
-                        metricCard("Best streak", value: "\(insights.bestStreak)", detail: "full days")
+                        metricCard("Current streak", value: insights.currentStreak.formatted(.number.locale(L10n.locale)), detail: "full days")
+                        metricCard("Best streak", value: insights.bestStreak.formatted(.number.locale(L10n.locale)), detail: "full days")
                     }
-                    metricCard("Completion", value: insights.completionPercentage.formatted(.percent.precision(.fractionLength(0))), detail: "\(insights.completed) of \(insights.possible) prayers since tracking began")
+                    metricCard(
+                        "Completion",
+                        value: insights.completionPercentage.formatted(.percent.precision(.fractionLength(0)).locale(L10n.locale)),
+                        detail: L10n.string("\(insights.completed) of \(insights.possible) prayers since tracking began")
+                    )
 
                     SalahCard {
                         Text("Last 7 Days").font(.headline)
@@ -1626,7 +1630,7 @@ struct HistoryView: View {
                                 }
                                 Spacer()
                                 if let date = record.completedAt {
-                                    Text(date.formatted(date: .omitted, time: .shortened)).font(.caption)
+                                    Text(date.formatted(.dateTime.hour().minute().locale(L10n.locale))).font(.caption)
                                 }
                             }
                             .padding(.vertical, 4)
@@ -1646,9 +1650,9 @@ struct HistoryView: View {
 
     private func metricCard(_ title: String, value: String, detail: String) -> some View {
         SalahCard {
-            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(L10n.dynamic(title)).font(.caption).foregroundStyle(.secondary)
             Text(value).font(.largeTitle.bold().monospacedDigit())
-            Text(detail).font(.caption).foregroundStyle(.secondary)
+            Text(L10n.dynamic(detail)).font(.caption).foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
     }

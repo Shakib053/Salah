@@ -22,6 +22,21 @@ final class SalahUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Choose District Manually"].waitForExistence(timeout: 2))
     }
 
+    func testBanglaOverrideLocalizesTabsPrayerAndSolarLabels() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing", "-reset-state", "-onboarding-complete", "-bangla-language"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.buttons["আজ"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.tabBars.buttons["ক্যালেন্ডার"].exists)
+        XCTAssertTrue(app.tabBars.buttons["ট্র্যাকার"].exists)
+        XCTAssertTrue(app.tabBars.buttons["কিবলা"].exists)
+        XCTAssertTrue(app.tabBars.buttons["আরও"].exists)
+        XCTAssertTrue(app.staticTexts["সূর্যোদয়"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts["সূর্যাস্ত"].exists)
+        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'ফজর'" )).firstMatch.exists)
+    }
+
     func testManualDistrictSelectionAndLocationDeniedRecovery() {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing", "-reset-state", "-location-denied"]

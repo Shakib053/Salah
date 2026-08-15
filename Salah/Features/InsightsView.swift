@@ -89,7 +89,8 @@ private struct InsightDateSelection: Equatable {
         let bounds = bounds(timeZone: timeZone)
         let start = bounds.lowerBound.date(in: timeZone) ?? customStart
         let end = bounds.upperBound.date(in: timeZone) ?? customEnd
-        return "\(start.formatted(date: .abbreviated, time: .omitted)) – \(end.formatted(date: .abbreviated, time: .omitted))"
+        let style = Date.FormatStyle(date: .abbreviated, time: .omitted, locale: L10n.locale, timeZone: timeZone)
+        return "\(start.formatted(style)) – \(end.formatted(style))"
     }
 }
 
@@ -165,7 +166,7 @@ private struct InsightsDataSet {
             return InsightPlotValue(
                 date: date(for: month),
                 value: total,
-                detail: total.formatted(.currency(code: currencyCode))
+                detail: total.formatted(.currency(code: currencyCode).locale(L10n.locale))
             )
         }
     }
@@ -179,7 +180,7 @@ private struct InsightsDataSet {
             return InsightPlotValue(
                 date: date(for: day),
                 value: total,
-                detail: "\(Int(total).formatted()) \(unit)"
+                detail: "\(Int(total).formatted(.number.locale(L10n.locale))) \(unit)"
             )
         }
     }
@@ -274,19 +275,19 @@ struct InsightsView: View {
                 today: LocalDay(.now, timeZone: data.timeZone),
                 timeZone: data.timeZone
             ).currentStreak
-            return (percentage.formatted(.percent.precision(.fractionLength(0))), L10n.string("recorded"), "\(streak)", L10n.string("day full streak"))
+            return (percentage.formatted(.percent.precision(.fractionLength(0)).locale(L10n.locale)), L10n.string("recorded"), streak.formatted(.number.locale(L10n.locale)), L10n.string("day full streak"))
         case .tasbih:
             let records = data.tasbihRecords.filter { bounds.contains($0.day) }
-            return (records.reduce(0) { $0 + $1.count }.formatted(), L10n.string("counts"), "\(records.filter { $0.count > 0 }.count)", L10n.string("active days"))
+            return (records.reduce(0) { $0 + $1.count }.formatted(.number.locale(L10n.locale)), L10n.string("counts"), records.filter { $0.count > 0 }.count.formatted(.number.locale(L10n.locale)), L10n.string("active days"))
         case .nafl:
             let records = data.naflRecords.filter { bounds.contains($0.day) }
-            return (records.reduce(0) { $0 + $1.completedCount }.formatted(), L10n.string("practices recorded"), "\(records.filter { $0.completedCount > 0 }.count)", L10n.string("active days"))
+            return (records.reduce(0) { $0 + $1.completedCount }.formatted(.number.locale(L10n.locale)), L10n.string("practices recorded"), records.filter { $0.completedCount > 0 }.count.formatted(.number.locale(L10n.locale)), L10n.string("active days"))
         case .charity:
             let entries = data.charityEntries.filter {
                 $0.currencyCode == data.currencyCode && bounds.contains(LocalDay($0.date, timeZone: data.timeZone))
             }
             let total = entries.reduce(0) { $0 + $1.amount }
-            return (total.formatted(.currency(code: data.currencyCode)), L10n.string("given"), "\(entries.count)", L10n.string("gifts"))
+            return (total.formatted(.currency(code: data.currencyCode).locale(L10n.locale)), L10n.string("given"), entries.count.formatted(.number.locale(L10n.locale)), L10n.string("gifts"))
         }
     }
 
@@ -396,7 +397,7 @@ private struct InteractiveInsightChart: View {
                     )
                     .foregroundStyle(selectedValue?.id == value.id ? accent : accent.opacity(0.58))
                     .cornerRadius(4)
-                    .accessibilityLabel(value.date.formatted(date: .abbreviated, time: .omitted))
+                    .accessibilityLabel(value.date.formatted(.dateTime.year().month(.abbreviated).day().locale(L10n.locale)))
                     .accessibilityValue(value.detail)
                 }
 
@@ -435,7 +436,7 @@ private struct InteractiveInsightChart: View {
 
             if let selectedValue {
                 Text(
-                    "\(selectedValue.date.formatted(date: .abbreviated, time: .omitted))  ·  \(selectedValue.detail)"
+                    "\(selectedValue.date.formatted(.dateTime.year().month(.abbreviated).day().locale(L10n.locale)))  ·  \(selectedValue.detail)"
                 )
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(Color.primary)
@@ -559,7 +560,7 @@ private struct InsightDetailView: View {
                         symbol: prayer.symbol,
                         value: data.prayerRecords.filter {
                             $0.completed && $0.prayer == prayer && selection.bounds(timeZone: data.timeZone).contains($0.localDay)
-                        }.count.formatted()
+                        }.count.formatted(.number.locale(L10n.locale))
                     )
                 }
             }
@@ -579,7 +580,7 @@ private struct InsightDetailView: View {
                         symbol: practice.symbol,
                         value: data.naflRecords.filter {
                             selection.bounds(timeZone: data.timeZone).contains($0.day) && $0.contains(practice)
-                        }.count.formatted()
+                        }.count.formatted(.number.locale(L10n.locale))
                     )
                 }
                 Text("Nafl is shown for reflection, never as a required score.")
@@ -598,7 +599,7 @@ private struct InsightDetailView: View {
                     ForEach(CharityCategory.allCases) { category in
                         let total = entries.filter { $0.category == category }.reduce(0) { $0 + $1.amount }
                         if total > 0 {
-                            breakdownRow(title: category.title, symbol: category.symbol, value: total.formatted(.currency(code: data.currencyCode)))
+                            breakdownRow(title: category.title, symbol: category.symbol, value: total.formatted(.currency(code: data.currencyCode).locale(L10n.locale)))
                         }
                     }
                 }
@@ -634,10 +635,10 @@ private struct InsightDetailView: View {
             let records = data.prayerRecords.filter { $0.completed && bounds.contains($0.localDay) }
             let fullDays = Dictionary(grouping: records, by: \.localDay).values.filter { Set($0.map(\.prayer)).count == 5 }.count
             return [
-                (records.count.formatted(), L10n.string("prayers recorded")),
-                (fullDays.formatted(), L10n.string("full days")),
-                (Set(records.map(\.localDay)).count.formatted(), L10n.string("active days")),
-                (TrackerInsightCalculator.calculate(records: data.prayerRecords, today: LocalDay(.now, timeZone: data.timeZone), timeZone: data.timeZone).bestStreak.formatted(), L10n.string("best full streak"))
+                (records.count.formatted(.number.locale(L10n.locale)), L10n.string("prayers recorded")),
+                (fullDays.formatted(.number.locale(L10n.locale)), L10n.string("full days")),
+                (Set(records.map(\.localDay)).count.formatted(.number.locale(L10n.locale)), L10n.string("active days")),
+                (TrackerInsightCalculator.calculate(records: data.prayerRecords, today: LocalDay(.now, timeZone: data.timeZone), timeZone: data.timeZone).bestStreak.formatted(.number.locale(L10n.locale)), L10n.string("best full streak"))
             ]
         case .tasbih:
             let records = data.tasbihRecords.filter { bounds.contains($0.day) }
@@ -646,10 +647,10 @@ private struct InsightDetailView: View {
             let average = active.isEmpty ? 0 : total / active.count
             let goals = records.filter { $0.goal > 0 && $0.count >= $0.goal }.count
             return [
-                (total.formatted(), L10n.string("total counts")),
-                (active.count.formatted(), L10n.string("active days")),
-                (average.formatted(), L10n.string("average per active day")),
-                (goals.formatted(), L10n.string("daily goals reached"))
+                (total.formatted(.number.locale(L10n.locale)), L10n.string("total counts")),
+                (active.count.formatted(.number.locale(L10n.locale)), L10n.string("active days")),
+                (average.formatted(.number.locale(L10n.locale)), L10n.string("average per active day")),
+                (goals.formatted(.number.locale(L10n.locale)), L10n.string("daily goals reached"))
             ]
         case .nafl:
             let records = data.naflRecords.filter { bounds.contains($0.day) }
@@ -666,9 +667,9 @@ private struct InsightDetailView: View {
                 mostFrequentTitle = "—"
             }
             return [
-                (total.formatted(), L10n.string("practices recorded")),
-                (active.count.formatted(), L10n.string("active days")),
-                (average.formatted(.number.precision(.fractionLength(1))), L10n.string("average on active days")),
+                (total.formatted(.number.locale(L10n.locale)), L10n.string("practices recorded")),
+                (active.count.formatted(.number.locale(L10n.locale)), L10n.string("active days")),
+                (average.formatted(.number.precision(.fractionLength(1)).locale(L10n.locale)), L10n.string("average on active days")),
                 (mostFrequentTitle, L10n.string("most recorded"))
             ]
         case .charity:
@@ -676,10 +677,10 @@ private struct InsightDetailView: View {
             let total = entries.reduce(0) { $0 + $1.amount }
             let categories = Set(entries.map(\.category)).count
             return [
-                (total.formatted(.currency(code: data.currencyCode)), L10n.string("given")),
-                (entries.count.formatted(), L10n.string("gifts")),
-                (Double(data.charityGoal).formatted(.currency(code: data.currencyCode)), L10n.string("monthly intention")),
-                (categories.formatted(), L10n.string("purposes"))
+                (total.formatted(.currency(code: data.currencyCode).locale(L10n.locale)), L10n.string("given")),
+                (entries.count.formatted(.number.locale(L10n.locale)), L10n.string("gifts")),
+                (Double(data.charityGoal).formatted(.currency(code: data.currencyCode).locale(L10n.locale)), L10n.string("monthly intention")),
+                (categories.formatted(.number.locale(L10n.locale)), L10n.string("purposes"))
             ]
         }
     }

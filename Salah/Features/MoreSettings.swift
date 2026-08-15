@@ -551,7 +551,7 @@ struct RemindersView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(preference.enabled ? "\(event.title) reminder, \(reminderSummary(for: preference))" : "\(event.title) reminder, off")
-                    .accessibilityHint(preference.enabled ? "Opens reminder timing settings" : "Turns on this reminder and opens timing settings")
+                    .accessibilityHint(L10n.dynamic(preference.enabled ? "Opens reminder timing settings" : "Turns on this reminder and opens timing settings"))
 
                     Toggle(isOn: Binding(
                         get: { container.settings.reminder(for: event).enabled },
@@ -561,7 +561,7 @@ struct RemindersView: View {
                     }
                     .labelsHidden()
                     .accessibilityLabel(event.title)
-                    .accessibilityHint(preference.enabled ? "Turns off and cancels scheduled reminders" : "Turns on this reminder")
+                    .accessibilityHint(L10n.dynamic(preference.enabled ? "Turns off and cancels scheduled reminders" : "Turns on this reminder"))
                 }
                 .frame(minHeight: 44)
             }
@@ -636,18 +636,18 @@ struct RemindersView: View {
     private var charityScheduleSummary: String {
         switch charityReminderRepeat {
         case .once:
-            charityReminderDate.formatted(date: .abbreviated, time: .shortened)
+            charityReminderDate.formatted(.dateTime.year().month(.abbreviated).day().hour().minute().locale(L10n.locale))
         case .weekly:
             String(
                 format: L10n.string("Every %@ at %@"),
-                charityReminderDate.formatted(.dateTime.weekday(.wide)),
-                charityReminderDate.formatted(date: .omitted, time: .shortened)
+                charityReminderDate.formatted(.dateTime.weekday(.wide).locale(L10n.locale)),
+                charityReminderDate.formatted(.dateTime.hour().minute().locale(L10n.locale))
             )
         case .monthly:
             String(
                 format: L10n.string("Monthly on day %lld at %@"),
                 Int64(Calendar.current.component(.day, from: charityReminderDate)),
-                charityReminderDate.formatted(date: .omitted, time: .shortened)
+                charityReminderDate.formatted(.dateTime.hour().minute().locale(L10n.locale))
             )
         }
     }
@@ -970,7 +970,7 @@ private struct CustomThemeColorPicker: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(color.title)
-                .accessibilityValue(selection == color ? "Selected" : "")
+                .accessibilityValue(selection == color ? L10n.string("Selected") : "")
                 .accessibilityAddTraits(selection == color ? .isSelected : [])
             }
         }
@@ -1032,8 +1032,8 @@ struct PrivacyView: View {
     private func privacyRow(_ title: String, detail: String, symbol: String) -> some View {
         Label {
             VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.headline)
-                Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                Text(L10n.dynamic(title)).font(.headline)
+                Text(L10n.dynamic(detail)).font(.subheadline).foregroundStyle(.secondary)
             }
         } icon: {
             Image(systemName: symbol).foregroundStyle(palette.accent)

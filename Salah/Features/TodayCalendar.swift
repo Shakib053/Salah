@@ -311,7 +311,7 @@ struct TodayView: View {
     private func eventCard(title: String, date: Date, symbol: String, day: PrayerDay) -> some View {
         SalahCard {
             Image(systemName: symbol).foregroundStyle(palette.warm).accessibilityHidden(true)
-            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(L10n.dynamic(title)).font(.caption).foregroundStyle(.secondary)
             Text(PrayerDateFormatting.time(date, preference: container.settings.calculation.timeFormat, timeZone: day.timeZone))
                 .font(.headline.monospacedDigit())
                 .lineLimit(1)
@@ -362,7 +362,7 @@ struct CurrentPrayerCard: View {
                         .textCase(.uppercase)
                         .tracking(0.7)
                         .foregroundStyle(.white.opacity(0.8))
-                    Text(displayed?.title ?? "Schedule complete")
+                    Text(displayed?.title ?? L10n.string("Schedule complete"))
                         .font(.title.bold())
                     if let remaining = countdown {
                         Text(PrayerDateFormatting.countdown(remaining))
@@ -451,7 +451,7 @@ struct PrayerScheduleRow: View {
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(window.prayer.title), starts \(PrayerDateFormatting.time(window.start, preference: preference, timeZone: day.timeZone)), ends \(PrayerDateFormatting.time(window.displayEnd, preference: preference, timeZone: day.timeZone))\(isActive ? ", current prayer" : "")\(isCompleted ? ", completed" : "")")
-        .accessibilityHint(showsDisclosure ? "Opens prayer details" : (isCompleted ? "Marks this prayer as not completed" : "Marks this prayer as completed"))
+        .accessibilityHint(L10n.dynamic(showsDisclosure ? "Opens prayer details" : (isCompleted ? "Marks this prayer as not completed" : "Marks this prayer as completed")))
     }
 
     private var currentBadge: some View {
@@ -502,7 +502,7 @@ struct PrayerDetailSheet: View {
                             .font(.footnote).foregroundStyle(.secondary)
                     }
 
-                    Button(isCompleted ? "Mark as Not Completed" : "Mark as Completed") {
+                    Button(L10n.dynamic(isCompleted ? "Mark as Not Completed" : "Mark as Completed")) {
                         toggleCompletion()
                         dismiss()
                     }
@@ -510,7 +510,7 @@ struct PrayerDetailSheet: View {
                     .controlSize(.large)
                     .frame(maxWidth: .infinity)
 
-                    Button(container.settings.reminder(for: PrayerEvent(rawValue: window.prayer.rawValue) ?? .fajr).enabled ? "Manage Reminder" : "Enable Reminder") {
+                    Button(L10n.dynamic(container.settings.reminder(for: PrayerEvent(rawValue: window.prayer.rawValue) ?? .fajr).enabled ? "Manage Reminder" : "Enable Reminder")) {
                         showingReminderEducation = true
                     }
                     .buttonStyle(.bordered)
@@ -532,7 +532,7 @@ struct PrayerDetailSheet: View {
 
     private func detailBox(_ title: String, _ date: Date) -> some View {
         SalahCard {
-            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(L10n.dynamic(title)).font(.caption).foregroundStyle(.secondary)
             Text(PrayerDateFormatting.time(date, preference: container.settings.calculation.timeFormat, timeZone: day.timeZone))
                 .font(.title3.bold().monospacedDigit())
         }
@@ -639,7 +639,7 @@ struct PrayerCalendarView: View {
             }
         }
         .navigationTitle("Calendar")
-        .task(id: "\(viewModel.monthAnchor.key)|\(container.settings.location.name)|\(container.settings.calculation)") {
+        .task(id: "\(viewModel.monthAnchor.key)|\(container.settings.location.name)|\(container.settings.calculation)|\(container.settings.language.rawValue)") {
             await viewModel.load()
         }
         .task {
@@ -667,7 +667,7 @@ struct PrayerCalendarView: View {
                 }
 
                 LazyVGrid(columns: columns, spacing: 6) {
-                    ForEach(Calendar.current.shortWeekdaySymbols, id: \.self) { symbol in
+                    ForEach(localizedShortWeekdaySymbols, id: \.self) { symbol in
                         Text(symbol).font(.caption.bold()).foregroundStyle(.secondary).frame(maxWidth: .infinity)
                     }
                     ForEach(0..<leadingBlankCount, id: \.self) { _ in Color.clear.frame(height: 44) }
@@ -744,7 +744,14 @@ struct PrayerCalendarView: View {
 
     private var monthTitle: String {
         guard let date = viewModel.monthAnchor.date(in: container.settings.location.timeZone) else { return viewModel.monthAnchor.key }
-        return date.formatted(.dateTime.month(.wide).year())
+        return date.formatted(.dateTime.month(.wide).year().locale(L10n.locale))
+    }
+
+    private var localizedShortWeekdaySymbols: [String] {
+        let formatter = DateFormatter()
+        formatter.locale = L10n.locale
+        formatter.calendar = Calendar(identifier: .gregorian)
+        return formatter.shortStandaloneWeekdaySymbols
     }
 
     private var leadingBlankCount: Int {

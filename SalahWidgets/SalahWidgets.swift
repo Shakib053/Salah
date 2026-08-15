@@ -155,7 +155,7 @@ private struct SmallWidgetView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
 
-                    Text(isCurrent ? "ends in" : "in")
+                    Text(WidgetLocalization.dynamic(isCurrent ? "ends in" : "in"))
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(WidgetTheme.accent)
 
@@ -230,7 +230,7 @@ private struct MediumWidgetView: View {
                         .foregroundStyle(WidgetTheme.primary)
                         .lineLimit(1)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(isCurrent ? "ends in" : "in")
+                        Text(WidgetLocalization.dynamic(isCurrent ? "ends in" : "in"))
                         Text(countdownDate, style: .timer)
                             .monospacedDigit()
                     }
@@ -341,7 +341,7 @@ private struct LargeWidgetView: View {
                     .foregroundStyle(WidgetTheme.primary)
                     .lineLimit(1)
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(isCurrent ? "ends in" : "in")
+                    Text(WidgetLocalization.dynamic(isCurrent ? "ends in" : "in"))
                     Text(countdownDate, style: .timer)
                         .monospacedDigit()
                 }

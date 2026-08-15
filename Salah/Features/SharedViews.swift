@@ -222,7 +222,7 @@ struct OfflineBanner: View {
 
     var body: some View {
         Label {
-            Text("Offline · Cached \(lastUpdated.formatted(date: .omitted, time: .shortened))")
+            Text("Offline · Cached \(lastUpdated.formatted(.dateTime.hour().minute().locale(L10n.locale)))")
         } icon: {
             Image(systemName: "wifi.slash")
         }
@@ -232,7 +232,7 @@ struct OfflineBanner: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .background(.thinMaterial, in: Capsule())
-        .accessibilityLabel("Offline. Showing cached prayer times updated \(lastUpdated.formatted())")
+        .accessibilityLabel("Offline. Showing cached prayer times updated \(lastUpdated.formatted(.dateTime.locale(L10n.locale)))")
     }
 }
 
