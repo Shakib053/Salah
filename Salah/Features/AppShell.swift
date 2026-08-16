@@ -99,7 +99,6 @@ private struct SystemTabRootView: View {
     }
 }
 
-
 private struct PadSidebarRootView: View {
     @Bindable var container: AppContainer
     @Environment(\.salahPalette) private var palette
