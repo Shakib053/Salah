@@ -32,6 +32,10 @@
 		D20000000000000000000010 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
 		D20000000000000000000011 /* PrayerReminderSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000011 /* PrayerReminderSettingsView.swift */; };
 		D20000000000000000000012 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000012 /* InsightsView.swift */; };
+		D20000000000000000000013 /* QiblaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000013 /* QiblaView.swift */; };
+		D20000000000000000000014 /* CharityHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000014 /* CharityHistoryView.swift */; };
+		D20000000000000000000015 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000015 /* HistoryView.swift */; };
+		D20000000000000000000016 /* TasbihViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000016 /* TasbihViews.swift */; };
 		D50000000000000000000001 /* SalahDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000001 /* SalahDomainTests.swift */; };
 		D50000000000000000000002 /* SalahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000002 /* SalahUITests.swift */; };
 		E10000000000000000000001 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = E30000000000000000000001 /* Adhan */; };
@@ -104,6 +108,10 @@
 		D1000000000000000000000F /* WidgetDataPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataPublisher.swift; sourceTree = "<group>"; };
 		D10000000000000000000011 /* PrayerReminderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerReminderSettingsView.swift; sourceTree = "<group>"; };
 		D10000000000000000000012 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		D10000000000000000000013 /* QiblaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QiblaView.swift; sourceTree = "<group>"; };
+		D10000000000000000000014 /* CharityHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharityHistoryView.swift; sourceTree = "<group>"; };
+		D10000000000000000000015 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		D10000000000000000000016 /* TasbihViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasbihViews.swift; sourceTree = "<group>"; };
 		D40000000000000000000001 /* SalahDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahDomainTests.swift; sourceTree = "<group>"; };
 		D40000000000000000000002 /* SalahUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahUITests.swift; sourceTree = "<group>"; };
 		D40000000000000000000003 /* SalahTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalahTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -262,6 +270,10 @@
 				D10000000000000000000008 /* TodayCalendar.swift */,
 				D10000000000000000000009 /* TrackerHistory.swift */,
 				D10000000000000000000012 /* InsightsView.swift */,
+				D10000000000000000000013 /* QiblaView.swift */,
+				D10000000000000000000014 /* CharityHistoryView.swift */,
+				D10000000000000000000015 /* HistoryView.swift */,
+				D10000000000000000000016 /* TasbihViews.swift */,
 				D1000000000000000000000A /* MoreSettings.swift */,
 				D10000000000000000000011 /* PrayerReminderSettingsView.swift */,
 			);
@@ -511,6 +523,10 @@
 				D20000000000000000000008 /* TodayCalendar.swift in Sources */,
 				D20000000000000000000009 /* TrackerHistory.swift in Sources */,
 				D20000000000000000000012 /* InsightsView.swift in Sources */,
+				D20000000000000000000013 /* QiblaView.swift in Sources */,
+				D20000000000000000000014 /* CharityHistoryView.swift in Sources */,
+				D20000000000000000000015 /* HistoryView.swift in Sources */,
+				D20000000000000000000016 /* TasbihViews.swift in Sources */,
 				D2000000000000000000000A /* MoreSettings.swift in Sources */,
 				D20000000000000000000011 /* PrayerReminderSettingsView.swift in Sources */,
 				D2000000000000000000000E /* WidgetSharedData.swift in Sources */,
