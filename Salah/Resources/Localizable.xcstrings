@@ -481,6 +481,7 @@
       }
     },
     "Adhan Swift prayer-time library" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -3899,6 +3900,7 @@
       }
     },
     "Project" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -5325,6 +5327,7 @@
       }
     },
     "View Source on GitHub" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {

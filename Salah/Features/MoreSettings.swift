@@ -1060,10 +1060,6 @@ struct AboutView: View {
             Section("Prayer-Time Notice") {
                 Text("Prayer timings can vary by calculation method, madhab, adjustments, local conditions, and local authority. Salah is not an official religious authority. Confirm timings with an appropriate local authority when necessary.")
             }
-            Section("Project") {
-                if let url = ExternalLinks.repository { Link("View Source on GitHub", destination: url) }
-                if let url = ExternalLinks.adhanSwift { Link("Adhan Swift prayer-time library", destination: url) }
-            }
         }
         .navigationTitle("About Salah")
         .navigationBarTitleDisplayMode(.inline)
