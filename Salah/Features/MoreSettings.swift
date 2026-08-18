@@ -3,10 +3,6 @@ import UIKit
 
 private enum ExternalLinks {
     static let support = URL(string: "https://www.linkedin.com/in/mahi-al-jawad/")
-    static let repository = URL(string: "https://github.com/Shakib053/Salah")
-    static let license = URL(string: "https://github.com/Shakib053/Salah/blob/main/LICENSE")
-    static let adhanSwift = URL(string: "https://github.com/batoulapps/adhan-swift")
-    static let adhanSwiftLicense = URL(string: "https://github.com/batoulapps/adhan-swift/blob/main/LICENSE")
 }
 
 struct SettingsOpener {
@@ -102,9 +98,6 @@ struct MoreView: View {
                 }
                 NavigationLink { AboutView() } label: {
                     settingsLabel("About Salah", subtitle: "Charitable and open source", symbol: "info.circle.fill", tint: .purple)
-                }
-                NavigationLink { OpenSourceView() } label: {
-                    settingsLabel("Open-Source Information", subtitle: "License and attribution", symbol: "chevron.left.forwardslash.chevron.right", tint: .gray)
                 }
                 if let supportURL = ExternalLinks.support {
                     Link(destination: supportURL) {
@@ -1065,43 +1058,4 @@ struct AboutView: View {
         .navigationBarTitleDisplayMode(.inline)
         .phoneOnlyHideTabBar()
     }
-}
-
-struct OpenSourceView: View {
-    var body: some View {
-        List {
-            Section("Salah") {
-                Text("Copyright © 2024 Mahi Al Jawad")
-                Text("Released under the MIT License.")
-                if let url = ExternalLinks.license { Link("Read the repository license", destination: url) }
-            }
-            Section("Prayer-Time Calculation") {
-                Text("Prayer times are calculated on-device using the MIT-licensed Adhan Swift library by Batoul Apps. Hijri dates are calculated on-device using Apple's calendar framework.")
-                DisclosureGroup("Adhan Swift license notice") {
-                    Text(Self.adhanSwiftLicenseNotice)
-                        .font(.footnote)
-                        .textSelection(.enabled)
-                }
-                if let url = ExternalLinks.adhanSwiftLicense { Link("Adhan Swift MIT License", destination: url) }
-            }
-            Section("Apple Frameworks") {
-                Text("SwiftUI, SwiftData, Charts, Core Location, Foundation, and UserNotifications are used under the platform terms supplied with iOS.")
-            }
-        }
-        .navigationTitle("Open Source")
-        .navigationBarTitleDisplayMode(.inline)
-        .phoneOnlyHideTabBar()
-    }
-
-    private static let adhanSwiftLicenseNotice = """
-    The MIT License (MIT)
-
-    Copyright (c) 2016 Batoul Apps
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-    """
 }
