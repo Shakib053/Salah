@@ -72,17 +72,30 @@ struct SalahWidgetsEntryView : View {
 }
 
 private enum WidgetTheme {
-    static let background = LinearGradient(
-        colors: [Color(red: 0.035, green: 0.075, blue: 0.11), Color(red: 0.02, green: 0.04, blue: 0.065)],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-    static let panel = Color.white.opacity(0.055)
-    static let primary = Color.white
+    /// Resolved at render time from the user's theme stored in the App Group.
+    static var accent: Color {
+        let rgb = WidgetThemeStore.accentRGB
+        return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
+    }
+
+    static var background: LinearGradient {
+        let bg = WidgetThemeStore.backgroundRGB
+        return LinearGradient(
+            colors: [
+                Color(red: bg.start.0, green: bg.start.1, blue: bg.start.2),
+                Color(red: bg.end.0,   green: bg.end.1,   blue: bg.end.2)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    // Neutral semantic tones — widget is always dark so these remain white-based.
+    static let panel     = Color.white.opacity(0.055)
+    static let primary   = Color.white
     static let secondary = Color.white.opacity(0.62)
-    static let muted = Color.white.opacity(0.36)
-    static let accent = Color(red: 0.29, green: 0.82, blue: 0.75)
-    static let divider = Color.white.opacity(0.13)
+    static let muted     = Color.white.opacity(0.36)
+    static let divider   = Color.white.opacity(0.13)
 }
 
 private enum WidgetTimeFormatter {

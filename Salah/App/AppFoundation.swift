@@ -51,6 +51,20 @@ enum LanguagePreferences {
     }
 }
 
+enum ThemePreferences {
+    private static let themeKey = "salah.app-theme"
+    private static let customColorKey = "salah.app-custom-theme-color"
+
+    /// Writes the current theme selection to the App Group UserDefaults so
+    /// the widget extension can read and render it. Also triggers a widget
+    /// timeline reload so the color change is reflected immediately.
+    static func save(theme: ThemePreference, customColor: CustomThemeColor) {
+        guard let shared = UserDefaults(suiteName: WidgetDataStore.groupID) else { return }
+        shared.set(theme.rawValue, forKey: themeKey)
+        shared.set(customColor.rawValue, forKey: customColorKey)
+    }
+}
+
 enum L10n {
     static var locale: Locale { LanguagePreferences.current.locale }
     static var usesBangla: Bool { LanguagePreferences.current.usesBangla }
@@ -216,6 +230,8 @@ final class AppSettings {
         storedReminders = stored.reminders
         charityReminder = stored.charityReminder ?? CharityReminderPreference()
         if initialLocation != stored.location { save() }
+        // Ensure the widget App Group reflects the loaded theme on every launch.
+        ThemePreferences.save(theme: theme, customColor: customThemeColor)
     }
 
     var palette: SalahPalette {
@@ -250,6 +266,8 @@ final class AppSettings {
         if let data = try? JSONEncoder().encode(value) {
             defaults.set(data, forKey: key)
         }
+        // Mirror theme to the App Group so the widget can pick it up.
+        ThemePreferences.save(theme: theme, customColor: customThemeColor)
     }
 }
 
