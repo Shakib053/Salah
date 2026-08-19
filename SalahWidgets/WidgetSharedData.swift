@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import WidgetKit
 
 enum WidgetLocalization {
@@ -358,5 +359,119 @@ enum WidgetDataStore {
         }
 
         return try? JSONDecoder().decode(WidgetSnapshot.self, from: data)
+    }
+}
+
+// MARK: - Widget Theme Store
+
+/// Reads the user's theme preference from the shared App Group UserDefaults
+/// (written by the main app via `ThemePreferences.save`) and resolves it into
+/// concrete RGB values that `WidgetTheme` can turn into SwiftUI `Color`s.
+///
+/// The widget is always rendered on a dark background, so accent and gradient
+/// colours use their dark-mode variants throughout.
+enum WidgetThemeStore {
+    private static let themeKey = "salah.app-theme"
+    private static let customColorKey = "salah.app-custom-theme-color"
+
+    // MARK: Public API
+
+    /// Resolved accent colour as an (r, g, b) tuple in the [0…1] range.
+    static var accentRGB: (r: Double, g: Double, b: Double) {
+        let defaults = UserDefaults(suiteName: WidgetDataStore.groupID)
+        let themeRaw      = defaults?.string(forKey: themeKey)       ?? "greyishBlue"
+        let customColorRaw = defaults?.string(forKey: customColorKey) ?? "oceanBlue"
+        return resolveAccent(themeRaw: themeRaw, customColorRaw: customColorRaw)
+    }
+
+    /// Background gradient stop colours as (start, end) RGB tuples.
+    static var backgroundRGB: (start: (Double, Double, Double), end: (Double, Double, Double)) {
+        let defaults = UserDefaults(suiteName: WidgetDataStore.groupID)
+        let themeRaw       = defaults?.string(forKey: themeKey)       ?? "greyishBlue"
+        let customColorRaw = defaults?.string(forKey: customColorKey) ?? "oceanBlue"
+        return resolveBackground(themeRaw: themeRaw, customColorRaw: customColorRaw)
+    }
+
+    // MARK: Accent resolver
+
+    private static func resolveAccent(themeRaw: String, customColorRaw: String)
+        -> (r: Double, g: Double, b: Double)
+    {
+        switch themeRaw {
+        // AccentColor asset (dark variant) — approx. #7490D5
+        case "greyishBlue":  return (0.455, 0.565, 0.835)
+        // GreenAccent asset (dark variant) — approx. #56DF99
+        case "greenishDark": return (0.337, 0.875, 0.600)
+        // Slate to Ink Navy accent
+        case "slateInkNavy": return (0.345, 0.518, 0.788)
+        case "custom":       return accentForCustom(customColorRaw)
+        default:             return (0.455, 0.565, 0.835)
+        }
+    }
+
+    // MARK: Background resolver
+
+    private static func resolveBackground(themeRaw: String, customColorRaw: String)
+        -> (start: (Double, Double, Double), end: (Double, Double, Double))
+    {
+        switch themeRaw {
+        case "greyishBlue":
+            // Matches existing dark-navy widget background
+            return (start: (0.035, 0.075, 0.110), end: (0.020, 0.040, 0.065))
+        case "greenishDark":
+            // Deep forest-green gradient (mirrors GreenHero / GreenHeroDeep assets)
+            return (start: (0.043, 0.098, 0.075), end: (0.020, 0.045, 0.033))
+        case "slateInkNavy":
+            // Layered slate-to-navy gradient (mirrors heroStart / heroEnd)
+            return (start: (0.060, 0.092, 0.160), end: (0.029, 0.054, 0.097))
+        case "custom":
+            return backgroundForCustom(customColorRaw)
+        default:
+            return (start: (0.035, 0.075, 0.110), end: (0.020, 0.040, 0.065))
+        }
+    }
+
+    // MARK: Custom colour helpers
+
+    /// Derives the accent colour for a custom theme, replicating the HSB
+    /// formula from `CustomThemeColor.adaptiveColor` in `SharedViews.swift`
+    /// (dark variant: saturation * 0.58, brightness 0.86).
+    private static func accentForCustom(_ raw: String) -> (r: Double, g: Double, b: Double) {
+        let (h, s) = hueAndSaturation(for: raw)
+        let uiColor = UIColor(hue: CGFloat(h), saturation: CGFloat(s * 0.58), brightness: 0.86, alpha: 1)
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        uiColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+        return (Double(r), Double(g), Double(b))
+    }
+
+    /// Derives gradient stop colours for a custom theme, replicating
+    /// `heroStart` / `heroEnd` from `CustomThemeColor.palette` in `SharedViews.swift`.
+    private static func backgroundForCustom(_ raw: String)
+        -> (start: (Double, Double, Double), end: (Double, Double, Double))
+    {
+        let (h, s) = hueAndSaturation(for: raw)
+        let startUI = UIColor(hue: CGFloat(h), saturation: CGFloat(s * 0.82), brightness: 0.40, alpha: 1)
+        let endUI   = UIColor(hue: CGFloat(h), saturation: CGFloat(s * 0.88), brightness: 0.20, alpha: 1)
+        var sr: CGFloat = 0, sg: CGFloat = 0, sb: CGFloat = 0, sa: CGFloat = 0
+        var er: CGFloat = 0, eg: CGFloat = 0, eb: CGFloat = 0, ea: CGFloat = 0
+        startUI.getRed(&sr, green: &sg, blue: &sb, alpha: &sa)
+        endUI.getRed(&er, green: &eg, blue: &eb, alpha: &ea)
+        return (start: (Double(sr), Double(sg), Double(sb)),
+                end:   (Double(er), Double(eg), Double(eb)))
+    }
+
+    /// Hue and saturation table — mirrors `CustomThemeColor` private properties
+    /// in `SharedViews.swift` exactly so colours stay in sync.
+    private static func hueAndSaturation(for raw: String) -> (hue: Double, saturation: Double) {
+        switch raw {
+        case "oceanBlue":   return (0.590, 0.72)
+        case "deepTeal":    return (0.490, 0.64)
+        case "emerald":     return (0.400, 0.66)
+        case "indigo":      return (0.650, 0.60)
+        case "mutedPurple": return (0.750, 0.46)
+        case "dustyRose":   return (0.950, 0.46)
+        case "terracotta":  return (0.055, 0.64)
+        default:            return (0.590, 0.72) // fallback: oceanBlue
+        }
     }
 }

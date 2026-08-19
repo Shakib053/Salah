@@ -37,10 +37,6 @@ struct Provider: AppIntentTimelineProvider {
         // Future entries switch the card exactly at prayer and Nafl boundaries.
         return Timeline(entries: entries, policy: .after(now.addingTimeInterval(6 * 60 * 60)))
     }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -72,17 +68,30 @@ struct SalahWidgetsEntryView : View {
 }
 
 private enum WidgetTheme {
-    static let background = LinearGradient(
-        colors: [Color(red: 0.035, green: 0.075, blue: 0.11), Color(red: 0.02, green: 0.04, blue: 0.065)],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-    static let panel = Color.white.opacity(0.055)
-    static let primary = Color.white
+    /// Resolved at render time from the user's theme stored in the App Group.
+    static var accent: Color {
+        let rgb = WidgetThemeStore.accentRGB
+        return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
+    }
+
+    static var background: LinearGradient {
+        let bg = WidgetThemeStore.backgroundRGB
+        return LinearGradient(
+            colors: [
+                Color(red: bg.start.0, green: bg.start.1, blue: bg.start.2),
+                Color(red: bg.end.0,   green: bg.end.1,   blue: bg.end.2)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    // Neutral semantic tones — widget is always dark so these remain white-based.
+    static let panel     = Color.white.opacity(0.055)
+    static let primary   = Color.white
     static let secondary = Color.white.opacity(0.62)
-    static let muted = Color.white.opacity(0.36)
-    static let accent = Color(red: 0.29, green: 0.82, blue: 0.75)
-    static let divider = Color.white.opacity(0.13)
+    static let muted     = Color.white.opacity(0.36)
+    static let divider   = Color.white.opacity(0.13)
 }
 
 private enum WidgetTimeFormatter {
@@ -126,12 +135,13 @@ private struct SmallWidgetView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top row: crescent icon (left) + current time (right)
             HStack {
                 Image(systemName: "moon.stars.fill")
                     .font(.title3)
                     .foregroundStyle(WidgetTheme.accent)
+
                 Spacer()
+
                 Text(WidgetTimeFormatter.time(
                     date,
                     timezoneIdentifier: snapshot?.timeZoneIdentifier ?? TimeZone.current.identifier
@@ -140,7 +150,6 @@ private struct SmallWidgetView: View {
                 .foregroundStyle(WidgetTheme.accent)
                 .monospacedDigit()
             }
-            .padding(.top, 4)
 
             Spacer(minLength: 4)
 
@@ -148,9 +157,9 @@ private struct SmallWidgetView: View {
                 let isCurrent = snapshot.currentPrayer != nil
                 let countdownDate = isCurrent ? featured.end : featured.time
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .center, spacing: 2) {
                     Text(featured.name)
-                        .font(.system(size: 32, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(WidgetTheme.primary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
@@ -160,13 +169,15 @@ private struct SmallWidgetView: View {
                         .foregroundStyle(WidgetTheme.accent)
 
                     Text(countdownDate, style: .timer)
-                        .font(.system(size: 36, weight: .bold))
+                        .font(.system(size: 22, weight: .bold))
                         .foregroundStyle(WidgetTheme.accent)
                         .monospacedDigit()
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
 
                 Spacer(minLength: 0)
@@ -180,8 +191,8 @@ private struct SmallWidgetView: View {
                         .font(.title3)
                 }
                 .foregroundStyle(WidgetTheme.primary.opacity(0.35))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 10)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, 5)
             } else {
                 Text("Open Salah to load prayer times")
                     .font(.caption)
@@ -190,7 +201,8 @@ private struct SmallWidgetView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .padding(14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(10)
     }
 }
 
@@ -402,6 +414,7 @@ struct SalahWidgets: Widget {
             SalahWidgetsEntryView(entry: entry)
         }
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .contentMarginsDisabled()
     }
 }
 
