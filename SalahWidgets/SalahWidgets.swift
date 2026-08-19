@@ -152,13 +152,12 @@ private struct SmallWidgetView: View {
             }
 
             Spacer(minLength: 4)
-                .background(.blue)
 
             if let snapshot, let featured = snapshot.currentPrayer ?? snapshot.nextPrayer {
                 let isCurrent = snapshot.currentPrayer != nil
                 let countdownDate = isCurrent ? featured.end : featured.time
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .center, spacing: 2) {
                     Text(featured.name)
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(WidgetTheme.primary)
@@ -175,8 +174,10 @@ private struct SmallWidgetView: View {
                         .monospacedDigit()
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
 
                 Spacer(minLength: 0)
