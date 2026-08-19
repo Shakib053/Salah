@@ -37,10 +37,6 @@ struct Provider: AppIntentTimelineProvider {
         // Future entries switch the card exactly at prayer and Nafl boundaries.
         return Timeline(entries: entries, policy: .after(now.addingTimeInterval(6 * 60 * 60)))
     }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -139,12 +135,13 @@ private struct SmallWidgetView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top row: crescent icon (left) + current time (right)
             HStack {
                 Image(systemName: "moon.stars.fill")
                     .font(.title3)
                     .foregroundStyle(WidgetTheme.accent)
+
                 Spacer()
+
                 Text(WidgetTimeFormatter.time(
                     date,
                     timezoneIdentifier: snapshot?.timeZoneIdentifier ?? TimeZone.current.identifier
@@ -153,9 +150,9 @@ private struct SmallWidgetView: View {
                 .foregroundStyle(WidgetTheme.accent)
                 .monospacedDigit()
             }
-            .padding(.top, 4)
 
             Spacer(minLength: 4)
+                .background(.blue)
 
             if let snapshot, let featured = snapshot.currentPrayer ?? snapshot.nextPrayer {
                 let isCurrent = snapshot.currentPrayer != nil
@@ -163,7 +160,7 @@ private struct SmallWidgetView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(featured.name)
-                        .font(.system(size: 32, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(WidgetTheme.primary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
@@ -173,13 +170,13 @@ private struct SmallWidgetView: View {
                         .foregroundStyle(WidgetTheme.accent)
 
                     Text(countdownDate, style: .timer)
-                        .font(.system(size: 36, weight: .bold))
+                        .font(.system(size: 22, weight: .bold))
                         .foregroundStyle(WidgetTheme.accent)
                         .monospacedDigit()
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.vertical, 8)
 
                 Spacer(minLength: 0)
@@ -193,8 +190,8 @@ private struct SmallWidgetView: View {
                         .font(.title3)
                 }
                 .foregroundStyle(WidgetTheme.primary.opacity(0.35))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 10)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, 5)
             } else {
                 Text("Open Salah to load prayer times")
                     .font(.caption)
@@ -203,7 +200,8 @@ private struct SmallWidgetView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .padding(14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(10)
     }
 }
 
@@ -415,6 +413,7 @@ struct SalahWidgets: Widget {
             SalahWidgetsEntryView(entry: entry)
         }
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .contentMarginsDisabled()
     }
 }
 
