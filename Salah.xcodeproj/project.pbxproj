@@ -19,11 +19,11 @@
 		D20000000000000000000003 /* PrayerDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000003 /* PrayerDomain.swift */; };
 		D20000000000000000000004 /* PrayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* PrayerData.swift */; };
 		D20000000000000000000005 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000005 /* Persistence.swift */; };
-		D20000000000000000000006 /* SharedViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000006 /* SharedViews.swift */; };
+		D20000000000000000000006 /* SalahTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000006 /* SalahTheme.swift */; };
 		D20000000000000000000007 /* AppShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000007 /* AppShell.swift */; };
-		D20000000000000000000008 /* TodayCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000008 /* TodayCalendar.swift */; };
-		D20000000000000000000009 /* TrackerHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000009 /* TrackerHistory.swift */; };
-		D2000000000000000000000A /* MoreSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* MoreSettings.swift */; };
+		D20000000000000000000008 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000008 /* TodayView.swift */; };
+		D20000000000000000000009 /* TrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000009 /* TrackerView.swift */; };
+		D2000000000000000000000A /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* MoreView.swift */; };
 		D2000000000000000000000B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000B /* Localizable.xcstrings */; };
 		D2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000C /* PrivacyInfo.xcprivacy */; };
 		D2000000000000000000000D /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* UITestSupport.swift */; };
@@ -34,8 +34,25 @@
 		D20000000000000000000012 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000012 /* InsightsView.swift */; };
 		D20000000000000000000013 /* QiblaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000013 /* QiblaView.swift */; };
 		D20000000000000000000014 /* CharityHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000014 /* CharityHistoryView.swift */; };
-		D20000000000000000000015 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000015 /* HistoryView.swift */; };
 		D20000000000000000000016 /* TasbihViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000016 /* TasbihViews.swift */; };
+		FB0000000000000000000001 /* OnboardingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001 /* OnboardingFlow.swift */; };
+		FB0000000000000000000002 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000002 /* SharedComponents.swift */; };
+		FB0000000000000000000003 /* LocationEducationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000003 /* LocationEducationView.swift */; };
+		FB0000000000000000000004 /* DistrictPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000004 /* DistrictPickerView.swift */; };
+		FB0000000000000000000005 /* CurrentLocationSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000005 /* CurrentLocationSettingsSheet.swift */; };
+		FB0000000000000000000006 /* TodayComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000006 /* TodayComponents.swift */; };
+		FB0000000000000000000007 /* PrayerCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* PrayerCalendarView.swift */; };
+		FB0000000000000000000008 /* TrackerRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008 /* TrackerRows.swift */; };
+		FB0000000000000000000009 /* MoreSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* MoreSupport.swift */; };
+		FB000000000000000000000A /* LanguageSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000A /* LanguageSettingsView.swift */; };
+		FB000000000000000000000B /* RemindersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000B /* RemindersView.swift */; };
+		FB000000000000000000000C /* LocationCalculationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000C /* LocationCalculationView.swift */; };
+		FB000000000000000000000D /* AppearanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000D /* AppearanceView.swift */; };
+		FB000000000000000000000E /* PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000E /* PrivacyView.swift */; };
+		FB000000000000000000000F /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000F /* AboutView.swift */; };
+		FB0000000000000000000010 /* CharityDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000010 /* CharityDomain.swift */; };
+		FB0000000000000000000011 /* TasbihDomain.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000011 /* TasbihDomain.swift */; };
+		FB0000000000000000000012 /* TrackerInsights.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000012 /* TrackerInsights.swift */; };
 		D50000000000000000000001 /* SalahDomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000001 /* SalahDomainTests.swift */; };
 		D50000000000000000000002 /* SalahUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D40000000000000000000002 /* SalahUITests.swift */; };
 		E10000000000000000000001 /* Adhan in Frameworks */ = {isa = PBXBuildFile; productRef = E30000000000000000000001 /* Adhan */; };
@@ -96,11 +113,11 @@
 		D10000000000000000000003 /* PrayerDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerDomain.swift; sourceTree = "<group>"; };
 		D10000000000000000000004 /* PrayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerData.swift; sourceTree = "<group>"; };
 		D10000000000000000000005 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
-		D10000000000000000000006 /* SharedViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedViews.swift; sourceTree = "<group>"; };
+		D10000000000000000000006 /* SalahTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahTheme.swift; sourceTree = "<group>"; };
 		D10000000000000000000007 /* AppShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShell.swift; sourceTree = "<group>"; };
-		D10000000000000000000008 /* TodayCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayCalendar.swift; sourceTree = "<group>"; };
-		D10000000000000000000009 /* TrackerHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerHistory.swift; sourceTree = "<group>"; };
-		D1000000000000000000000A /* MoreSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreSettings.swift; sourceTree = "<group>"; };
+		D10000000000000000000008 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		D10000000000000000000009 /* TrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerView.swift; sourceTree = "<group>"; };
+		D1000000000000000000000A /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
 		D1000000000000000000000B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		D1000000000000000000000C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D1000000000000000000000D /* UITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
@@ -110,8 +127,25 @@
 		D10000000000000000000012 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		D10000000000000000000013 /* QiblaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QiblaView.swift; sourceTree = "<group>"; };
 		D10000000000000000000014 /* CharityHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharityHistoryView.swift; sourceTree = "<group>"; };
-		D10000000000000000000015 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		D10000000000000000000016 /* TasbihViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasbihViews.swift; sourceTree = "<group>"; };
+		FA0000000000000000000001 /* OnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlow.swift; sourceTree = "<group>"; };
+		FA0000000000000000000002 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
+		FA0000000000000000000003 /* LocationEducationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationEducationView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000004 /* DistrictPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistrictPickerView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000005 /* CurrentLocationSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentLocationSettingsSheet.swift; sourceTree = "<group>"; };
+		FA0000000000000000000006 /* TodayComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayComponents.swift; sourceTree = "<group>"; };
+		FA0000000000000000000007 /* PrayerCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerCalendarView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000008 /* TrackerRows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRows.swift; sourceTree = "<group>"; };
+		FA0000000000000000000009 /* MoreSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreSupport.swift; sourceTree = "<group>"; };
+		FA000000000000000000000A /* LanguageSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSettingsView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000B /* RemindersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000C /* LocationCalculationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCalculationView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000D /* AppearanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000E /* PrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000F /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000010 /* CharityDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharityDomain.swift; sourceTree = "<group>"; };
+		FA0000000000000000000011 /* TasbihDomain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasbihDomain.swift; sourceTree = "<group>"; };
+		FA0000000000000000000012 /* TrackerInsights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerInsights.swift; sourceTree = "<group>"; };
 		D40000000000000000000001 /* SalahDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahDomainTests.swift; sourceTree = "<group>"; };
 		D40000000000000000000002 /* SalahUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalahUITests.swift; sourceTree = "<group>"; };
 		D40000000000000000000003 /* SalahTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalahTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -249,6 +283,9 @@
 			isa = PBXGroup;
 			children = (
 				D10000000000000000000003 /* PrayerDomain.swift */,
+				FA0000000000000000000010 /* CharityDomain.swift */,
+				FA0000000000000000000011 /* TasbihDomain.swift */,
+				FA0000000000000000000012 /* TrackerInsights.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -265,19 +302,81 @@
 		D30000000000000000000005 /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				D10000000000000000000006 /* SharedViews.swift */,
 				D10000000000000000000007 /* AppShell.swift */,
-				D10000000000000000000008 /* TodayCalendar.swift */,
-				D10000000000000000000009 /* TrackerHistory.swift */,
-				D10000000000000000000012 /* InsightsView.swift */,
-				D10000000000000000000013 /* QiblaView.swift */,
-				D10000000000000000000014 /* CharityHistoryView.swift */,
-				D10000000000000000000015 /* HistoryView.swift */,
-				D10000000000000000000016 /* TasbihViews.swift */,
-				D1000000000000000000000A /* MoreSettings.swift */,
-				D10000000000000000000011 /* PrayerReminderSettingsView.swift */,
+				FA0000000000000000000001 /* OnboardingFlow.swift */,
+				D30000000000000000000007 /* Common */,
+				D30000000000000000000008 /* Today */,
+				D30000000000000000000009 /* Calendar */,
+				D3000000000000000000000A /* Tracker */,
+				D3000000000000000000000B /* Qibla */,
+				D3000000000000000000000C /* More */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000007 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000006 /* SalahTheme.swift */,
+				FA0000000000000000000002 /* SharedComponents.swift */,
+				FA0000000000000000000003 /* LocationEducationView.swift */,
+				FA0000000000000000000004 /* DistrictPickerView.swift */,
+				FA0000000000000000000005 /* CurrentLocationSettingsSheet.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000008 /* Today */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000008 /* TodayView.swift */,
+				FA0000000000000000000006 /* TodayComponents.swift */,
+			);
+			path = Today;
+			sourceTree = "<group>";
+		};
+		D30000000000000000000009 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000007 /* PrayerCalendarView.swift */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		D3000000000000000000000A /* Tracker */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000009 /* TrackerView.swift */,
+				FA0000000000000000000008 /* TrackerRows.swift */,
+				D10000000000000000000016 /* TasbihViews.swift */,
+				D10000000000000000000012 /* InsightsView.swift */,
+				D10000000000000000000014 /* CharityHistoryView.swift */,
+			);
+			path = Tracker;
+			sourceTree = "<group>";
+		};
+		D3000000000000000000000B /* Qibla */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000013 /* QiblaView.swift */,
+			);
+			path = Qibla;
+			sourceTree = "<group>";
+		};
+		D3000000000000000000000C /* More */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000009 /* MoreSupport.swift */,
+				D1000000000000000000000A /* MoreView.swift */,
+				FA000000000000000000000A /* LanguageSettingsView.swift */,
+				FA000000000000000000000B /* RemindersView.swift */,
+				D10000000000000000000011 /* PrayerReminderSettingsView.swift */,
+				FA000000000000000000000C /* LocationCalculationView.swift */,
+				FA000000000000000000000D /* AppearanceView.swift */,
+				FA000000000000000000000E /* PrivacyView.swift */,
+				FA000000000000000000000F /* AboutView.swift */,
+			);
+			path = More;
 			sourceTree = "<group>";
 		};
 		D30000000000000000000006 /* Resources */ = {
@@ -515,20 +614,37 @@
 				D2000000000000000000000D /* UITestSupport.swift in Sources */,
 				D20000000000000000000002 /* PlatformServices.swift in Sources */,
 				D20000000000000000000003 /* PrayerDomain.swift in Sources */,
+				FB0000000000000000000010 /* CharityDomain.swift in Sources */,
+				FB0000000000000000000011 /* TasbihDomain.swift in Sources */,
+				FB0000000000000000000012 /* TrackerInsights.swift in Sources */,
 				D20000000000000000000004 /* PrayerData.swift in Sources */,
 				D20000000000000000000005 /* Persistence.swift in Sources */,
-				D20000000000000000000006 /* SharedViews.swift in Sources */,
+				D20000000000000000000006 /* SalahTheme.swift in Sources */,
+				FB0000000000000000000002 /* SharedComponents.swift in Sources */,
+				FB0000000000000000000003 /* LocationEducationView.swift in Sources */,
+				FB0000000000000000000004 /* DistrictPickerView.swift in Sources */,
+				FB0000000000000000000005 /* CurrentLocationSettingsSheet.swift in Sources */,
 				D20000000000000000000007 /* AppShell.swift in Sources */,
+				FB0000000000000000000001 /* OnboardingFlow.swift in Sources */,
 				0CEE636C301BCC49000F3FF9 /* DebugDrawerView.swift in Sources */,
-				D20000000000000000000008 /* TodayCalendar.swift in Sources */,
-				D20000000000000000000009 /* TrackerHistory.swift in Sources */,
+				D20000000000000000000008 /* TodayView.swift in Sources */,
+				FB0000000000000000000006 /* TodayComponents.swift in Sources */,
+				FB0000000000000000000007 /* PrayerCalendarView.swift in Sources */,
+				D20000000000000000000009 /* TrackerView.swift in Sources */,
+				FB0000000000000000000008 /* TrackerRows.swift in Sources */,
 				D20000000000000000000012 /* InsightsView.swift in Sources */,
 				D20000000000000000000013 /* QiblaView.swift in Sources */,
-				D20000000000000000000014 /* CharityHistoryView.swift in Sources */,
-				D20000000000000000000015 /* HistoryView.swift in Sources */,
 				D20000000000000000000016 /* TasbihViews.swift in Sources */,
-				D2000000000000000000000A /* MoreSettings.swift in Sources */,
+				D20000000000000000000014 /* CharityHistoryView.swift in Sources */,
+				D2000000000000000000000A /* MoreView.swift in Sources */,
+				FB0000000000000000000009 /* MoreSupport.swift in Sources */,
+				FB000000000000000000000A /* LanguageSettingsView.swift in Sources */,
+				FB000000000000000000000B /* RemindersView.swift in Sources */,
 				D20000000000000000000011 /* PrayerReminderSettingsView.swift in Sources */,
+				FB000000000000000000000C /* LocationCalculationView.swift in Sources */,
+				FB000000000000000000000D /* AppearanceView.swift in Sources */,
+				FB000000000000000000000E /* PrivacyView.swift in Sources */,
+				FB000000000000000000000F /* AboutView.swift in Sources */,
 				D2000000000000000000000E /* WidgetSharedData.swift in Sources */,
 				D2000000000000000000000F /* WidgetDataPublisher.swift in Sources */,
 			);

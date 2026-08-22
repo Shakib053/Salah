@@ -203,6 +203,7 @@
       }
     },
     "%lld of %lld prayers since tracking began" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -237,6 +238,7 @@
       }
     },
     "%lld prayers recorded" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -401,6 +403,7 @@
       }
     },
     "A private summary for reflection—never a public score." : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -1072,6 +1075,7 @@
       }
     },
     "Completed prayers will create a private history here." : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -1430,6 +1434,7 @@
       }
     },
     "Day" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -2183,6 +2188,7 @@
       }
     },
     "History" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -2989,6 +2995,7 @@
       }
     },
     "No history yet" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {
@@ -4017,6 +4024,7 @@
       }
     },
     "Recent Completions" : {
+      "extractionState" : "stale",
       "localizations" : {
         "bn" : {
           "stringUnit" : {

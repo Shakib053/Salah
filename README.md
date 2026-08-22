@@ -27,9 +27,9 @@ xcodebuild -project Salah.xcodeproj -scheme Salah \
 
 - `App`: dependency container, routing, app entry, and test configuration
 - `Core`: Core Location, local notification scheduling, shared presentation
-- `Domain`: prayer, date, cache-key, tracker, and insight rules
+- `Domain`: prayer, date, cache-key, tracker, and insight rules (`PrayerDomain`, `CharityDomain`, `TasbihDomain`, `TrackerInsights`)
 - `Data`: Adhan Swift calculation adapter, memory/disk cache, SwiftData persistence
-- `Features`: onboarding, Today, Calendar, Tracker/History, reminders, settings, privacy, and about
+- `Features`: one folder per tab — `Today`, `Calendar`, `Tracker` (tasbih, insights, charity), `Qibla`, `More` (reminders, appearance, privacy, about) — plus `Common` for screens and components shared across tabs (theme, cards, location/district pickers) and onboarding
 - `Resources`: districts, privacy manifest/policy, localization catalog, and release notes
 
 Prayer timings vary by method, madhab, adjustments, conditions, and local authority. Confirm timings with an appropriate local authority when necessary.
