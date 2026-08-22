@@ -416,10 +416,11 @@ struct PrayerScheduleRow: View {
         HStack(spacing: 10) {
             PrayerIcon(prayer: window.prayer, active: isActive)
 
-            HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(window.prayer.title)
                     .font(.headline)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 if isActive { currentBadge }
             }
 
@@ -465,6 +466,7 @@ struct PrayerScheduleRow: View {
         }
         .font(.caption2.weight(.semibold))
         .padding(.vertical, 3)
+        .padding(.horizontal, 6)
         .foregroundStyle(palette.accent)
         .background(palette.accentSoft, in: Capsule())
         .accessibilityLabel("Current prayer")
