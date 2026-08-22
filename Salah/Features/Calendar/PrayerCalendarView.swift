@@ -78,6 +78,7 @@ struct PrayerCalendarView: View {
     @Environment(\.salahPalette) private var palette
     @State private var viewModel: CalendarViewModel
     @State private var appliedTargetID: UUID?
+    @State private var showingFutureSalahAlert = false
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
 
     init(container: AppContainer) {
@@ -101,6 +102,9 @@ struct PrayerCalendarView: View {
             }
         }
         .navigationTitle("Calendar")
+        .alert("Future Salah is not trackable", isPresented: $showingFutureSalahAlert) {
+            Button("OK", role: .cancel) { }
+        }
         .task(id: "\(viewModel.monthAnchor.key)|\(container.settings.location.name)|\(container.settings.calculation)|\(container.settings.language.rawValue)") {
             await viewModel.load()
         }
@@ -141,7 +145,13 @@ struct PrayerCalendarView: View {
                 if let selected = days.first(where: { $0.localDay == viewModel.selectedDay }) {
                     VStack(spacing: 0) {
                         ForEach(selected.windows) { window in
-                            Button { viewModel.selectedPrayer = window.prayer } label: {
+                            Button {
+                                if PrayerTimeline.isMidnightToFajrWindow(now: .now, today: selected) {
+                                    showingFutureSalahAlert = true
+                                } else {
+                                    viewModel.selectedPrayer = window.prayer
+                                }
+                            } label: {
                                 PrayerScheduleRow(
                                     window: window,
                                     day: selected,

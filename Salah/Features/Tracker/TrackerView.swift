@@ -5,15 +5,18 @@ import SwiftUI
 @Observable
 final class TrackerViewModel {
     private let repository: any PrayerTrackingRepository
+    private let prayerTimesRepository: any PrayerTimesRepository
     private let settings: AppSettings
 
     var selectedDay: LocalDay
     var completed: Set<PrayerType> = []
     var lastChanged: PrayerType?
     var errorMessage: String?
+    var todayPrayerDay: PrayerDay?
 
     init(container: AppContainer) {
         repository = container.trackingRepository
+        prayerTimesRepository = container.prayerTimesRepository
         settings = container.settings
         selectedDay = LocalDay(.now, timeZone: settings.location.timeZone)
         refresh()
@@ -21,6 +24,19 @@ final class TrackerViewModel {
 
     var completedCount: Int { completed.count }
     var progress: Double { Double(completed.count) / Double(PrayerType.allCases.count) }
+
+    var isMidnightToFajrWindow: Bool {
+        guard let todayPrayerDay else { return false }
+        return PrayerTimeline.isMidnightToFajrWindow(now: .now, today: todayPrayerDay)
+    }
+
+    /// Loads the tracked day's schedule so `isMidnightToFajrWindow` can locate Fajr.
+    /// Fails open: without a schedule the tracker stays usable.
+    func loadPrayerDay() async {
+        let location = settings.location
+        let query = PrayerTimesQuery(day: selectedDay, location: location, settings: settings.calculation)
+        todayPrayerDay = (try? await prayerTimesRepository.day(for: query, location: location, policy: .cacheFirst))?.value
+    }
 
     func refresh() {
         do {
@@ -95,6 +111,7 @@ struct TrackerView: View {
     @AppStorage(CharityLedger.storageKey) private var charityEntriesData = Data()
     @State private var showingAddCharity = false
     @State private var showingCharityGoal = false
+    @State private var showingFutureSalahAlert = false
 
     init(container: AppContainer) {
         self.container = container
@@ -126,7 +143,20 @@ struct TrackerView: View {
         }
         .background(palette.screenBackground.ignoresSafeArea())
         .navigationTitle("Tracker")
-        .toolbar {
+        .alert("Future Salah is not trackable", isPresented: $showingFutureSalahAlert) {
+            Button("OK", role: .cancel) { }
+        }
+        .task {
+            prepareLocalTrackers()
+        }
+        .task(id: PrayerTimesQuery(
+            day: viewModel.selectedDay,
+            location: container.settings.location,
+            settings: container.settings.calculation
+        ).cacheKey) {
+            await viewModel.loadPrayerDay()
+        }
+        .task {
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
                     InsightsView(container: container)
@@ -191,7 +221,11 @@ struct TrackerView: View {
         VStack(spacing: 10) {
             ForEach(PrayerType.allCases) { prayer in
                 TrackerPrayerRow(prayer: prayer, completed: viewModel.completed.contains(prayer)) {
-                    withAnimation(.snappy) { viewModel.toggle(prayer) }
+                    if viewModel.isMidnightToFajrWindow {
+                        showingFutureSalahAlert = true
+                    } else {
+                        withAnimation(.snappy) { viewModel.toggle(prayer) }
+                    }
                 }
             }
         }
