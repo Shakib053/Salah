@@ -18,6 +18,11 @@ struct PrivacyView: View {
                 privacyRow("Notifications", detail: "Optional reminders are scheduled locally. No marketing notification service is used.", symbol: "bell.fill")
                 privacyRow("Advertising and analytics", detail: "The app contains no advertising identifier, tracking SDK, or unnecessary analytics.", symbol: "eye.slash.fill")
             }
+            if let privacyPolicyURL = ExternalLinks.privacyPolicy {
+                Section {
+                    Link("Privacy Policy", destination: privacyPolicyURL)
+                }
+            }
             Section {
                 Button("Clear Local Tracker Data", role: .destructive) { showingClearConfirmation = true }
                 if cleared { Label("Tracker data cleared", systemImage: "checkmark.circle.fill").foregroundStyle(palette.accent) }

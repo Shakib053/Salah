@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 
 enum ExternalLinks {
+    static let privacyPolicy = URL(string: "https://salah-ios-privacy-policy.vercel.app/")
     static let support = URL(string: "https://www.linkedin.com/in/mahi-al-jawad/")
 }
 
